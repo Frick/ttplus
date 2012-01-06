@@ -1,0 +1,64 @@
+<html><head><title>Chat Message</title>
+<style type="text/css">
+body {
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.3, rgb(220,220,220)),
+		color-stop(0.66, rgb(245,245,245))
+	);
+	text-align: left;
+	font-family: Helvetica,Arial,sans-serif;
+	cursor: pointer;
+	height: auto;
+	overflow: hidden;
+}
+#tt_logo {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	z-index: 1000;
+}
+#avatar {
+	float: left;
+	max-width: 50px;
+	padding: 0 10px 10px 0;
+}
+#speaker {
+	font-weight: bold;
+	margin: 0;
+}
+#message {
+	margin: 0;
+}
+#sound {
+	display: none;
+}
+#chat-container {
+	margin-top: 10px;
+	display: none;
+}
+#response {
+	width: 100%;
+	border-radius: 10px;
+}
+#response:focus {
+	outline: none;
+}
+</style>
+<script type="text/javascript" src="scripts/chatNotification.js"></script>
+</head>
+<body>
+<img src="/images/tt_logo.png" width="20" height="20" title="Click to return to turntable" id="tt_logo" />
+<img src="https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/5/headfront.png" title="" id="avatar" />
+<p id="speaker">User</p>
+<p id="message">Message</p>
+<div id="sound"></div>
+<div id="chat-container">
+<form id="chat-form" onSubmit="return false;">
+<input type="text" id="response" />
+</form>
+</div>
+</body>
+</html>

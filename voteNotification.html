@@ -1,0 +1,41 @@
+<html><head><title>New Vote</title>
+<style type="text/css">
+body {
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.3, rgb(220,220,220)),
+		color-stop(0.66, rgb(245,245,245))
+	);
+	text-align: left;
+	font-family: Helvetica,Arial,sans-serif;
+	height: auto;
+	overflow: hidden;
+}
+p {
+	margin: 0 0 0 45px;
+}
+#vote {
+	float: left;
+	width: 35px;
+	height: 35px;
+	padding: 0 10px 0 0;
+}
+#name {
+	font-size: 18px;
+	line-height: 35px;
+	font-weight: bold;
+}
+#sound {
+	display: none;
+}
+</style>
+<script type="text/javascript" src="scripts/voteNotification.js"></script>
+</head>
+<body>
+<img src="/images/upvote.png" title="" id="vote" />
+<p><span id="name">User</span></p>
+<div id="sound"></div>
+</body>
+</html>

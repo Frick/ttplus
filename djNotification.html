@@ -1,0 +1,38 @@
+<html><head><title>Open DJ Spot</title>
+<style type="text/css">
+body {
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.3, rgb(220,220,220)),
+		color-stop(0.66, rgb(245,245,245))
+	);
+	text-align: left;
+	font-family: Helvetica,Arial,sans-serif;
+	cursor: pointer;
+	height: auto;
+	overflow: hidden;
+}
+#djspot {
+	float: left;
+	width: 63px;
+	height: 89px;
+	padding: 0 20px 10px 0;
+}
+.bold {
+	font-weight: bold;
+}
+#sound {
+	display: none;
+}
+</style>
+<script type="text/javascript" src="scripts/djNotification.js"></script>
+</head>
+<body>
+<img src="/images/openSpot.png" title="" id="djspot" />
+<p class="bold">Grab the decks!</p>
+<p><span id="dj" class="bold">User</span> <span id="action">has stepped out of the limelight.</span></p>
+<div id="sound"></div>
+</body>
+</html>

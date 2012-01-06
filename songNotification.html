@@ -1,0 +1,102 @@
+<html><head><title>New Song</title>
+<style type="text/css">
+body {
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0.3, rgb(220,220,220)),
+		color-stop(0.66, rgb(245,245,245))
+	);
+	text-align: left;
+	font-family: Helvetica,Arial,sans-serif;
+	height: 100%;
+	overflow: hidden;
+}
+#avatar {
+	float: right;
+	max-height: 40px;
+	padding-right: 10px;
+	margin: 0 10px 10px 0;
+}
+#playing {
+	margin: 10px 0 5px 10px;
+}
+#playing #dj {
+	font-size: 14px;
+	font-weight: bold;
+}
+#playing .small {
+	margin: 0;
+	font-size: 11px;
+}
+.scrollable {
+	width: 100%;
+	height: 18px;
+	overflow: hidden;
+	position: relative;
+}
+#artist {
+	clear: both;
+	width: 272px;
+	margin: 0 10px;
+	font-weight: bold;
+}
+#track {
+	width: 272px;
+	margin: 0 10px;
+}
+#vote {
+	position: relative;
+	margin: 10px auto 0 auto;
+	height: 25px;
+	padding: 8px 0;
+	width: 150px;
+}
+.button {
+	border-radius: 3px;
+	width: 65px;
+	height: 24px;
+	display: inline-block;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+}
+#downvote {
+	float: left;
+	background: #f72b00 url(/images/thumbs_down_white.png) center center no-repeat;
+}
+#upvote {
+	float: left;
+	margin-left: 20px;
+	background: #00c82f url(/images/thumbs_up_white.png) center center no-repeat;
+}
+#downvote:hover {
+	background-color: #e31700;
+}
+#upvote:hover {
+	background-color: #00ab12;
+}
+#downvote:active {
+	background: #f72b00 url(/images/thumbs_down_black.png) center center no-repeat;
+}
+#upvote:active {
+	background: #00c82f url(/images/thumbs_up_black.png) center center no-repeat;
+}
+#sound {
+	display: none;
+}
+</style>
+<script type="text/javascript" src="scripts/songNotification.js"></script>
+</head>
+<body>
+<img src="https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/5/headfront.png" title="" id="avatar" />
+<div id="playing"><span id="dj"></span><p class="small">started playing</p></div>
+<div id="trackInfo">
+	<p id="artist"></p>
+	<p id="track"></p>
+</div>
+<div id="vote"><div id="downvote" class="button" title="Lame"></div><div id="upvote" class="button" title="Awesome"></div></div>
+<div id="sound"></div>
+</body>
+</html>

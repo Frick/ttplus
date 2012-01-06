@@ -1,0 +1,26 @@
+{
+  "name": "Turntable Plus",
+  "version": "0.0.50",
+  "description": "Add abilities to turntable.fm that you thought were missing!",
+  "icons": {
+	  "16": "images/ttp_icon16.png",
+	  "48": "images/ttp_icon48.png",
+	  "128": "images/ttp_icon128.png"
+  },
+  "browser_action": {
+    "default_icon": "images/ttp_icon.png",
+	"default_title": "Turntable Plus",
+	"default_popup": "popup.html"
+  },
+  "permissions": [
+    "tabs",
+	"unlimitedStorage",
+	"idle",
+	"notifications",
+	"*://turntable.fm/"
+  ],
+  "background_page": "background.html",
+  "options_page": "settings.html",
+  "homepage_url": "http://turntableplus.fm/beta",
+  "update_url": "http://turntableplus.fm/beta.xml"
+}

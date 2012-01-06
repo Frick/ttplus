@@ -1,0 +1,280 @@
+* {
+	margin: 0;
+}
+body {
+	width: 350px;
+	margin: 0 17px 0 0;
+	font-family: Helvetica,Arial,sans-serif;
+	font-size: 14px;
+	overflow-x: hidden;
+}
+.header {
+	background-color: #333333;
+	color: #ffffff;
+	padding: 8px 8px 0 8px;
+	border-top-left-radius: 4px;
+}
+.fixedHeader {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 334px;
+	z-index: 1000;
+}
+.roomName {
+	cursor: pointer;
+	font-variant: small-caps;
+	margin: 0 0 6px 0;
+}
+.controls {
+	position: relative;
+	height: 31px;
+}
+.roomModerator {
+	font-size: 12px;
+	margin: 0 0 10px 0;
+}
+.moderatorName {
+	cursor: pointer;
+}
+.music {
+	background-image:url(../images/music.png);
+	float: right;
+	margin-right: 15px;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+}
+.music.mute {
+	background-image:url(../images/music-off.png);
+}
+.notify {
+	background-image:url(../images/notify.png);
+	float: right;
+	margin-right: 10px;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+}
+.notify.mute {
+	background-image:url(../images/notify-off.png);
+}
+.notifySounds {
+	background-image:url(../images/notify-sounds.png);
+	float: right;
+	margin-right: 10px;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+}
+.notifySounds.mute {
+	background-image:url(../images/notify-sounds-off.png);
+}
+.search {
+	float: left;
+}
+input.songSearch {
+	width: 200px;
+	height: 24px;
+	padding: 0 2px;
+	border-radius: 4px;
+	background: #fafafa url(/images/search.png) no-repeat right;
+}
+input.songSearch:focus {
+	outline: none;
+}
+.tabs {
+	height: 32px;
+	display: none;
+}
+.tabs .tab {
+	float: left;
+	margin: 10px 0 0 4px;
+	width: 80px;
+	height: 22px;
+	background: #0576ba;
+	text-align: center;
+	line-height: 22px;
+	border-radius: 4px 4px 0 0;
+	cursor: pointer;
+}
+.tabs .tab:hover {
+	background: #0682cd;
+}
+.tabs .tab.selected {
+	background: #0c5aa2;
+}
+#chat,#chatlog {
+	display: none;
+}
+.options {
+	background: url(/images/settings.png) no-repeat;
+	height: 19px;
+	width: 19px;
+	float: right;
+	margin: 5px 11px 0 0;
+	cursor: pointer;
+}
+.track {
+	background-color: #0576ba;
+	color: #f5f5f5;
+	position:relative;
+	padding: 8px 0;
+	cursor: pointer;
+}
+.track:nth-of-type(odd) {
+	background-color: #0c5aa2;
+}
+.track:last-child {
+	border-bottom-left-radius: 4px;
+}
+.trackNum {
+	float: left;
+	font-size: 11px;
+	padding: 4px 0 0 4px;
+}
+.dj {
+	margin: 0 0 5px 23px;
+}
+.dj .name:hover {
+	text-decoration:underline;
+}
+.artist {
+	margin-left: 23px;
+	font-weight: bold;
+}
+.title {
+	margin-left: 23px;
+}
+#vote {
+	position: relative;
+	margin-left: 23px;
+	height: 25px;
+	padding: 8px 0;
+}
+.button {
+	border-radius: 3px;
+	width: 65px;
+	height: 24px;
+	display: inline-block;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	position: relative;
+}
+#downvote {
+	float: left;
+	background: #f72b00 url(/images/thumbs_down_white.png) center center no-repeat;
+}
+#upvote {
+	float: left;
+	margin-left: 20px;
+	background: #00c82f url(/images/thumbs_up_white.png) center center no-repeat;
+}
+#downvote:hover {
+	background-color: #e31700;
+}
+#upvote:hover {
+	background-color: #00ab12;
+}
+#downvote:active {
+	background: #f72b00 url(/images/thumbs_down_black.png) center center no-repeat;
+}
+#upvote:active {
+	background: #00c82f url(/images/thumbs_up_black.png) center center no-repeat;
+}
+.votes {
+	position: absolute;
+	width: 16px;
+	height: 12px;
+	bottom: -5px;
+	right: -5px;
+	font-size: 10px;
+	background-color: #333;
+	border-radius: 5px;
+	padding: 1px;
+	text-align:center;
+}
+.providers {
+	height: 30px;
+	margin-left: 23px;
+	display: none;
+}
+.provider {
+	float: left;
+	margin: 6px 12px 6px 0;
+}
+.hulkshare {
+	background-image:url(../images/providers/hulkshare.png);
+	width: 60px;
+	height: 18px;
+}
+.filestube {
+	background-image:url(../images/providers/filestube.png);
+	width: 42px;
+	height: 18px;
+}
+.youtube {
+	background-image:url(../images/providers/youtube.png);
+	width: 41px;
+	height: 18px;
+}
+.soundcloud {
+	background-image:url(../images/providers/soundcloud.png);
+	width: 18px;
+	height: 18px;
+}
+.google {
+	background-image:url(../images/providers/google.png);
+	width: 45px;
+	height: 18px;
+}
+.djQueue {
+	float: right;
+	margin: 6px 12px 6px 0;
+	background-image:url(../images/queueSong.png);
+	width: 18px;
+	height: 18px;
+}
+#chatlog .deleteall {
+	background-color: #0c5aa2;
+	color: #fff;
+	font-size: 11px;
+	padding: 1px;
+	text-align: right;
+}
+.message {
+	position: relative;
+	background-color: #0576ba;
+	color: #f5f5f5;
+	position:relative;
+	padding: 8px;
+}
+#clearMessages {
+	margin: 0 5px 0 0;
+	cursor: pointer;
+}
+.message:nth-of-type(odd) {
+	background-color: #0c5aa2;
+}
+.message:last-child {
+	border-bottom-left-radius: 4px;
+}
+#chatlog .message .timestamp {
+	margin: 3px 0 0 0;
+	font-size: 10px;
+}
+.message .sender {
+	font-weight: bold;
+}
+#chatlog .message .delete {
+	display: none;
+	position: absolute;
+	top: 3px;
+	right: 3px;
+	background: url(/images/delete.png) no-repeat;
+	width: 15px;
+	height: 15px;
+	cursor: pointer;
+	z-index: 1000;
+}

@@ -1,0 +1,204 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Turntable Plus - Settings</title>
+<link rel="stylesheet" type="text/css" href="styles/settings.css" />
+<script type="text/javascript" src="scripts/jquery.js"></script>
+<script type="text/javascript" src="scripts/settings.js"></script>
+</head>
+<body>
+<header>
+	<section class="inner">
+		<a href="http://turntableplus.fm/beta"><img src="images/ttp_logo.png" class="logo" /></a>
+		<nav>
+			<h2><a href="#" id="notifications_select">Notification Settings</a></h2>
+			<h2><a href="#" id="general_select">General Settings</a></h2>
+		</nav>
+	</section>
+</header>
+<section class="clear panes">
+	<section class="container" id="general_pane">
+		<h3 class="music_title">General Settings</h3>
+		<form id="music_form" class="settings_form">
+			<label>Default Search Engine
+				<select id="search">
+					<option value="hulkshare">HulkShare</option>
+					<option value="google">Google</option>
+					<option value="youtube">Youtube</option>
+					<option value="hotfile">HotFile</option>
+					<option value="soundcloud">Soundcloud</option>
+				</select>
+			</label>
+		</form>
+		<h3 class="messaging_title">Site Layout</h3>
+		<form id="messaging_form" class="settings_form">
+			<label>Separate chat pane from main window</label>&nbsp;&nbsp;&nbsp;
+            <label for="toggle_chat_pane" class="cbButton false">No</label>
+            <input type="checkbox" name="toggle_chat_pane" id="toggle_chat_pane" />
+            <label id="reset_location" class="cbButton" style="margin-left: 15px;">Reset</label>
+			<p class="fine_print">* maximizes chat to the right<br />* main turntable window, chat pane, and users list become draggable / resizable<br />* may require refresh of turntable window after changing</p>
+			<br />
+		</form>
+	</section>
+	<section class="container" id="notifications_pane">
+		<h3 class="notifications_title">Notifications</h3>
+		<form id="notifications_form" class="settings_form">
+			<table cellpadding="3" cellspacing="0">
+				<tr>
+					<td width="200">Notifications</td>
+					<td><label for="toggle_notifications" class="cbButton true">On</label><input type="checkbox" name="toggle_notifications" id="toggle_notifications" checked="checked" /></td>
+				</tr>
+				<tr>
+					<td width="200">Notification Sounds</td>
+					<td><label for="toggle_notification_sounds" class="cbButton false">Off</label><input type="checkbox" name="toggle_notification_sounds" id="toggle_notification_sounds" /></td>
+				</tr>
+				<tr>
+					<td width="200">Plain Text Notifications<p class="fine_print">* for Mac users having issues with regular notifications flickering</p></td>
+					<td style="vertical-align:top;"><label for="toggle_text_notifications" class="cbButton false">Off</label><input type="checkbox" name="toggle_text_notifications" id="toggle_text_notifications" /></td>
+				</tr>
+			</table>
+			<br />
+			<p><strong>Notification Settings</strong></p>
+			<table class="small" cellpadding="3" cellspacing="0">
+				<thead>
+					<tr>
+						<th>Notification Type</th>
+						<th>Popup</th>
+						<th>Sound</th>
+						<th>Display Time</th>
+						<th>Fade Out Duration</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>Keyword Mention</td>
+						<td><label for="keyword_notification" class="cbButton true">On</label><input type="checkbox" name="keyword_notification" id="keyword_notification" /></td>
+						<td>
+							<select id="keyword_play_sound">
+								<option value="">None</option>
+								<option value="mario_coin.mp3">Mario Coin</option>
+								<option value="byaah.mp3">Byaah!</option>
+								<option value="beep.mp3">Beep</option>
+								<option value="hey.mp3">Hey</option>
+								<option value="plop.mp3">Plop</option>
+								<option value="pop.mp3">Pop</option>
+								<option value="scratch.mp3">Record Scratch</option>
+								<option value="triangle.mp3">Triangle</option>
+							</select>
+						</td>
+						<td><input type="text" name="keyword_display_time" id="keyword_display_time" size="5" value="5" /> Second(s)</td>
+						<td><input type="text" name="keyword_fade_time" id="keyword_fade_time" size="5" value="500" /> Millisecond(s)</td>
+					</tr>
+					<tr>
+						<td>New Song</td>
+						<td><label for="newsong_notification" class="cbButton true">On</label><input type="checkbox" name="newsong_notification" id="newsong_notification" /></td>
+						<td>
+							<select id="newsong_play_sound">
+								<option value="">None</option>
+								<option value="mario_coin.mp3">Mario Coin</option>
+								<option value="byaah.mp3">Byaah!</option>
+								<option value="beep.mp3">Beep</option>
+								<option value="hey.mp3">Hey</option>
+								<option value="plop.mp3">Plop</option>
+								<option value="pop.mp3">Pop</option>
+								<option value="scratch.mp3">Record Scratch</option>
+								<option value="triangle.mp3">Triangle</option>
+							</select>
+						</td>
+						<td><input type="text" name="newsong_display_time" id="newsong_display_time"  size="5" value="10" /> Second(s)</td>
+						<td><input type="text" name="newsong_fade_time" id="newsong_fade_time"  size="5" value="500" /> Millisecond(s)</td>
+					</tr>
+					<tr>
+						<td>Open DJ Spot</td>
+						<td><label for="dj_notification" class="cbButton true">On</label><input type="checkbox" name="dj_notification" id="dj_notification" /></td>
+						<td>
+							<select id="dj_play_sound">
+								<option value="">None</option>
+								<option value="mario_coin.mp3">Mario Coin</option>
+								<option value="byaah.mp3">Byaah!</option>
+								<option value="beep.mp3">Beep</option>
+								<option value="hey.mp3">Hey</option>
+								<option value="plop.mp3">Plop</option>
+								<option value="pop.mp3">Pop</option>
+								<option value="scratch.mp3">Record Scratch</option>
+								<option value="triangle.mp3">Triangle</option>
+							</select>
+						</td>
+						<td><input type="text" name="dj_display_time" id="dj_display_time"  size="5" value="10" /> Second(s)</td>
+						<td><input type="text" name="dj_fade_time" id="dj_fade_time"  size="5" value="500" /> Millisecond(s)</td>
+					</tr>
+					<tr>
+						<td>Voting</td>
+						<td><label for="vote_notification" class="cbButton true">On</label><input type="checkbox" name="vote_notification" id="vote_notification" /></td>
+						<td>
+							<select id="vote_play_sound">
+								<option value="">None</option>
+								<option value="mario_coin.mp3">Mario Coin</option>
+								<option value="byaah.mp3">Byaah!</option>
+								<option value="beep.mp3">Beep</option>
+								<option value="hey.mp3">Hey</option>
+								<option value="plop.mp3">Plop</option>
+								<option value="pop.mp3">Pop</option>
+								<option value="scratch.mp3">Record Scratch</option>
+								<option value="triangle.mp3">Triangle</option>
+							</select>
+						</td>
+						<td><input type="text" name="vote_display_time" id="vote_display_time"  size="5" value="2" /> Second(s)</td>
+						<td><input type="text" name="vote_fade_time" id="vote_fade_time"  size="5" value="2" /> Millisecond(s)</td>
+					</tr>
+						<!--
+				<tr>
+					<td>User Enters Room</td>
+				    <td><label for="favorite_notification" class="cbButton true">On</label><input type="checkbox" name="favorite_notification" id="favorite_notification" /></td>
+				    <td><input type="checkbox" name="favorite_sound" id="favorite_sound" /></td>
+				    <td><select id="favorite_play_sound">
+						<option value="">Mario Coin</option>
+					</select>
+				    </td>
+				    <td><input type="text" name="favorite_display_time" id="favorite_display_time"  size="5" value="2" /> Second(s)</td>
+				    <td><input type="text" name="favorite_fade_time" id="favorite_fade_time" size="5" value="2" /> Millisecond(s)</td>
+				</tr>
+				<tr>
+					<td>Private Message</td>
+				    <td><label for="pm_notification" class="cbButton true">On</label><input type="checkbox" name="pm_notification" id="pm_notification" /></td>
+				    <td><input type="checkbox" name="pm_sound" id="pm_sound" /></td>
+				    <td><select id="pm_play_sound">
+						<option value="">Mario Coin</option>
+					</select>
+				    </td>
+				    <td><input type="text" name="pm_display_time" id="pm_display_time"  size="5" value="2" /> Second(s)</td>
+				    <td><input type="text" name="pm_fade_time" id="pm_fade_time"  size="5" value="2" /> Millisecond(s)</td>
+				</tr>
+						-->
+				</tbody>
+			</table>
+		</form>
+		<h3 class="keywords_title">Notification Keywords</h3>
+		<form id="keywords_form" class="settings_form">
+			<label><input type="text" placeholder="add keyword" size="50" id="keyword_text" /></label>
+			<p><strong>Your Keywords</strong></p>
+			<ul id="keyword_list">
+			</ul>
+		</form>
+	</section>
+<!--
+    <section class="container"></section>
+
+    <section class="container"></section>
+
+    <section class="container"></section>
+
+    <section class="container"></section>
+
+    <section class="container"></section>
+-->
+</section>
+<footer>
+	<section class="inner">
+		<p>You are running version <span id="version"></span> of this extension. The author (Michael Frick, <a href="https://twitter.com/mdfrick">@mdfrick</a>) of this extension (<a href="http://turntableplus.fm/beta">Turntable Plus</a>) is <br />
+in no way affiliated with or endorsed by <a href="http://turntable.fm">turntable.fm</a> or <a href="http://stickybits.com">stickybits</a>. All support requests should be made to <a href="mailto:support@turntableplus.fm">support@turntableplus.fm</a></p>
+	</section>
+</footer>
+</body>
+</html>

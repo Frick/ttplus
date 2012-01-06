@@ -1,0 +1,305 @@
+#ttpRoom {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/uparrow.png) 25% 50% no-repeat;
+    float: right;
+    margin: 0 5px 0 0;
+    padding: 0 5px 0 20px;
+}
+#ttpRoomHearts {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/heart.png) 0% 40% no-repeat;
+    float: right;
+    margin: 0 5px 0 0;
+    padding: 0 5px 0 20px;
+}
+#ttpRoomUpvotes {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/uparrow.png) 25% 40% no-repeat;
+    float: right;
+    margin: 0 5px 0 0;
+    padding: 0 5px 0 20px;
+}
+#ttpRoomDownvotes {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/downarrow.png) 25% 40% no-repeat;
+    float: right;
+    padding: 0 0 0 20px;
+}
+#ttpRoomListeners {
+    position: absolute;
+    top: 9px;
+    right: 4px;
+    width: 30px;
+    text-align: right;
+    color: #000;
+    font-size: 18px;
+}
+.ttpBold {
+    font-weight: bold;
+}
+#ttpUsersList .ttpUsersListHeader {
+    background: url(https://s3.amazonaws.com/static.turntable.fm/images/room/black_playlist_bg.png) repeat-x;
+    width: 100%;
+    height: 25px;
+    margin: 0;
+    color: #fff;
+    line-height: 25px;
+    cursor: move;
+}
+#ttpUsersList .ttpBanner {
+    position: relative;
+    background: url(chrome-extension://__MSG_@@extension_id__/images/banner-bg.png) repeat-x;
+    height: 39px;
+}
+#ttpUsersList .ttpUsersList {
+    background-color: #fff;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    width: 100%;
+}
+#ttpUsersList .ttpUsersList .ttpUser {
+    color: #000;
+    font-size: 14px;
+    padding: 2px 5px;
+    cursor: pointer;
+}
+#ttpUsersList .ttpUsersList .ttpUser .ttpUserBold {
+    font-weight: bold;
+}
+#ttpUsersList .ttpUsersList .ttpUser:nth-of-type(odd) {
+    background-color: #f7f7f7;
+}
+#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected {
+    background-color: #2f98f1;
+    color: #fff;
+}
+#ttpUsersList .ttpUsersList .ttpUser.ttpUserUpVote {
+    background-color: #b6ffc0;
+}
+#ttpUsersList .ttpUsersList .ttpUser.ttpUserDownVote {
+    background-color: #ffa1a1;
+}
+#ttpUsersList .ttpUsersList .ttpUser.ttpUserUpVote.ttpUserSelected {
+    color: #000;
+    background: -webkit-linear-gradient(top, #b6ffc0 1%, #53efea 40%, #2f98f1 100%);
+}
+#ttpUsersList .ttpUsersList .ttpUser.ttpUserDownVote.ttpUserSelected {
+    background: -webkit-linear-gradient(top, #2f98f1 0%, #f78e56 90%, #f78e56 100%);
+}
+#ttpUsersList .ttpUsersList .ttpUser .ttpFanned {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/fanned.png) no-repeat;
+    width: 16px;
+    height: 16px;
+    float: right;
+    display: inline-block;
+    margin: 0 4px 0 0;
+}
+#ttpUsersList .ttpUsersList .ttpUser .ttpMod {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-icon.png) no-repeat;
+    width: 16px;
+    height: 16px;
+    float: left;
+    display: inline-block;
+    margin: 0 4px 0 0;
+}
+#ttpUsersList .ttpUsersList .ttpUser .ttpSuper {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/super-icon.png) no-repeat;
+    width: 16px;
+    height: 16px;
+    float: left;
+    display: inline-block;
+    margin: 0 4px 0 0;
+}
+#ttpUsersList .ttpUsersList .ttpUser .ttpIdleTime {
+    float: right;
+    margin: 0 3px 0 0;
+    font-weight: normal;
+}
+#ttpUserActions {
+    box-shadow: inset 0px 4px 6px #888;
+    display: none;
+}
+#ttpUserActions .icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 7px;
+    cursor: pointer;
+}
+#ttpUserActions .ttpFan {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/fan.png) no-repeat;
+}
+#ttpUserActions .ttpFan:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/fan-hover.png) no-repeat;
+}
+#ttpUserActions .ttpFan:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/fan-active.png) no-repeat;
+}
+#ttpUserActions .ttpUnfan {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/fan-hover.png) no-repeat;
+}
+#ttpUserActions .ttpUnfan:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/fan.png) no-repeat;
+}
+#ttpUserActions .ttpUnfan:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/fan-active.png) no-repeat;
+}
+#ttpUserActions .ttpAddMod {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/mod.png) no-repeat;
+}
+#ttpUserActions .ttpAddMod:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-hover.png) no-repeat;
+}
+#ttpUserActions .ttpAddMod:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-active.png) no-repeat;
+}
+#ttpUserActions .ttpRemMod {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-hover.png) no-repeat;
+}
+#ttpUserActions .ttpRemMod:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/mod.png) no-repeat;
+}
+#ttpUserActions .ttpRemMod:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-active.png) no-repeat;
+}
+#ttpUserActions .ttpIgnore {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore.png) no-repeat;
+}
+#ttpUserActions .ttpIgnore:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore-hover.png) no-repeat;
+}
+#ttpUserActions .ttpIgnore:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore-active.png) no-repeat;
+}
+#ttpUserActions .ttpUnignore {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore-hover.png) no-repeat;
+}
+#ttpUserActions .ttpUnignore:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore.png) no-repeat;
+}
+#ttpUserActions .ttpUnignore:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore-active.png) no-repeat;
+}
+#ttpUserActions .ttpProfile {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/profile.png) no-repeat;
+}
+#ttpUserActions .ttpProfile:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/profile-hover.png) no-repeat;
+}
+#ttpUserActions .ttpProfile:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/profile.png) no-repeat;
+}
+#ttpUserActions .ttpBoot {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/boot.png) no-repeat;
+    display:none;
+}
+#ttpUserActions .ttpBoot:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/boot-hover.png) no-repeat;
+}
+#ttpUserActions .ttpBoot:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/boot.png) no-repeat;
+    display:none;
+}
+#ttpUserActions .ttpRemoveDj {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/remove-dj.png) no-repeat;
+    display:none;
+}
+#ttpUserActions .ttpRemoveDj:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/remove-dj-hover.png) no-repeat;
+}
+#ttpUserActions .ttpRemoveDj:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/remove-dj.png) no-repeat;
+    display:none;
+}
+#ttpUserActions .ttpTtdash {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ttdash.png) no-repeat;
+}
+#ttpUserActions .ttpTtdash:hover {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ttdash-hover.png) no-repeat;
+}
+#ttpUserActions .ttpTtdash:active {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/ttdash-active.png) no-repeat;
+}
+#ttpUserActions .ttpUserActionsIdle {
+    margin: 10px 0 0 10px;
+    display: inline-block;
+}
+#ttpUserSearch {
+    text-align: left;
+    width: 100%;
+    height: 35px;
+    background-color: #D4D4D4;
+}
+#ttpUserSearch input {
+    background-color: #fff;
+    width: 85%;
+    height: 24px;
+    margin: 4px 0 0 5px;
+    padding: 0 5px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 4px #333;
+}
+.ui-resizable {
+    position: relative;
+}
+.ui-resizable-handle {
+    position: absolute;
+    font-size: 0.1px;
+    z-index: 99999;
+    display: block;
+}
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle {
+    display: none;
+}
+.ui-resizable-n {
+    cursor: n-resize;
+    height: 7px;
+    width: 100%;
+    top: -5px;
+    left: 0;
+}
+.ui-resizable-s {
+    cursor: s-resize;
+    height: 7px;
+    width: 100%;
+    bottom: -5px;
+    left: 0;
+}
+.ui-resizable-e {
+    cursor: e-resize;
+    width: 7px;
+    right: -5px;
+    top: 0;
+    height: 100%;
+}
+.ui-resizable-w {
+    cursor: w-resize;
+    width: 7px;
+    left: -5px;
+    top: 0;
+    height: 100%;
+}
+.ui-resizable-se {
+    cursor: se-resize;
+    width: 12px;
+    height: 12px;
+    right: 1px;
+    bottom: 1px;
+}
+.ui-resizable-sw {
+    cursor: sw-resize;
+    width: 9px;
+    height: 9px;
+    left: -5px;
+    bottom: -5px;
+}
+.ui-resizable-nw {
+    cursor: nw-resize;
+    width: 9px;
+    height: 9px;
+    left: -5px;
+    top: -5px;
+}
+.ui-resizable-ne {
+    cursor: ne-resize;
+    width: 9px;
+    height: 9px;
+    right: -5px;
+    top: -5px;
+}
