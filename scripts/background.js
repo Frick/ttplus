@@ -14,7 +14,7 @@ var ttp = {
 	notifications: [],
 	missedNotifications: 0,
 	powerup: 0,
-	version: '0.0.50',
+	version: '0.0.52',
 	minVersion: '0.0.40',
 	prefs: {
 		notifications: {
@@ -75,8 +75,7 @@ var ttp = {
 				height: 0
 			}
 		},
-		ignoredUsers: [],
-		version: '0.0.50'
+		version: '0.0.52'
 	},
 	logging: {},
 	enableLogging: function (type) {
@@ -168,6 +167,7 @@ var ttp = {
 		if (typeof this.tabId !== "number") {
             return;
         }
+        chrome.tabs.insertCSS(this.tabId, {file: "styles/ttp.css"});
 		chrome.tabs.executeScript(this.tabId, {file: "scripts/jquery.js"});
 		chrome.tabs.executeScript(this.tabId, {file: "scripts/listener.js"});
 	},
@@ -187,7 +187,7 @@ var ttp = {
         return this.msgId;
     },
     exec: function (command, callback) {
-		this.send({command: command}, callback);
+		ttp.send({command: command}, callback);
 	},
 	setupRoom: function (roominfo) {
         var songlog = [],
@@ -255,7 +255,7 @@ var ttp = {
                 }
             }
             if (ttp.storage.ignoredUsers.length > 0) {
-                this.send({ignoredUsers: ttp.storage.ignoredUsers});
+                ttp.send({ignoredUsers: ttp.storage.ignoredUsers});
             }
         }
     },
@@ -295,7 +295,7 @@ var ttp = {
         }
 	},
 	changeLayout: function (alternateLayout, layout) {
-		this.send({
+		ttp.send({
             changeLayout: alternateLayout,
             layout: layout
         });
@@ -357,7 +357,7 @@ var ttp = {
 			if (typeof this.port  === null) {
                 return;
             }
-			this.send({
+			ttp.send({
                 highlightMessage: {
                     name: window.escape(message.name),
                     text: window.escape(message.text)
@@ -366,7 +366,7 @@ var ttp = {
 		}
 		if (this.users[message.userid] && this.users[message.userid].name !== message.name) {
 			this.users[message.userid].name = message.name;
-			this.send({
+			ttp.send({
                 updateUserList: "update",
                 user: ttp.users[message.userid],
                 room: {
@@ -519,7 +519,7 @@ var ttp = {
 				break;
 			}
 		}
-		this.send({
+		ttp.send({
             queue: true,
             song: song
         });
@@ -810,6 +810,7 @@ var ttp = {
 			}
 			if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && isDj) {
 				ttp.isActive(function () {
+                    var name = (ttp.users[userid] !== undefined) ? ttp.users[userid].name : '[user not found]';
 					if (ttp.prefs.notifications.textOnly) {
 						djNotification = webkitNotifications.createNotification(
                             chrome.extension.getURL('/images/openSpot-sm.png'),
@@ -959,7 +960,6 @@ var ttp = {
 					height: 0
 				}
 			};
-			prefs.ignoredUsers = [];
 			prefs.version = "0.0.29";
 		}
         if (+prefsVersion[2] < 34) {

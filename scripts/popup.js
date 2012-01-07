@@ -225,12 +225,12 @@ var bgPage = chrome.extension.getBackgroundPage(),
         var chatHtml = '';
         messageid = messages.length;
         for (var i=(messageid-1); i>=0; i--) {
-            chatHtml += '<div id="message'+i+'" class="message"><span class="sender">'+messages[i].name+'</span><span class="text">: '+messages[i].text+'</span></div>';
+            chatHtml += '<div id="message' + i + '" class="message"><span class="sender">' + messages[i].name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</span><span class="text">: ' + messages[i].text.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</span></div>';
         }
         $('#chat').html(chatHtml);
 
         if ($('.tabs .chattab').hasClass('selected')) {
-            var height = parseInt($('.fixedHeader').height())+parseInt($('#main').height());
+            var height = parseInt($('.fixedHeader').height()) + parseInt($('#main').height());
             if (height < 580) {
                 $('html,body').height(height);
                 $('body').css('margin','0');
@@ -242,7 +242,7 @@ var bgPage = chrome.extension.getBackgroundPage(),
     },
     addMessage = function (message) {
         messageid += 1;
-        $('#chat').append('<div id="message'+messageid+'" class="message"><span class="sender">'+message.name+'</span><span class="text">: '+message.text+'</span></div>');
+        $('#chat').append('<div id="message' + messageid + '" class="message"><span class="sender">' + message.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</span><span class="text">: ' + message.text.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</span></div>');
         if ($('.tabs .chattab').hasClass('selected')) {
             $("body").prop({scrollTop: $("body").prop("scrollHeight")});
         }
@@ -250,10 +250,10 @@ var bgPage = chrome.extension.getBackgroundPage(),
     buildChatlog = function () {
         var chatHtml = '<div class="deleteall"><span id="clearMessages">clear all messages</span></div>';
         for (var i=(bgPage.ttp.storage.messages.length-1); i>=0; i--) {
-            chatHtml += '<div id="logmessage'+i+'" class="message">'+
-                '<span class="sender">'+bgPage.ttp.storage.messages[i].sender+'</span><span class="text">: '+bgPage.ttp.storage.messages[i].text+'</span>'+
-                '<div class="timestamp">'+bgPage.ttp.storage.messages[i].formattedTime+'</div>'+
-                '<div class="delete" title="delete message"></div>'+
+            chatHtml += '<div id="logmessage' + i + '" class="message">' +
+                '<span class="sender">' + bgPage.ttp.storage.messages[i].sender.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</span><span class="text">: ' + bgPage.ttp.storage.messages[i].text.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</span>' +
+                '<div class="timestamp">' + bgPage.ttp.storage.messages[i].formattedTime + '</div>' +
+                '<div class="delete" title="delete message"></div>' +
                 '</div>';
         }
         $('#chatlog').html(chatHtml);
@@ -272,7 +272,7 @@ var bgPage = chrome.extension.getBackgroundPage(),
             buildChatlog();
         });
         if ($('.tabs .chatlogtab').hasClass('selected')) {
-            var height = parseInt($('.fixedHeader').height())+parseInt($('#main').height());
+            var height = parseInt($('.fixedHeader').height()) + parseInt($('#main').height());
             if (height < 580) {
                 $('html,body').height(height);
                 $('body').css('margin','0');
@@ -308,21 +308,21 @@ var bgPage = chrome.extension.getBackgroundPage(),
         $('#main #songlog .track').show();
         $('#main #chatlog .message').show();
         if (searchterm == '') return;
-        var searchTerm = new RegExp(searchterm.replace(/\s/g,'.*'),'i');
+        var searchTerm = new RegExp(searchterm.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/\s/g,'.*'),'i');
         if ($('.tabs .songtab').hasClass('selected')) {
             $('#main #songlog .track').each(function(){
-                if (!searchTerm.test($(this).find('.artist').text()+' '+$(this).find('.title').text())) {
+                if (!searchTerm.test($(this).find('.artist').text() + ' ' + $(this).find('.title').text())) {
                     $(this).hide();
                 }
             });
         } else 	if ($('.tabs .chatlogtab').hasClass('selected')) {
             $('#main #chatlog .message').each(function(){
-                if (!searchTerm.test($(this).find('.sender').text()+' '+$(this).find('.text').text()+' '+$(this).find('.timestamp').text())) {
+                if (!searchTerm.test($(this).find('.sender').text() + ' ' + $(this).find('.text').text() + ' ' + $(this).find('.timestamp').text())) {
                     $(this).hide();
                 }
             });
         }
-        var height = parseInt($('.fixedHeader').height())+parseInt($('#main').height());
+        var height = parseInt($('.fixedHeader').height()) + parseInt($('#main').height());
         if (height < 580) {
             $('html,body').height(height);
             $('body').css('margin','0');

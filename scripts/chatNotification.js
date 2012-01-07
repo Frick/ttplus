@@ -71,7 +71,7 @@ function buildNotification(notification) {
 			document.getElementById('response').focus();
 		} else {
 			chrome.tabs.update(bgPage.ttp.tabId, {selected: true});
-			chrome.tabs.sendRequest(bgPage.ttp.tabId, {command: "turntable[ttp.roominfo].nodes.chatText.value = '@' + " + notification.speaker + "; turntable[ttp.roominfo].nodes.chatText.focus()"});
+			chrome.tabs.sendRequest(bgPage.ttp.tabId, {command: "turntable[ttp.roominfo].nodes.chatText.value = '@' + " + notification.speaker + " + ' - '; turntable[ttp.roominfo].nodes.chatText.focus()"});
 		}
 	}
 	populated = true;

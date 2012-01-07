@@ -3,7 +3,89 @@ var ttplus = {
     usersListReady: false,
     usersQueue: [],
     port: null,
+    send: function (msg) {
+        try {
+            ttplus.port.postMessage(msg);
+        } catch (e) {
+            if (ttplus.port === null || e.message === "Attempting to use a disconnected port object") {
+                ttplus.port = chrome.extension.connect({name: 'ttp'});
+                ttplus.port.onMessage.addListener(ttplus.handleRequest);
+            } else {
+                console.log('Unknown TT+ Port Error:', e.message);
+                console.log(e);
+            }
+        }
+    },
+    handleRequest: function (request) {
+        var response, path, room, vote;
+        try {
+            if (typeof request.command === "string") {
+                response = ttplus.injectScript(ttplus.exec, request.command);
+                ttplus.send({
+                    msgId: request.msgId,
+                    response: response
+                });
+            } else if (typeof request.updateUserList === "string") {
+                response = false;
+                if (!ttplus.usersListReady) {
+                    ttplus.usersQueue.push(request);
+                    response = true;
+                } else if (request.updateUserList === "add") {
+                    room = (typeof request.room === "object") ? request.room : undefined;
+                    response = ttplus.injectScript(ttplus.addUsers, request.users, room);
+                } else if (request.updateUserList === "update") {
+                    if (typeof request.user === "object") {
+                        vote = (typeof request.vote === "string") ? request.vote : "";
+                        response = ttplus.injectScript(ttplus.updateUser, request.user, vote);
+                    }
+                } else if (request.updateUserList === "remove") {
+                    if (typeof request.userid === "string") {
+                        response = ttplus.injectScript(ttplus.removeUser, request.userid);
+                    }
+                }
+                ttplus.send({
+                    msgId: request.msgId,
+                    response: {
+                        success: response
+                    }
+                });
+            } else if (typeof request.highlightMessage === "object") {
+                ttplus.injectScript(ttplus.highlightChatMessage, request.highlightMessage);
+            } else if (typeof request.speak === "string") {
+                ttplus.injectScript(ttplus.speak, request.speak);
+            } else if (request.toggleMute === true) {
+                ttplus.injectScript(ttplus.toggleMute);
+            } else if (request.queue === true) {
+                ttplus.injectScript(ttplus.queueSong, JSON.parse(request.song));
+            } else if (request.setup === true) {
+                ttplus.injectScript(ttplus.setupRoom);
+            } else if (request.setStartTime === true) {
+                ttplus.injectScript(ttplus.setStartTime);
+            } else if (typeof request.ignoredUsers === "object") {
+                ttplus.injectScript(ttplus.ignoreUsers, request.ignoredUsers);
+            } else if (request.getUserInfo === true) {
+                ttplus.injectScript(ttplus.getUserInfo);
+            } else if (typeof request.expandChat === "boolean") {
+                if (request.expandChat && typeof request.layout === "object") {
+                    response = ttplus.injectScript(ttplus.expandChat, request.layout);
+                    if (response) {
+                        ttplus.injectScript(ttplus.addDragNDrop, true);
+                    }
+                } else {
+                    ttplus.injectScript(ttplus.defaultChat);
+                }
+            } else if (typeof request.changeLayout === "string" || typeof request.changeLayout === "boolean") {
+                path = chrome.extension.getURL('/');
+                ttplus.layoutChange(request.changeLayout, request.layout, path);
+            }
+        } catch (e) {
+            console.log("Error with request:", request);
+        }
+    },
     init: function () {
+        ttplus.port = chrome.extension.connect({name: 'ttp'});
+        ttplus.port.onMessage.addListener(ttplus.handleRequest);
+
         if (ttplus.injectScript(function () {return $.isReady;}) !== true) {
             window.initTimeout = window.setTimeout(ttplus.init, 100);
             return;
@@ -24,19 +106,19 @@ var ttplus = {
         $('body').append('<div id="ttp-messages" style="display:none;"><div id="ttpTurntableMessage"></div><div id="ttpSongStart"></div><div id="ttpSaveSettings"></div><div id="ttpMessage"></div></div>');
 
         $('#ttpTurntableMessage').bind('ttpEvent', function () {
-            ttplus.port.postMessage({
+            ttplus.send({
                 type: 'ttMessage',
                 data: $(this).text()
             });
         });
         $('#ttpSongStart').bind('ttpEvent', function () {
-            ttplus.port.postMessage({
+            ttplus.send({
                 type: 'songStart',
                 data: $(this).text()
             });
         });
         $('#ttpSaveSettings').bind('ttpEvent', function () {
-            ttplus.port.postMessage({
+            ttplus.send({
                 type: 'save',
                 data: $(this).text()
             });
@@ -44,7 +126,7 @@ var ttplus = {
         $('#ttpMessage').bind('ttpEvent', function () {
             var msg = JSON.parse(unescape($(this).text()));
             if (msg === "Listener Ready") {
-                ttplus.port.postMessage({
+                ttplus.send({
                     type: 'ttpMessage',
                     data: $(this).text()
                 });
@@ -59,16 +141,9 @@ var ttplus = {
         ttplus.injectTtp();
     },
     injectTtp: function () {
-        var style = document.createElement('link'),
-            script  = document.createElement('script');
-
-        style.rel = "stylesheet";
-        style.type = "text/css";
-        style.href = chrome.extension.getURL('/styles/ttp.css') + "?" + Date.now();
-        document.head.appendChild(style);
-
+        var script  = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = chrome.extension.getURL('/scripts/onPage.js') + "?" + Date.now();
+        script.src  = chrome.extension.getURL('/scripts/onPage.js') + "?" + Date.now();
         document.head.appendChild(script);
     },
 	exec: function (command) {
@@ -147,7 +222,7 @@ var ttplus = {
                         return;
                     }
                     if (moderators && moderators.test(turntable.user.id) || +turntable.user.acl > 0) {
-                        if (moderators.test(userid) && +turntable[ttp.roominfo].users[userid].acl === 0) {
+                        if (moderators.test(userid) && turntable[ttp.roominfo].users[userid] !== undefined && +turntable[ttp.roominfo].users[userid].acl === 0) {
                             $(this).find('.ttpAddMod').removeClass('ttpAddMod').addClass('ttpRemMod').prop('title', 'Remove Moderator Privileges');
                             $(this).find('.ttpRemMod').css('display', 'inline-block').unbind('click').click(function (e) {
                                 e.stopPropagation();
@@ -206,7 +281,7 @@ var ttplus = {
                         if (userid === turntable[ttp.roominfo].creatorId) {
                             $(this).find('.ttpAddMod,.ttpRemMod').hide().unbind('click');
                         }
-                        if (turntable[ttp.roominfo].users[userid].acl > 0) {
+                        if (turntable[ttp.roominfo].users[userid] !== undefined && turntable[ttp.roominfo].users[userid].acl > 0) {
                             $(this).find('.ttpBoot').hide().unbind('click');
                         }
                         if (djs && djs.test(userid)) {
@@ -348,7 +423,7 @@ var ttplus = {
                             if ($('#ttpUserSearch input').val() === '') {
                                 return;
                             }
-                            searchTerm = new RegExp(search.replace(/\s/g, '.*'), 'i');
+                            searchTerm = new RegExp(search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&').replace(/\s/g, '.*'), 'i');
                             $users.each(function () {
                                 if (!searchTerm.test($(this).attr('ttpusername'))) {
                                     $(this).hide();
@@ -371,7 +446,7 @@ var ttplus = {
                 top: "0px",
                 left: usersListLeft + "px"
             });
-            $('#ttpUsersList .ttpUsersList').height(outerHeight - 97 + 'px');
+            $('#ttpUsersList .ttpUsersList').height(outerHeight - 99 + 'px');
         } else {
             $('#ttpUsersList').css({
                 width: layout.users.width + "px",
@@ -380,7 +455,7 @@ var ttplus = {
                 top: layout.users.top + "px",
                 left: layout.users.left + "px"
             });
-            $('#ttpUsersList .ttpUsersList').height(layout.users.height - 97 + 'px');
+            $('#ttpUsersList .ttpUsersList').height(layout.users.height - 99 + 'px');
         }
 
         return true;
@@ -429,7 +504,7 @@ var ttplus = {
                 left: chatContainerLeft + 'px'
             }).find('.messages').css({
                 width: '100%',
-                height: outerHeight - 58 + 'px'
+                height: outerHeight - 63 + 'px'
             }).unbind('DOMNodeInserted').bind('DOMNodeInserted', function () {
                 $(this).find('.message').last().width(chatContainerWidth - 29)
             }).find('.message').width(chatContainerWidth - 29);
@@ -441,7 +516,7 @@ var ttplus = {
                 left: layout.chat.left + 'px'
             }).find('.messages').css({
                 width: '100%',
-                height: layout.chat.height - 58 + 'px'
+                height: layout.chat.height - 63 + 'px'
             }).unbind('DOMNodeInserted').bind('DOMNodeInserted', function () {
                 $(this).find('.message').last().width(layout.chat.width - 29)
             }).find('.message').width(layout.chat.width - 29);
@@ -451,14 +526,14 @@ var ttplus = {
             width: $('.messages').width() + 'px'
         }).find('.input-box').css({
             width: $('.messages').width() - 36 + 'px',
-            height: '35px',
+            height: '37px',
             backgroundImage: 'none',
             backgroundColor: '#d4d4d4',
             bottom: '0'
         }).find('input').css({
             top: '6px',
             left: '7px',
-            height: '24px',
+            height: '26px',
             backgroundColor: '#ffffff',
             width: $('.messages').width() - 61 + 'px',
             borderRadius: '10px',
@@ -527,7 +602,9 @@ var ttplus = {
                     ttp.saveSettings({
                         main: ui.offset
                     });
-                }
+                },
+                snap: 'body,.chat-container,#ttpUsersList',
+                snapTolerance: 10
             });
             $('.chat-container').resizable({
                 minWidth: 200,
@@ -562,7 +639,9 @@ var ttplus = {
                             height: $('.chat-container').height()
                         }
                     });
-                }
+                },
+                snap: 'body,#outer,#ttpUsersList',
+                snapTolerance: 10
             });
         }
         $('#ttpUsersList').resizable({
@@ -594,7 +673,9 @@ var ttplus = {
                         height: $('#ttpUsersList').height()
                     }
                 });
-            }
+            },
+            snap: 'body,#outer,.chat-container',
+            snapTolerance: 10
         });
     },
     layoutChange:  function (expandedChat, layout, path) {
@@ -931,73 +1012,5 @@ var ttplus = {
         } else return (elem);
     }
 }
-
-ttplus.port = chrome.extension.connect({name: 'ttp'});
-ttplus.port.onMessage.addListener(function (request) {
-    var response, path, room, vote;
-    try {
-        if (typeof request.command === "string") {
-            response = ttplus.injectScript(ttplus.exec, request.command);
-            ttplus.port.postMessage({
-                msgId: request.msgId,
-                response: response
-            });
-        } else if (typeof request.updateUserList === "string") {
-            response = false;
-            if (!ttplus.usersListReady) {
-                ttplus.usersQueue.push(request);
-                response = true;
-            } else if (request.updateUserList === "add") {
-                room = (typeof request.room === "object") ? request.room : undefined;
-                response = ttplus.injectScript(ttplus.addUsers, request.users, room);
-            } else if (request.updateUserList === "update") {
-                if (typeof request.user === "object") {
-                    vote = (typeof request.vote === "string") ? request.vote : "";
-                    response = ttplus.injectScript(ttplus.updateUser, request.user, vote);
-                }
-            } else if (request.updateUserList === "remove") {
-                if (typeof request.userid === "string") {
-                    response = ttplus.injectScript(ttplus.removeUser, request.userid);
-                }
-            }
-            ttplus.port.postMessage({
-                msgId: request.msgId,
-                response: {
-                    success: response
-                }
-            });
-        } else if (typeof request.highlightMessage === "object") {
-            ttplus.injectScript(ttplus.highlightChatMessage, request.highlightMessage);
-        } else if (typeof request.speak === "string") {
-            ttplus.injectScript(ttplus.speak, request.speak);
-        } else if (request.toggleMute === true) {
-            ttplus.injectScript(ttplus.toggleMute);
-        } else if (request.queue === true) {
-            ttplus.injectScript(ttplus.queueSong, JSON.parse(request.song));
-        } else if (request.setup === true) {
-            ttplus.injectScript(ttplus.setupRoom);
-        } else if (request.setStartTime === true) {
-            ttplus.injectScript(ttplus.setStartTime);
-        } else if (typeof request.ignoredUsers === "object") {
-            ttplus.injectScript(ttplus.ignoreUsers, request.ignoredUsers);
-        } else if (request.getUserInfo === true) {
-            ttplus.injectScript(ttplus.getUserInfo);
-        } else if (typeof request.expandChat === "boolean") {
-            if (request.expandChat && typeof request.layout === "object") {
-                response = ttplus.injectScript(ttplus.expandChat, request.layout);
-                if (response) {
-                    ttplus.injectScript(ttplus.addDragNDrop, true);
-                }
-            } else {
-                ttplus.injectScript(ttplus.defaultChat);
-            }
-        } else if (typeof request.changeLayout === "string" || typeof request.changeLayout === "boolean") {
-            path = chrome.extension.getURL('/');
-            ttplus.layoutChange(request.changeLayout, request.layout, path);
-        }
-    } catch (e) {
-        console.log("Error with request:", request);
-    }
-});
 
 ttplus.init();
