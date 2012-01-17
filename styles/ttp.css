@@ -33,6 +33,9 @@
 .ttpBold {
     font-weight: bold;
 }
+.ttpItalic {
+    font-style: italic;
+}
 #ttpUsersList .ttpUsersListHeader {
     background: url(https://s3.amazonaws.com/static.turntable.fm/images/room/black_playlist_bg.png) repeat-x;
     width: 100%;

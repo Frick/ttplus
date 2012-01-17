@@ -110,14 +110,18 @@ $(document).ready(function(){
 
 	// Site Layout
     // on/off toggle
-	$('#toggle_chat_pane').prop('checked',bgPage.ttp.prefs.alternateLayout);
+	$('#toggle_chat_pane').prop('checked', bgPage.ttp.prefs.alternateLayout);
 	if (bgPage.ttp.prefs.alternateLayout) {
 		$('label[for="toggle_chat_pane"]').removeClass('false').addClass('true').text('Yes');
-	} else $('label[for="toggle_chat_pane"]').removeClass('true').addClass('false').text('No');
-	$('#toggle_chat_pane').change(function(){
+	} else {
+        $('label[for="toggle_chat_pane"]').removeClass('true').addClass('false').text('No');
+    }
+	$('#toggle_chat_pane').change(function () {
 		if ($('#toggle_chat_pane').prop('checked')) {
 			bgPage.ttp.setLayout(true);
-		} else bgPage.ttp.setLayout(false);
+		} else {
+            bgPage.ttp.setLayout(false);
+        }
 	});
 
     // reset button

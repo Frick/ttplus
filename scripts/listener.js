@@ -18,7 +18,7 @@ var ttplus = {
     },
     handleRequest: function (request) {
         var response, path, room, vote;
-        try {
+        //try {
             if (typeof request.command === "string") {
                 response = ttplus.injectScript(ttplus.exec, request.command);
                 ttplus.send({
@@ -78,9 +78,9 @@ var ttplus = {
                 path = chrome.extension.getURL('/');
                 ttplus.layoutChange(request.changeLayout, request.layout, path);
             }
-        } catch (e) {
-            console.log("Error with request:", request);
-        }
+        //} catch (e) {
+        //    console.log("Error with request:", request);
+        //}
     },
     init: function () {
         ttplus.port = chrome.extension.connect({name: 'ttp'});
@@ -99,8 +99,13 @@ var ttplus = {
             delete window.initTimeout;
         }
 
-        $(window).bind("beforeunload", function () {
-            return "Whoa there... where do you think you're going? Are you sure you want to leave turntable.fm?!";
+        $(window).unbind("beforeunload").bind("beforeunload", function () {
+            if ("Whoa there... where do you think you're going? Are you sure you want to leave turntable.fm?!") {
+                turntable.closeSocket;
+            } else {
+                return false;
+            }
+            return true;
         });
 
         $('body').append('<div id="ttp-messages" style="display:none;"><div id="ttpTurntableMessage"></div><div id="ttpSongStart"></div><div id="ttpSaveSettings"></div><div id="ttpMessage"></div></div>');
@@ -150,14 +155,10 @@ var ttplus = {
 		return eval(command);
 	},
 	setupRoom: function () {
-        if (typeof ttp.request === "function") {
-            ttp.request({api: "room.info", roomid: turntable[ttp.roominfo].roomId});
-        }
+        ttp.request({api: "room.info", roomid: ttp.roominfo.roomId});
 	},
     getUserInfo: function () {
-        if (typeof ttp.request === "function") {
-            ttp.request({api: "user.info"});
-        }
+        ttp.request({api: "user.info"});
 	},
     addUsersList: function (expandedChat, layout, path) {
         var attachTo = (expandedChat === true) ? ".chat-container" : "#outer",
@@ -191,10 +192,10 @@ var ttplus = {
                 }
                 $(selected).addClass('ttpUserSelected');
                 $('#ttpUserActions').slideUp(200, function () {
-                    var moderators = (turntable[ttp.roominfo].moderators.length) ? new RegExp(turntable[ttp.roominfo].moderators.join("|"), "i") : false,
-                        djs = (turntable[ttp.roominfo].djIds.length) ? new RegExp(turntable[ttp.roominfo].djIds.join("|"), "i") : false,
+                    var moderators = (ttp.roominfo.moderators.length) ? new RegExp(ttp.roominfo.moderators.join("|"), "i") : false,
+                        djs = (ttp.roominfo.djIds.length) ? new RegExp(ttp.roominfo.djIds.join("|"), "i") : false,
                         fanOf = (turntable.user.fanOf.length) ? new RegExp(turntable.user.fanOf.join("|"),"i") : false,
-                        ignoredUsers = (turntable[ttp.roominfo].ignoredUsers.length) ? new RegExp(turntable[ttp.roominfo].ignoredUsers.join("|"), "i") : false;
+                        ignoredUsers = (ttp.roominfo.ignoredUsers.length) ? new RegExp(ttp.roominfo.ignoredUsers.join("|"), "i") : false;
 
                     $(this).find('.ttpFan,.ttpUnfan').hide();
                     $(this).find('.ttpProfile').unbind('click').click(function (e) {
@@ -203,7 +204,7 @@ var ttplus = {
                             api: "user.get_profile",
                             userid: userid
                         }, function (profile) {
-                            turntable[ttp.roominfo].setupProfileOverlay(profile);
+                            ttp.roominfo.setupProfileOverlay(profile);
                         });
                     });
                     $(this).find('.ttpTtdash').unbind('click').click(function (e) {
@@ -222,13 +223,13 @@ var ttplus = {
                         return;
                     }
                     if (moderators && moderators.test(turntable.user.id) || +turntable.user.acl > 0) {
-                        if (moderators.test(userid) && turntable[ttp.roominfo].users[userid] !== undefined && +turntable[ttp.roominfo].users[userid].acl === 0) {
+                        if (moderators.test(userid) && ttp.roominfo.users[userid] !== undefined && +ttp.roominfo.users[userid].acl === 0) {
                             $(this).find('.ttpAddMod').removeClass('ttpAddMod').addClass('ttpRemMod').prop('title', 'Remove Moderator Privileges');
                             $(this).find('.ttpRemMod').css('display', 'inline-block').unbind('click').click(function (e) {
                                 e.stopPropagation();
                                 ttp.request({
                                     api: "room.rem_moderator",
-                                    roomid: turntable[ttp.roominfo].roomId,
+                                    roomid: ttp.roominfo.roomId,
                                     target_userid: userid
                                 });
                                 $(selected).find('.ttpMod').remove();
@@ -251,7 +252,7 @@ var ttplus = {
                                 e.stopPropagation();
                                 ttp.request({
                                     api: "room.add_moderator",
-                                    roomid: turntable[ttp.roominfo].roomId,
+                                    roomid: ttp.roominfo.roomId,
                                     target_userid: userid
                                 });
                                 $(selected).prepend('<span class="ttpMod" title="Moderator"></span>').attr('ttpusertype', '30').attr('ttpusersort', '30' + username.toUpperCase());
@@ -264,10 +265,10 @@ var ttplus = {
                         }
                         $(this).find('.ttpBoot').css('display', 'inline-block').unbind('click').click(function (e) {
                             e.stopPropagation();
-                            util.showOverlay(util.buildTree(Room.layouts.bootConfirmView(turntable[ttp.roominfo].users[userid].name, function () {
+                            util.showOverlay(util.buildTree(Room.layouts.bootConfirmView(ttp.roominfo.users[userid].name, function () {
                                 var request = {
                                     api: "room.boot_user",
-                                    roomid: turntable[ttp.roominfo].roomId,
+                                    roomid: ttp.roominfo.roomId,
                                     target_userid: userid
                                 },
                                 reason = $.trim($(".bootReasonField").val());
@@ -278,10 +279,10 @@ var ttplus = {
                                 window.util.hideOverlay();
                             })));
                         });
-                        if (userid === turntable[ttp.roominfo].creatorId) {
+                        if (userid === ttp.roominfo.creatorId) {
                             $(this).find('.ttpAddMod,.ttpRemMod').hide().unbind('click');
                         }
-                        if (turntable[ttp.roominfo].users[userid] !== undefined && turntable[ttp.roominfo].users[userid].acl > 0) {
+                        if (ttp.roominfo.users[userid] !== undefined && ttp.roominfo.users[userid].acl > 0) {
                             $(this).find('.ttpBoot').hide().unbind('click');
                         }
                         if (djs && djs.test(userid)) {
@@ -289,7 +290,7 @@ var ttplus = {
                                 e.stopPropagation();
                                 ttp.request({
                                     api: "room.rem_dj",
-                                    roomid: turntable[ttp.roominfo].roomId,
+                                    roomid: ttp.roominfo.roomId,
                                     djid: userid
                                 });
                                 $(this).hide();
@@ -313,7 +314,7 @@ var ttplus = {
                                     break;
                                 }
                             }
-                            turntable[ttp.roominfo].users[userid].fanof = false;
+                            ttp.roominfo.users[userid].fanof = false;
                             ttp.request({
                                 api: "user.remove_fan",
                                 djid: userid
@@ -333,7 +334,7 @@ var ttplus = {
                         $(this).find('.ttpFan').show().unbind('click').click(function (e) {
                             e.stopPropagation();
                             turntable.user.fanOf.push(userid);
-                            turntable[ttp.roominfo].users[userid].fanof = true;
+                            ttp.roominfo.users[userid].fanof = true;
                             ttp.request({
                                 api: "user.become_fan",
                                 djid: userid
@@ -353,7 +354,7 @@ var ttplus = {
                         $(this).find('.ttpIgnore').removeClass('ttpIgnore').addClass('ttpUnignore').prop('title', 'Unignore User');
                         $(this).find('.ttpUnignore').show().unbind('click').click(function (e) {
                             var x = 0,
-                                length = turntable[ttp.roominfo].ignoredUsers.length;
+                                length = ttp.roominfo.ignoredUsers.length;
 
                             e.stopPropagation();
                             ttp.saveSettings({
@@ -362,10 +363,10 @@ var ttplus = {
                                 }
                             });
                             for (; x < length; x += 1) {
-                                if (turntable[ttp.roominfo].ignoredUsers[x] === userid) {
-                                    turntable[ttp.roominfo].ignoredUsers.splice(x, 1);
+                                if (ttp.roominfo.ignoredUsers[x] === userid) {
+                                    ttp.roominfo.ignoredUsers.splice(x, 1);
                                 }
-                                turntable[ttp.roominfo].appendChatMessage(userid, turntable[ttp.roominfo].users[userid].name, " will be ignored no more.");
+                                ttp.roominfo.appendChatMessage(userid, ttp.roominfo.users[userid].name, " will be ignored no more.");
                             }
                             $('#ttpUserActions').hide();
                             $(selected).click();
@@ -379,8 +380,8 @@ var ttplus = {
                                     userid: userid
                                 }
                             });
-                            turntable[ttp.roominfo].ignoredUsers.push(userid);
-                            turntable[ttp.roominfo].appendChatMessage(userid, turntable[ttp.roominfo].users[userid].name, " will be ignored.");
+                            ttp.roominfo.ignoredUsers.push(userid);
+                            ttp.roominfo.appendChatMessage(userid, ttp.roominfo.users[userid].name, " will be ignored.");
                             $('#ttpUserActions').hide();
                             $(selected).click();
                         });
@@ -474,6 +475,7 @@ var ttplus = {
         }
 
         $('.chat-container .chatHeader').unbind('mousedown').css('cursor', 'move').find('.chatResizeIcon').remove();
+        $('.guest-list-container .chatHeader').unbind('mousedown').mousedown(ttp.ttChatResizeStart);
         $('#top-panel .header').css('cursor', 'move');
         if ($('#TFMPL').length > 0 || $('#tfmExtended').length > 0) {
             chatContainerWidth -= 230;
@@ -556,7 +558,7 @@ var ttplus = {
         var bodyWidth = $('body').width(),
             outerWidth = $('#outer').width(),
             outerHeight = $('#outer').height(),
-            ttChat = turntable[ttp.roominfo].chatOffsetTop;
+            ttChat = ttp.roominfo.chatOffsetTop;
 
         $('#outer').attr('style', '');
         $('.chat-container').attr('style', '').appendTo('#right-panel').css({
@@ -576,7 +578,8 @@ var ttplus = {
         $('.chat-container').draggable('destroy').resizable('destroy');
 
         // add back default behavior
-        $('.chat-container .chatHeader').mousedown(turntable[ttp.roominfo].chatResizeStart);
+        $('.chat-container .chatHeader').unbind('mousedown').mousedown(ttp.roominfo.chatResizeStart);
+        $('.guest-list-container .chatHeader').unbind('mousedown').mousedown(ttp.roominfo.chatResizeStart);
 
         // make sure chat is scrolled to bottom
         $(".chat-container .messages").prop({
@@ -715,17 +718,17 @@ var ttplus = {
 		});
 	},
     toggleMute: function () {
-        var volume = turntable[ttp.roominfo][ttp.roommanager].volume_bars ? 0 : turntable[ttp.roominfo][ttp.roommanager].last_volume_bars;
-		turntable[ttp.roominfo][ttp.roommanager].set_volume(volume);
-		turntable[ttp.roominfo][ttp.roommanager].callback("set_volume", turntable[ttp.roominfo][ttp.roommanager].volume_bars);
+        var volume = ttp.roommanager.volume_bars ? 0 : ttp.roommanager.last_volume_bars;
+		ttp.roommanager.set_volume(volume);
+		ttp.roommanager.callback("set_volume", ttp.roommanager.volume_bars);
 		$("#left_speaker").mouseenter().mouseleave();
 	},
     speak: function (text) {
-		turntable[ttp.roominfo].nodes.chatText.value = text;
-		turntable[ttp.roominfo].speak(ttp.enterKey);
+		ttp.roominfo.nodes.chatText.value = text;
+		ttp.roominfo.speak(ttp.enterKey);
 	},
     queueSong: function (song) {
-		turntable[ttp.roominfo].addSong("queue", song);
+		ttp.roominfo.addSong("queue", song);
 	},
     processUsersQueue: function () {
         var x = 0,
@@ -745,11 +748,13 @@ var ttplus = {
     addUsers: function (users, room) {
         var userActionsOpen = false,
             now             = ttp.now(),
-            djs             = (turntable[ttp.roominfo].djIds.length) ? new RegExp(turntable[ttp.roominfo].djIds.join('|')) : false,
-            moderators      = (turntable[ttp.roominfo].moderators.length) ? new RegExp(turntable[ttp.roominfo].moderators.join('|')) : false,
+            djs             = (ttp.roominfo.djIds.length) ? new RegExp(ttp.roominfo.djIds.join('|')) : false,
+            moderators      = (ttp.roominfo.moderators.length) ? new RegExp(ttp.roominfo.moderators.join('|')) : false,
             fanof           = (turntable.user.fanOf.length) ? new RegExp(turntable.user.fanOf.join('|')) : false,
-            searchTerm      = $('#ttpUserSearch input').val(),
+            searchTerm      = ($('#ttpUserSearch input').val() !== '') ? new RegExp(searchTerm.replace(/\s/g,'.*'), 'i') : undefined,
             count           = 0,
+            currentDj       = '',
+            user,
             x,
             lastActivity,
             usertype,
@@ -758,80 +763,95 @@ var ttplus = {
             idleTimeSpan,
             idDj,
             display,
-            ttpBold;
+            ttpBold,
+            ttpItalic;
+
+        if (ttp.roominfo.users === {}) {
+            window.addUsersTimeout = window.setTimeout(ttplus.addUsers, 100, users, room);
+        } else if (window.addUsersTimeout !== undefined) {
+            window.clearTimeout(window.addUsersTimeout);
+            delete window.addUsersTimeout;
+        }
 
         if ($('#ttpUserActions').css('display') === 'block') {
             userActionsOpen = true;
             $('#ttpUserActions').hide();
         }
 
+        if (room.current_dj !== undefined) {
+            currentDj = room.current_dj;
+        }
+
         for (x in users) {
-            if (!users[x].hasOwnProperty('userid')) {
+            user = users[x];
+            if (!user.hasOwnProperty('userid')) {
+                continue;
+            } else if (ttp.roominfo.users[user.userid] === undefined) {
                 continue;
             }
-            if ($('#user' + users[x].userid).length > 0) {
-                lastActivity = $('#user' + users[x].userid).attr('ttplastactivity');
-                $('#user' + users[x].userid).remove();
+            if ($('#user' + user.userid).length > 0) {
+                lastActivity = $('#user' + user.userid).attr('ttplastactivity');
+                $('#user' + user.userid).remove();
             } else {
                 lastActivity = now;
             }
-            if (users[x].userid !== turntable.user.id) {
-                turntable[ttp.roominfo].users[users[x].userid].lastActivity = lastActivity;
+            if (user.userid !== turntable.user.id) {
+                ttp.roominfo.users[user.userid].lastActivity = lastActivity;
             }
             usertype = "60";
-            displayName = users[x].name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            displayName = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             showIdleTime = false;
             isDj = false;
-            if (moderators && moderators.test(users[x].userid)) {
+            if (moderators && moderators.test(user.userid)) {
                 usertype = "30";
-                displayName = users[x].name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Moderator"></span>';
+                displayName = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Moderator"></span>';
                 showIdleTime = true;
             }
-            if (users[x].userid === turntable[ttp.roominfo].creatorId) {
+            if (user.userid === ttp.roominfo.creatorId) {
                 usertype = "20";
-                displayName = users[x].name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Room Creator"></span>';
+                displayName = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Room Creator"></span>';
                 showIdleTime = true;
             }
-            if (users[x].acl > 0) {
+            if (user.acl > 0) {
                 usertype = "10";
-                displayName = users[x].name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpSuper" title="Super User"></span>';
+                displayName = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpSuper" title="Super User"></span>';
                 showIdleTime = true;
             }
-            if (fanof && fanof.test(users[x].userid)) {
+            if (fanof && fanof.test(user.userid)) {
                 usertype = (usertype === "60") ? "50" : usertype;
                 displayName += '<span class="ttpFanned" title="You\'re a fan"></span>';
             }
-            if (djs && djs.test(users[x].userid)) {
+            if (djs && djs.test(user.userid)) {
                 if (usertype == "50" || usertype == "60") {
                     usertype = "40";
                 }
                 showIdleTime = true;
                 isDj = true;
             }
-            if (searchTerm !== '') {
-                searchTerm = new RegExp(searchTerm.replace(/\s/g,'.*'), 'i');
+            if (searchTerm !== undefined) {
                 if (!searchTerm.test($(this).attr('ttpusername'))) {
                     display = ' style="display:none;"';
                 }
             } else {
                 display = '';
             }
-            idleTimeSpan = (showIdleTime) ? '<span class="ttpIdleTime"></span>' : '';
-            ttpBold = (isDj) ? ' ttpBold' : '';
-            $('#ttpUsersList .ttpUsersList').append('<div class="ttpUser ttpUserType' + usertype + ttpBold + '" id="user' + users[x].userid + '" ttpUserType="' + usertype + '" ttpUserName="' + users[x].name.replace(/"/g, '\"') + '" ttpUserSort="' + usertype + users[x].name.replace(/"/g, '\"').toUpperCase() + '" ttpLastActivity="' + lastActivity + '"' + display + '>' + idleTimeSpan + displayName + '</div>');
+            idleTimeSpan = (showIdleTime === true) ? '<span class="ttpIdleTime"></span>' : '';
+            ttpBold = (isDj === true) ? ' ttpBold' : '';
+            ttpItalic = (user.userid === currentDj) ? ' ttpItalic' : '';
+            $('#ttpUsersList .ttpUsersList').append('<div class="ttpUser ttpUserType' + usertype + ttpBold + ttpItalic + '" id="user' + user.userid + '" ttpUserType="' + usertype + '" ttpUserName="' + user.name.replace(/"/g, '\"') + '" ttpUserSort="' + usertype + user.name.replace(/"/g, '\"').toUpperCase() + '" ttpLastActivity="' + lastActivity + '"' + display + '>' + idleTimeSpan + displayName + '</div>');
             count += 1;
         }
 
         if (typeof room === "object") {
-            if (typeof room.listeners === "number") {
+            if (typeof room.listeners === "number" && room.listeners > 0) {
                 ttp.room.listeners = room.listeners;
                 $("#ttpRoomListeners").text(ttp.room.listeners);
             }
-            if (typeof room.upvotes === "number") {
+            if (typeof room.upvotes === "number" && room.upvotes >= 0) {
                 ttp.room.upvotes = room.upvotes;
                 $("#ttpRoomUpvotes").text(ttp.room.upvotes);
             }
-            if (typeof room.downvotes === "number") {
+            if (typeof room.downvotes === "number" && room.downvotes >= 0) {
                 ttp.room.downvotes = room.downvotes;
                 $("#ttpRoomDownvotes").text(ttp.room.downvotes);
             }
@@ -849,8 +869,8 @@ var ttplus = {
 	},
 	updateUser: function (user, vote) {
 		var $el             = $('#user' + user.userid),
-            djs             = (turntable[ttp.roominfo].djIds.length) ? new RegExp(turntable[ttp.roominfo].djIds.join('|')) : false,
-            moderators      = (turntable[ttp.roominfo].moderators.length) ? new RegExp(turntable[ttp.roominfo].moderators.join('|')) : false,
+            djs             = (ttp.roominfo.djIds.length) ? new RegExp(ttp.roominfo.djIds.join('|')) : false,
+            moderators      = (ttp.roominfo.moderators.length) ? new RegExp(ttp.roominfo.moderators.join('|')) : false,
             fanof           = (turntable.user.fanOf.length) ? new RegExp(turntable.user.fanOf.join('|')) : false,
             now             = ttp.now(),
             idleTime        = ($el.attr('ttplastactivity') !== "") ? ttp.formatTime(now - (+$el.attr('ttplastactivity'))) : ttp.formatTime(now - ttp.startTime),
@@ -875,7 +895,7 @@ var ttplus = {
 			displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Moderator"></span>';
 			showIdleTime = true;
 		}
-		if (user.userid === turntable[ttp.roominfo].creatorId) {
+		if (user.userid === ttp.roominfo.creatorId) {
 			usertype     = "20";
 			displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Room Creator"></span>';
 			showIdleTime = true;
@@ -944,10 +964,10 @@ var ttplus = {
 		$('#ttpRoomDownvotes').text(ttp.room.downvotes);
 	},
     getUsers: function () {
-		return turntable[ttp.roominfo].users;
+		return ttp.roominfo.users;
 	},
     ignoreUsers: function (ignoredUsers) {
-		turntable[ttp.roominfo].ignoredUsers = ignoredUsers;
+		ttp.roominfo.ignoredUsers = ignoredUsers;
 	},
     setStartTime: function () {
 		ttp.startTime = ttp.now();

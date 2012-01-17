@@ -225,7 +225,8 @@ var ttp = {
                 room: {
                     listeners: ttp.room.metadata.listeners,
                     upvotes: ttp.room.metadata.upvotes,
-                    downvotes: ttp.room.metadata.downvotes
+                    downvotes: ttp.room.metadata.downvotes,
+                    current_dj: ttp.room.metadata.current_dj
                 }
             }, ttp.setupSuccess);
 		} else {
@@ -876,18 +877,13 @@ var ttp = {
 		});
 	},
 	vote: function (vote) {
-		if (vote === "up") {
-			vote = "upvote";
-		} else if (vote === "down") {
-			vote = "downvote";
-		} else {
-            return;
+		if (vote === "up" || vote === "down") {
+            this.exec("ttp.roominfo.connectRoomSocket('" + vote + "');");
         }
-		this.exec("turntable[ttp.roominfo][ttp.roommanager].callback('" + vote + "')");
 	},
 	showDj: function () {
 		chrome.tabs.update(this.tabId, {selected: true});
-		this.exec("turntable[ttp.roominfo][ttp.roommanager].toggle_listener(turntable[ttp.roominfo].currentDj)");
+		this.exec("ttp.roommanager.toggle_listener(ttp.roominfo.currentDj)");
 	},
 	getNotification: function (type) {
         var x = 0,
@@ -1159,7 +1155,7 @@ chrome.extension.onConnect.addListener(function (port) {
         // see if it's a response to a request
         if (typeof request.msgId === "number" && typeof request.response !== "undefined") {
             for (x = 0, length = ttp.msgCallbacks.length; x < length; x += 1) {
-                if (ttp.msgCallbacks[x][0] === request.msgId) {
+                if (ttp.msgCallbacks[x] !== undefined && ttp.msgCallbacks[x][0] === request.msgId) {
                     callback = ttp.msgCallbacks.splice(x, 1);
                     callback[0][1](request.response, request.msgId);
                 }
