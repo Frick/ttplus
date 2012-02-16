@@ -719,7 +719,7 @@ var ttplus = {
 			}
 		});
 	},
-	highlightUserName: function (message) {
+	highlightChatUserName: function (message) {
 		$($(".message").get().reverse()).each(function () {
 			if ($(this).find(".speaker").text() === unescape(message.name) && $(this).find(".text").text() === (": " + unescape(message.text))) {
 
