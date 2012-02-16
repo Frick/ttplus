@@ -31,13 +31,24 @@
 				</select>
 			</label>
 		</form>
+		<!-- Layout -->
 		<h3 class="messaging_title">Site Layout</h3>
 		<form id="messaging_form" class="settings_form">
 			<label>Separate chat pane from main window</label>&nbsp;&nbsp;&nbsp;
-            <label for="toggle_chat_pane" class="cbButton false">No</label>
-            <input type="checkbox" name="toggle_chat_pane" id="toggle_chat_pane" />
-            <label id="reset_location" class="cbButton" style="margin-left: 15px;">Reset</label>
+			<label for="toggle_chat_pane" class="cbButton false">No</label>
+			<input type="checkbox" name="toggle_chat_pane" id="toggle_chat_pane" />
+			<label id="reset_location" class="cbButton" style="margin-left: 15px;">Reset</label>
 			<p class="fine_print">* maximizes chat to the right<br />* main turntable window, chat pane, and users list become draggable / resizable<br />* may require refresh of turntable window after changing</p>
+			<br />
+		</form>
+		<!-- Colorize names -->
+		<!-- toggle_chat_pane => toggle_name_colors -->
+		<h3 class="chat_title">Chat Appearence</h3>
+		<form id="chat_form" class="settings_form">
+			<label>Colorize user names</label>&nbsp;&nbsp;&nbsp;
+			<label for="toggle_user_colors" class="cbButton false">No</label>
+			<input type="checkbox" name="toggle_user_colors" id="toggle_user_colors" />
+			<p class="fine_print">* usernames in chat will be colorized in order to make speakers easier to distinguish.</p>
 			<br />
 		</form>
 	</section>

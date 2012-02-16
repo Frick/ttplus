@@ -33,8 +33,8 @@ $(window).resize(function() {
   $('.container[rel=1]').css({margin:'0 '+50+'px 0 '+margins+'px'});
 });
 
-
 $(document).ready(function(){
+	
 	var width = $(window).width();
 	var container_width = $('.container').width();
 	var margins = ((width-container_width)/2);
@@ -148,6 +148,25 @@ $(document).ready(function(){
 			bgPage.ttp.setLayout(true);
 		} else bgPage.ttp.setLayout(false);
     });
+
+	//****************************************************************************************************
+	// Username color
+	// on/off toggle
+	// ***** WORKING AS INTENDED *****
+	$('#toggle_user_colors').prop('checked', bgPage.ttp.prefs.colorUsernames);
+	if (bgPage.ttp.prefs.colorUsernames) {
+		$('label[for="toggle_user_colors"]').removeClass('false').addClass('true').text('Yes');
+	} else {
+		$('label[for="toggle_user_colors"]').removeClass('true').addClass('false').text('No');
+	}
+	$('#toggle_user_colors').change(function () {
+		if ($('#toggle_user_colors').prop('checked')) {
+			bgPage.ttp.setColorUsernames(true);
+		} else {
+			bgPage.ttp.setColorUsernames(false);
+		}
+	});
+	//****************************************************************************************************
 
 	// Notifications
 

@@ -49,6 +49,10 @@ var ttplus = {
                         success: response
                     }
                 });
+            } else if (typeof request.colorUsernames === "object") { // Add/remove color to/from all chat messages
+                ttplus.injectScript(ttplus.toggleColorUsernames, request.colorUsernames);
+            } else if (typeof request.colorUsername === "object") { // Color a single, specific message
+                ttplus.injectScript(ttplus.colorUsername, request.colorUsername)
             } else if (typeof request.highlightMessage === "object") {
                 ttplus.injectScript(ttplus.highlightChatMessage, request.highlightMessage);
             } else if (typeof request.speak === "string") {
@@ -717,7 +721,55 @@ var ttplus = {
 			}
 		});
 	},
-    toggleMute: function () {
+	// Colorizes the username on a single message.
+
+	// This is should be called in response to a new chat message event. A
+	// seperate function has been provided to add or remove username colors
+	// on all chat messages.
+	colorUsername: function (message) {
+		$($(".message").get().reverse()).each(function () {
+			if ($(this).find(".speaker").text() === unescape(message.name) && $(this).find(".text").text() === (": " + unescape(message.text))) {
+
+				var i, hash = 0;
+				for (i = 0; i < message.name.length; i++) {
+					hash += (message.name[i].charCodeAt() * (i+1));
+				}
+
+				var index = Math.abs(hash % message.colors.length);
+
+				$(this).find(".speaker").css("color",  message.colors[index]);
+				return;
+			}
+		});
+	},
+	toggleColorUsernames: function (message) {
+
+		if (message.toggle) { // true = color usernames in the chat window.
+			$(".message").each(function() {
+				var name = $(this).find(".speaker").text()
+				
+				if($(this).find(".text").text().substr(0,2) == ': ') {
+					// Generate a hash for this username.
+					var i, hash = 0;
+					for (i = 0; i < name.length; i++) {
+						hash += (name[i].charCodeAt() * (i+1));
+					} // end for
+
+					// Using that hash, a color index.
+					var index = Math.abs(hash % message.colors.length);
+
+					// Assign the specified color to the speaker element.
+					$(this).find(".speaker").css('color',  message.colors[index]);
+				} //else {
+					// We've hit a system message.
+					// Don't do anything special.
+				//}
+			}); // end each
+		} else { // false = remove colors from usernames in the chat window.
+			$(".message .speaker").css('color',  ''); // drop the color
+		} //end if
+	},
+	toggleMute: function () {
         var volume = ttp.roommanager.volume_bars ? 0 : ttp.roommanager.last_volume_bars;
 		ttp.roommanager.set_volume(volume);
 		ttp.roommanager.callback("set_volume", ttp.roommanager.volume_bars);
@@ -972,6 +1024,8 @@ var ttplus = {
     setStartTime: function () {
 		ttp.startTime = ttp.now();
 	},
+	// See the below blog post for a description of how injectScript works.
+	// http://voodooattack.blogspot.com/2010/01/writing-google-chrome-extension-how-to.html
     injectScript: function (source) {
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Copyright(C) 2010 Abdullah Ali, voodooattack@hotmail.com                                 //

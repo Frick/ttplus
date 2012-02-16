@@ -14,7 +14,7 @@ var ttp = {
 	notifications: [],
 	missedNotifications: 0,
 	powerup: 0,
-	version: '0.0.52',
+	version: '0.0.53',
 	minVersion: '0.0.40',
 	prefs: {
 		notifications: {
@@ -75,8 +75,26 @@ var ttp = {
 				height: 0
 			}
 		},
-		version: '0.0.52'
+		colorUsernames: false,
+		version: '0.0.53'
 	},
+	colors: [
+		"indianred", "lightcoral", "salmon", "darksalmon", "lightsalmon", "red", "crimson",
+		"fireBrick", "darkred", "hotpink", "deeppink", "mediumvioletred", "palevioletred",
+		"lightsalmon", "coral", "tomato", "orangered", "darkorange", "orange", "darkkhaki",
+		"thistle", "plum", "violet", "orchid", "fuchsia", "Magenta", "mediumorchid", "mediumpurple",
+		"darkviolet", "darkorchid", "darkmagenta", "purple", "indigo", "darkslateblue", "slateblue",
+		"mediumslateblue", "reenyellow", "chartreuse", "lawngreen", "lime", "limegreen",
+		"palegreen", "lightgreen", "mediumspringgreen", "springgreen", "mediumseagreen", "seagreen",
+		"forestgreen", "green", "darkgreen", "yellowgreen", "olivedrab", "olive", "darkolivegreen",
+		"darkseagreen", "lightseagreen", "darkcyan", "teal", "turquoise",
+		"mediumturquoise", "darkturquoise", "cadetblue", "steelblue", "lightsteelblue", "powderblue",
+		"lightblue", "lightskyblue", "deepskyblue", "dodgerblue", "cornflowerblue",
+		"royalblue", "blue", "mediumblue", "darkblue", "navy", "midnightblue", "burlywood", "tan",
+		"rosybrown", "sandybrown", "goldenrod", "darkgoldenrod", "Peru", "chocolate", "saddlebrown",
+		"sienna", "brown", "maroon", "silver", "darkgray", "gray", "dimgray", "lightslategray",
+		"slategray", "darkslategray"
+	],
 	logging: {},
 	enableLogging: function (type) {
 		if (typeof type !== "string" || type.length < 1) {
@@ -301,6 +319,28 @@ var ttp = {
             layout: layout
         });
 	},
+	//****************************************************************************************************
+	// Set the current color value
+	setColorUsernames: function(toggle) {
+		var oldValue = ttp.prefs.colorUsernames;
+		ttp.prefs.colorUsernames = (toggle) ? true : false;
+		ttp.savePrefs;
+
+		if (ttp.prefs.colorUsernames) {
+			ttp.send({
+				colorUsernames:{
+					toggle: true,
+					colors: ttp.colors	
+				}
+			});
+		} else {
+			ttp.send({
+				colorUsernames:{
+					toggle: false
+				}
+			});
+		}
+	},
 	processChatMsg: function (message) {
         var popups,
             avatarid,
@@ -316,6 +356,16 @@ var ttp = {
 		this.chatMessages.unshift(message);
 		if (popups.length > 0) {
             popups[0].addMessage(message);
+        }
+        // If colorUsernames is enabled, send a color usersname event.
+        if (this.prefs.colorUsernames) {
+	        ttp.send({
+				colorUsername: {
+					name: window.escape(message.name),
+					text: window.escape(message.text),
+					colors: ttp.colors
+				}
+			});
         }
 		if (this.user.userid !== message.userid && this.chatNotification_re.test(message.text)) {
 			if (popups.length > 0) {
