@@ -49,6 +49,8 @@ var ttplus = {
                         success: response
                     }
                 });
+            } else if (typeof request.highlightUserName === "object") {
+                ttplus.injectScript(ttplus.highlightChatUserName, request.highlightUserName);
             } else if (typeof request.highlightMessage === "object") {
                 ttplus.injectScript(ttplus.highlightChatMessage, request.highlightMessage);
             } else if (typeof request.speak === "string") {
@@ -717,7 +719,44 @@ var ttplus = {
 			}
 		});
 	},
-    toggleMute: function () {
+	highlightUserName: function (message) {
+		$($(".message").get().reverse()).each(function () {
+			if ($(this).find(".speaker").text() === unescape(message.name) && $(this).find(".text").text() === (": " + unescape(message.text))) {
+
+				var colors = [
+							"indianred", "lightcoral", "salmon", "darksalmon", "lightsalmon", "red", 
+							"crimson", "fireBrick", "darkred", "hotpink", "deeppink", "mediumvioletred", 
+							"palevioletred", "lightsalmon", "coral", "tomato", "orangered", "darkorange", 
+							"orange", "darkkhaki", "thistle", "plum", "violet", "orchid", "fuchsia", 
+							"Magenta", "mediumorchid", "mediumpurple", "darkviolet", "darkorchid", 
+							"darkmagenta", "purple", "indigo", "darkslateblue", "slateblue", 
+							"mediumslateblue", "reenyellow", "chartreuse", "lawngreen", "lime", 
+							"limegreen", "palegreen", "lightgreen", "mediumspringgreen", "springgreen", 
+							"mediumseagreen", "seagreen", "forestgreen", "green", "darkgreen", 
+							"yellowgreen", "olivedrab", "olive", "darkolivegreen", "mediumaquamarine", 
+							"darkseagreen", "lightseagreen", "darkcyan", "teal", "paleturquoise",
+							"aquamarine", "turquoise", "mediumturquoise", "darkturquoise", "cadetblue",
+							"steelblue", "lightsteelblue", "powderblue", "lightblue", "skyblue", 
+							"lightskyblue", "deepskyblue", "dodgerblue", "cornflowerblue", "royalblue", 
+							"blue", "mediumblue", "darkblue", "navy", "midnightblue", "burlywood", "tan",
+							"rosybrown", "sandybrown", "goldenrod", "darkgoldenrod", "Peru", "chocolate",
+							"saddlebrown", "sienna", "brown", "maroon", "silver", "darkgray", "gray", 
+							"dimgray", "lightslategray", "slategray", "darkslategray"
+						];
+
+				var i, hash = 0;
+				for (i = 0; i < message.name.length; i++) {
+					hash += (message.name[i].charCodeAt() * (i+1));
+				}
+
+				var index = Math.abs(hash % colors.length);
+
+				$(this).find(".speaker").css("color",  colors[index]);
+				return;
+			}
+		});
+	},
+	toggleMute: function () {
         var volume = ttp.roommanager.volume_bars ? 0 : ttp.roommanager.last_volume_bars;
 		ttp.roommanager.set_volume(volume);
 		ttp.roommanager.callback("set_volume", ttp.roommanager.volume_bars);
