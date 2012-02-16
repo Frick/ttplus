@@ -317,6 +317,12 @@ var ttp = {
 		if (popups.length > 0) {
             popups[0].addMessage(message);
         }
+       	ttp.send({
+                highlightUserName: {
+                    name: window.escape(message.name),
+                    text: window.escape(message.text)
+                }
+            });
 		if (this.user.userid !== message.userid && this.chatNotification_re.test(message.text)) {
 			if (popups.length > 0) {
                 popups[0].buildChatlog();
