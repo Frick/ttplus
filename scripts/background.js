@@ -14,7 +14,7 @@ var ttp = {
 	notifications: [],
 	missedNotifications: 0,
 	powerup: 0,
-	version: '0.0.52',
+	version: '0.1.0',
 	minVersion: '0.0.40',
 	prefs: {
 		notifications: {
@@ -75,7 +75,7 @@ var ttp = {
 				height: 0
 			}
 		},
-		version: '0.0.52'
+		version: '0.1.0'
 	},
 	logging: {},
 	enableLogging: function (type) {
@@ -811,11 +811,16 @@ var ttp = {
 			}
 			if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && isDj) {
 				ttp.isActive(function () {
-                    var name = (ttp.users[userid] !== undefined) ? ttp.users[userid].name : '[user not found]';
+                    var name = '',
+                        avatarid = '';
+                    if (ttp.users[userid] !== undefined) {
+                        name = ttp.users[userid].name;
+                        avatarid = ttp.users[userid].avatarid;
+                    }
 					if (ttp.prefs.notifications.textOnly) {
 						djNotification = webkitNotifications.createNotification(
                             chrome.extension.getURL('/images/openSpot-sm.png'),
-                            ttp.users[userid].name,
+                            name,
                             'has stepped down'
                         );
 						djNotification.show();
@@ -825,8 +830,8 @@ var ttp = {
 					} else {
 						ttp.notifications.push({
                             type: "djSpot",
-                            dj: ttp.users[userid].name,
-                            avatarid: ttp.users[userid].avatarid
+                            dj: name,
+                            avatarid: avatarid
                         });
 						webkitNotifications.createHTMLNotification('djNotification.html').show();
 					}
@@ -1206,10 +1211,13 @@ chrome.extension.onConnect.addListener(function (port) {
                         //{"command":"rem_dj","user":[{"name":"livyisakitty<3","created":1311653775.18,"laptop":"pc","userid":"4e2e3f8f4fe7d015d202a936","acl":0,"fans":51,"points":608,"avatarid":18}],"success":true}
                         break;
                     case "newsong":
-                        //ttp.addSong(msg.room);
+                        if (ttp.logging.songstart && !ttp.logging.all) {
+                            ttp.log(msg);
+                        }
+                        if (ttp.room.metadata && msg.room.metadata.current_song._id !== ttp.room.metadata.songlog[ttp.room.metadata.songlog.length - 1]._id) {
+                            ttp.addSong(msg.room);
+                        }
                         //{"now":1312339449.93,"command":"newsong","room":{"name":"Dubstep","created":1306076897.12,"shortcut":"dubstep","name_lower":"dubstep","metadata":{"djs":["4e1f4316a3f75107c5092d48","4de9abc74fe7d013dc026ee5","4e1f64144fe7d051130ad920","4dda04ade8a6c44df50000aa","4e2e3f8f4fe7d015d202a936"],"upvotes":0,"privacy":"public","max_djs":5,"downvotes":0,"userid":"4de9abc74fe7d013dc026ee5","listeners":138,"djcount":5,"max_size":200,"moderator_id":"4e2faacea3f7512c88084123","current_song":{"_id":"4e2261e499968e0258002141","metadata":{"album":"","song":"Indica Sativa","artist":"Bare","length":249,"genre":"Dubstep","bitrate":128},"starttime":1312339449.93,"md5":"0987c8f3ce9f6da0d1f7d3fc30958381"},"current_dj":"4dda04ade8a6c44df50000aa","votelog":[]},"roomid":"4dd926e1e8a6c4198c000803","description":"The original dubstep room. Come here to listen music, not argue about it. There is no DJ Queue. http://j.mp/whatisdubstep"},"success":true}
-                        ttp.room.metadata.upvotes = 0;
-                        ttp.room.metadata.downvotes = 0;
                         break;
                     case "new_moderator":
                         ttp.userMessages.newMod(msg.userid);
@@ -1241,13 +1249,6 @@ chrome.extension.onConnect.addListener(function (port) {
                     ttp.setupRoom(msg);
                 } else if (typeof msg === "object" && typeof msg.email === "string" && typeof msg.name === "string" && typeof msg.userid === "string") {
                     ttp.setupUserInfo(msg);
-                }
-            } else if (request.type === "songStart") {
-                if (ttp.logging.songstart && !ttp.logging.all) {
-                    ttp.log(msg);
-                }
-                if (ttp.room.metadata && msg.metadata.current_song._id !== ttp.room.metadata.songlog[ttp.room.metadata.songlog.length - 1]._id) {
-                    ttp.addSong(msg);
                 }
             } else if (request.type === "save") {
                 if (typeof msg.main === "object") {

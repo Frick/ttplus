@@ -103,11 +103,13 @@ var ttp = {
                 ttp.room.downvotes = 0;
                 ttp.room.hearts = 0;
                 ttp.room.upvoters = [];
+                ttp.room.listeners = msg.room.metadata.listeners;
                 ttp.room.current_dj = msg.room.metadata.current_dj;
-                $("#ttpUsersList .ttpUsersList .ttpUser").removeClass("ttpUserUpVote").removeClass("ttpUserDownVote");
-                $("#ttpRoomUpvotes").text("0");
-                $("#ttpRoomDownvotes").text("0");
-                $("#ttpRoomHearts").text("0");
+                $('#ttpUsersList .ttpUsersList .ttpUser').removeClass('ttpUserUpVote ttpUserDownVote');
+                $('#ttpRoomUpvotes').text('0');
+                $('#ttpRoomDownvotes').text('0');
+                $('#ttpRoomHearts').text('0');
+                $("#ttpRoomListeners").text(ttp.room.listeners);
                 $('#ttpUsersList .ttpUser').removeClass('ttpItalic');
                 $('#user' + ttp.room.current_dj).addClass('ttpItalic');
             } else if (msg.command === "registered") {
@@ -140,30 +142,6 @@ var ttp = {
         messageDiv = document.getElementById("ttpTurntableMessage");
         messageDiv.innerText = escape(JSON.stringify(msg));
         messageDiv.dispatchEvent(ttp.event);
-    },
-    songStart: function (msg) {
-        var room = ttp.roominfo,
-            users = room.users,
-            listeners = 0,
-            md = {
-                current_song: ttp.roominfo.currentSong,
-                current_dj: room.currentDj,
-                djcount: room.djIds.length,
-                djs: room.djIds,
-                listeners: 0,
-                moderator_id: room.moderators
-            },
-            x = 0,
-            length = users.length,
-            songStartDiv;
-
-        for (; x < length; x += 1) {
-            listeners += 1;
-        }
-        md.listeners = listeners - 1;
-        songStartDiv = document.getElementById("ttpSongStart");
-        songStartDiv.innerText = escape(JSON.stringify({metadata: md}));
-        songStartDiv.dispatchEvent(ttp.event);
     },
     saveSettings: function (settings) {
         var settingsDiv = document.getElementById("ttpSaveSettings");
@@ -250,7 +228,6 @@ ttp.startTime = ttp.now();
 ttp.idleInterval = window.setInterval(ttp.updateIdleTimes, 1000);
 
 turntable.addEventListener("message", ttp.newMessage);
-turntable.addEventListener("trackstart", ttp.songStart);
 
 ttp.ttpMessage("Listener Ready");
 
