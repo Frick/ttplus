@@ -1,6 +1,6 @@
 {
   "name": "Turntable Plus",
-  "version": "0.0.52",
+  "version": "0.1.0",
   "description": "Add abilities to turntable.fm that you thought were missing!",
   "icons": {
 	  "16": "images/ttp_icon16.png",
@@ -22,5 +22,5 @@
   "background_page": "background.html",
   "options_page": "settings.html",
   "homepage_url": "http://turntableplus.fm/beta",
-  "update_url": "http://turntableplus.fm/beta.xml"
+  "update_url": "http://turntableplus.fm/update.xml"
 }

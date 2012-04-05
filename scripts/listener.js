@@ -99,26 +99,11 @@ var ttplus = {
             delete window.initTimeout;
         }
 
-        $(window).unbind("beforeunload").bind("beforeunload", function () {
-            if ("Whoa there... where do you think you're going? Are you sure you want to leave turntable.fm?!") {
-                turntable.closeSocket;
-            } else {
-                return false;
-            }
-            return true;
-        });
-
-        $('body').append('<div id="ttp-messages" style="display:none;"><div id="ttpTurntableMessage"></div><div id="ttpSongStart"></div><div id="ttpSaveSettings"></div><div id="ttpMessage"></div></div>');
+        $('body').append('<div id="ttp-messages" style="display:none;"><div id="ttpTurntableMessage"></div><div id="ttpSaveSettings"></div><div id="ttpMessage"></div></div>');
 
         $('#ttpTurntableMessage').bind('ttpEvent', function () {
             ttplus.send({
                 type: 'ttMessage',
-                data: $(this).text()
-            });
-        });
-        $('#ttpSongStart').bind('ttpEvent', function () {
-            ttplus.send({
-                type: 'songStart',
                 data: $(this).text()
             });
         });
