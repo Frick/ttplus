@@ -39,7 +39,7 @@ function buildNotification(notification) {
 		} else {
             sound = bgPage.ttp.prefs.notifications.chat.sound;
         }
-		document.getElementById('sound').innerHTML = '<audio autoplay="autoplay"><source src="' + chrome.extension.getURL('sounds/' + sound) + '" /></audio>';
+		document.getElementById('sound').innerHTML = '<audio autoplay="autoplay"><source src="' + chrome.extension.getURL('sounds/' + sound) + '" type="audio/mpeg" /></audio>';
 	}
 	document.getElementById('tt_logo').onclick = function (e) {
 		chrome.tabs.update(bgPage.ttp.tabId, {selected: true});
@@ -51,12 +51,12 @@ function buildNotification(notification) {
 	document.getElementsByTagName('html')[0].onclick = function () {
 		if (navigator.appVersion.indexOf('Windows') !== -1) {
 			document.getElementsByTagName('html')[0].onclick = null;
-			document.getElementById('response').value = '@' + notification.speaker;
+			document.getElementById('response').value = '@' + notification.speaker + ' - ';
 			document.getElementById('chat-container').style.display = 'block';
 			window.clearTimeout(window.closeTimeout);
 			window.clearTimeout(window.fadeTimeout);
 			document.body.style.opacity = 1;
-			document.getElementById('response').onkeyup = function (e){
+			document.getElementById('response').onkeyup = function (e) {
 				if (e.keyCode === 13) {
 					chrome.tabs.sendRequest(bgPage.ttp.tabId, {speak: this.value});
 					this.value = '';
@@ -67,7 +67,7 @@ function buildNotification(notification) {
 					e.stopPropagation();
 					return false;
 				}
-			}
+			};
 			document.getElementById('response').focus();
 		} else {
 			chrome.tabs.update(bgPage.ttp.tabId, {selected: true});

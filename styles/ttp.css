@@ -238,6 +238,12 @@
     border-radius: 6px;
     box-shadow: inset 0 0 4px #333;
 }
+#ttp-allow-custom, #ttp-disable-custom {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 80px;
+}
 .ui-resizable {
     position: relative;
 }

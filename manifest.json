@@ -1,6 +1,6 @@
 {
   "name": "Turntable Plus",
-  "version": "0.0.52",
+  "version": "0.2.5",
   "description": "Add abilities to turntable.fm that you thought were missing!",
   "icons": {
 	  "16": "images/ttp_icon16.png",

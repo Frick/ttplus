@@ -1,11 +1,29 @@
 var ttplus = {
     TtObjectsReady: false,
     usersListReady: false,
+    event: document.createEvent("Event"),
     usersQueue: [],
     port: null,
-    send: function (msg) {
+    msgId: 0,
+    msgCallbacks: [],
+    send: function (data, callback) {
+        if (this.port === null) {
+            return false;
+        }
         try {
-            ttplus.port.postMessage(msg);
+            if (typeof data.msgId !== "number") {
+                this.msgId += 1;
+                data.msgId = this.msgId;
+                data.source = 'listener';
+            }
+            if (typeof callback === "function") {
+                this.msgCallbacks.push([
+                    this.msgId,
+                    callback
+                ]);
+            }
+            this.port.postMessage(data);
+            return this.msgId;
         } catch (e) {
             if (ttplus.port === null || e.message === "Attempting to use a disconnected port object") {
                 ttplus.port = chrome.extension.connect({name: 'ttp'});
@@ -15,14 +33,28 @@ var ttplus = {
                 console.log(e);
             }
         }
+        return false;
     },
     handleRequest: function (request) {
-        var response, path, room, vote;
+        var response, path, room, vote, div;
         //try {
-            if (typeof request.command === "string") {
+            if (request.source === "listener" && typeof request.msgId === "number" && typeof request.response !== "undefined") {
+                for (x = 0, length = ttplus.msgCallbacks.length; x < length; x += 1) {
+                    if (ttplus.msgCallbacks[x] !== undefined && ttplus.msgCallbacks[x][0] === request.msgId) {
+                        callback = ttp.msgCallbacks.splice(x, 1);
+                        callback[0][1](request.response, request.msgId);
+                    }
+                }
+                return;
+            } else if (request.source === "page" && typeof request.msgId === "number" && typeof request.response !== "undefined") {
+                div = document.getElementById("ttpResponse");
+                div.innerText = escape(JSON.stringify(request));
+                div.dispatchEvent(ttplus.event);
+            } else if (typeof request.command === "string") {
                 response = ttplus.injectScript(ttplus.exec, request.command);
                 ttplus.send({
                     msgId: request.msgId,
+                    source: request.source,
                     response: response
                 });
             } else if (typeof request.updateUserList === "string") {
@@ -45,6 +77,7 @@ var ttplus = {
                 }
                 ttplus.send({
                     msgId: request.msgId,
+                    source: request.source,
                     response: {
                         success: response
                     }
@@ -99,26 +132,11 @@ var ttplus = {
             delete window.initTimeout;
         }
 
-        $(window).unbind("beforeunload").bind("beforeunload", function () {
-            if ("Whoa there... where do you think you're going? Are you sure you want to leave turntable.fm?!") {
-                turntable.closeSocket;
-            } else {
-                return false;
-            }
-            return true;
-        });
-
-        $('body').append('<div id="ttp-messages" style="display:none;"><div id="ttpTurntableMessage"></div><div id="ttpSongStart"></div><div id="ttpSaveSettings"></div><div id="ttpMessage"></div></div>');
+        $('body').append('<div id="ttp-messages" style="display:none;"><div id="ttpTurntableMessage"></div><div id="ttpSaveSettings"></div><div id="ttpMessage"></div><div id="ttpResponse"></div></div>');
 
         $('#ttpTurntableMessage').bind('ttpEvent', function () {
             ttplus.send({
                 type: 'ttMessage',
-                data: $(this).text()
-            });
-        });
-        $('#ttpSongStart').bind('ttpEvent', function () {
-            ttplus.send({
-                type: 'songStart',
                 data: $(this).text()
             });
         });
@@ -140,6 +158,20 @@ var ttplus = {
                 ttplus.layoutChange();
             } else if (msg.command === "log") {
                 console.log(eval(msg.data));
+            } else if (typeof msg.get === "string") {
+                ttplus.send({
+                    msgId:  msg.msgId,
+                    source: 'page',
+                    type:   'get',
+                    data:   $(this).text()
+                });
+            } else if (typeof msg.type === "string") {
+                ttplus.send({
+                    msgId: msg.msgId,
+                    source: 'page',
+                    type: msg.type,
+                    data: $(this).text()
+                });
             }
         });
 
@@ -168,7 +200,7 @@ var ttplus = {
             usersListLeft = (expandedChat === true) ? bodyWidth - 205 : (bodyWidth - outerWidth) / 2 + outerWidth;
 
         if ($('#ttpUsersList').length < 1) {
-            $('<div id="ttpUsersList"><div class="ttpUsersListHeader"><span style="padding: 0 0 0 5px;">Votes: </span><span id="ttpRoomHearts" title="Number of Times Queued">0</span><span id="ttpRoomUpvotes" title="Awesomes">0</span><span id="ttpRoomDownvotes" title="Lames">0</span></div><div class="ttpBanner"><a href="' + path + 'settings.html" target="_blank"><img src="' + path + 'images/banner-logo.png" width="66" height="38" style="margin-left: 1px;" /></a><img src="' + path + 'images/banner-listeners.png" width="23" height="18" style="position:absolute;top:10px;right:38px;"><span id="ttpRoomListeners">0</span></div><div class="ttpUsersList"></div><div id="ttpUserSearch"><input type="text" placeholder="search users" /></div></div>').insertAfter(attachTo);
+            $('<div id="ttpUsersList"><div class="ttpUsersListHeader"><span style="padding: 0 0 0 5px;">Votes: </span><span id="ttpRoomHearts" title="Number of Times Queued">0</span><span id="ttpRoomUpvotes" title="Awesomes">0</span><span id="ttpRoomDownvotes" title="Lames">0</span></div><div class="ttpBanner"><a href="' + path + 'settings.html" target="_blank"><img src="' + path + 'images/banner-logo.png" width="66" height="38" style="margin-left: 1px;" /></a><a href="#" id="ttp-allow-custom"><img src="' + path + 'images/script-add.png" width="19" height="18" class="ttpCustom" title="Allow Room Customizations" /></a><a href="#" id="ttp-disable-custom"><img src="' + path + 'images/script-remove.png" width="19" height="18" class="ttpCustom" title="Disable Room Customizations" /></a><img src="' + path + 'images/banner-listeners.png" width="23" height="18" style="position:absolute;top:10px;right:38px;"><span id="ttpRoomListeners">0</span></div><div class="ttpUsersList"></div><div id="ttpUserSearch"><input type="text" placeholder="search users" /></div></div>').insertAfter(attachTo);
 
             $('#ttpUsersList .ttpUsersList').append('<div id="ttpUserActions"><span class="ttpUserActionsIdle">Idle: <span class="ttpIdleTime"></span></span><br /><span class="icon ttpFan" title="Fan"></span><span class="icon ttpProfile" title="View Profile"></span><span class="icon ttpTtdash" title="View Turntable Dashboard Profile"></span><span class="icon ttpAddMod" title="Grant Moderator Privileges"></span><span class="icon ttpIgnore" title="Ignore User"></span><span class="icon ttpBoot" title="Boot User"></span><span class="icon ttpRemoveDj" title="Remove DJ"></span></div>');
 
@@ -200,11 +232,17 @@ var ttplus = {
                     $(this).find('.ttpFan,.ttpUnfan').hide();
                     $(this).find('.ttpProfile').unbind('click').click(function (e) {
                         e.stopPropagation();
-                        ttp.request({
-                            api: "user.get_profile",
-                            userid: userid
-                        }, function (profile) {
-                            ttp.roominfo.setupProfileOverlay(profile);
+                        var getProfile = $.Deferred(),
+                            getPlacements = $.Deferred();
+                        $.when(getProfile, getPlacements).done(ttp.roominfo.setupProfileOverlay);
+                        ttp.request({api: "user.get_profile", userid: userid}, function(res) {
+                            getProfile.resolve(res);
+                        });
+                        ttp.request({api: "sticker.get_placements", userid: userid}, function(res) {
+                            var placements = {};
+                            placements[userid] = res.placements;
+                            $(document).trigger("add_sticker_placements", placements);
+                            getPlacements.resolve(res);
                         });
                     });
                     $(this).find('.ttpTtdash').unbind('click').click(function (e) {
@@ -396,9 +434,8 @@ var ttplus = {
             });
 
             $('#ttpUsersList .ttpUsersList .ttpUser').live('dblclick', function (e) {
-                var $input = $('.chat-container .input-box input');
                 e.stopPropagation();
-                $input.val($input.val() + '@' + $(this).attr('ttpUserName') + ' ').focus();
+                ttp.roominfo.handlePM({senderid: $(this).attr('id').substr(4)}, true);
             });
 
             // add user search
@@ -710,10 +747,12 @@ var ttplus = {
         }
     },
     highlightChatMessage: function (message) {
+        var name = window.unescape(message.name),
+            rgx = new RegExp(window.unescape(message.rgx), 'i');
 		$($(".message").get().reverse()).each(function () {
-			if ($(this).find(".speaker").text() === unescape(message.name) && $(this).find(".text").text() === (": " + unescape(message.text))) {
+			if ($(this).find(".speaker").text() === name && rgx.test($(this).find(".text").text())) {
 				$(this).css("background-color", "#ff9");
-				return;
+				return false;
 			}
 		});
 	},
@@ -1032,5 +1071,5 @@ var ttplus = {
         } else return (elem);
     }
 }
-
+ttplus.event.initEvent("ttpEvent", true, true);
 ttplus.init();

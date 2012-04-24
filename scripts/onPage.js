@@ -1,3 +1,4 @@
+var TTPAPI_Events = {};
 var ttp = {
     roominfo: null,
     roommanager: null,
@@ -11,8 +12,25 @@ var ttp = {
     event: document.createEvent("Event"),
     enterKey: document.createEvent("KeyboardEvent"),
     roomLocation: window.location.pathname,
+    msgId: 0,
+    msgCallbacks: [],
+    send: function (data, callback) {
+        var div;
+        if (typeof data.msgId !== "number") {
+            this.msgId += 1;
+            data.msgId = this.msgId;
+            data.source = 'page';
+        }
+        if (typeof callback === "function") {
+            this.msgCallbacks.push([this.msgId, callback]);
+        }
+        div = document.getElementById("ttpMessage");
+        div.innerText = escape(JSON.stringify(data));
+        div.dispatchEvent(ttp.event);
+        return this.msgId;
+    },
     getRoomObjects: function (roomChange) {
-        var x;
+        var x, listenerCount = 0;
 
         if (ttp.roominfo === null || roomChange) {
             for (x in turntable) {
@@ -30,10 +48,20 @@ var ttp = {
                 }
             }
         }
-        if (ttp.roominfo === null || ttp.roommanager === null) {
+        if (ttp.roommanager !== null) {
+            for (x in ttp.roommanager.listeners) {
+                if (ttp.roommanager.listeners[x].hasOwnProperty('isAvatar') === true) {
+                    listenerCount += 1;
+                }
+            }
+        }
+        if (ttp.roominfo === null || ttp.roommanager === null || listenerCount === 0) {
             window.setTimeout(ttp.getRoomObjects, 100, roomChange);
-        } else if (roomChange !== true) {
+        } else if (roomChange === true) {
+            ttp.ready(ttp.checkForCustomizations);
+        } else {
             ttp.ttpMessage("TT Objects Ready");
+            ttp.ready(ttp.checkForCustomizations);
         }
     },
     request: function (request, callback) {
@@ -51,6 +79,52 @@ var ttp = {
             }
         }
     },
+    voteFunc: null,
+    vote: function (vote) {
+        var vote_re = /api: ?"room\.vote"/i,
+            x;
+
+        if (typeof ttp.roominfo === "object" && ttp.roominfo !== null) {
+            for (x in ttp.roominfo) {
+                if (typeof ttp.roominfo[x] === "function") {
+                    ttp.roominfo[x].toString = Function.prototype.toString;
+                    if (vote_re.test(ttp.roominfo[x].toString())) {
+                        ttp.voteFunc = ttp.roominfo[x];
+                        ttp.vote = function (vote) {
+                            ttp.voteFunc.apply(ttp.roominfo, [vote]);
+                        };
+                        ttp.vote(vote);
+                        break;
+                    }
+                }
+            }
+        } else {
+            window.setTimeout(function () {
+                ttp.vote(vote);
+            }, 500);
+        }
+    },
+    readyList: [],
+    ready: function (fn) {
+        ttp.send({type: 'get', get: 'isSetup'}, function (isSetup) {
+            var x = 0,
+                length = ttp.readyList.length;
+            if (isSetup === true) {
+                if (typeof fn === 'function') {
+                    fn();
+                }
+                for (; x < length; x += 1) {
+                    ttp.readyList[x]();
+                    ttp.readyList.slice(x, 1);
+                }
+            } else {
+                if (typeof fn === 'function') {
+                    ttp.readyList.push(fn);
+                }
+                window.setTimeout(ttp.ready, 100);
+            }
+        });
+    },
     newMessage: function (msg) {
         var now = ttp.now(),
             x = 0,
@@ -62,6 +136,7 @@ var ttp = {
             a;
 
         if (typeof msg.command === "string") {
+            $(TTPAPI_Events).triggerHandler(msg.command, msg);
             if (msg.command === "update_votes") {
                 for (x = 0, length = msg.room.metadata.votelog.length; x < length; x += 1) {
                     user = ttp.roominfo.users[msg.room.metadata.votelog[x][0]];
@@ -103,11 +178,13 @@ var ttp = {
                 ttp.room.downvotes = 0;
                 ttp.room.hearts = 0;
                 ttp.room.upvoters = [];
+                ttp.room.listeners = msg.room.metadata.listeners;
                 ttp.room.current_dj = msg.room.metadata.current_dj;
-                $("#ttpUsersList .ttpUsersList .ttpUser").removeClass("ttpUserUpVote").removeClass("ttpUserDownVote");
-                $("#ttpRoomUpvotes").text("0");
-                $("#ttpRoomDownvotes").text("0");
-                $("#ttpRoomHearts").text("0");
+                $('#ttpUsersList .ttpUsersList .ttpUser').removeClass('ttpUserUpVote ttpUserDownVote');
+                $('#ttpRoomUpvotes').text('0');
+                $('#ttpRoomDownvotes').text('0');
+                $('#ttpRoomHearts').text('0');
+                $("#ttpRoomListeners").text(ttp.room.listeners);
                 $('#ttpUsersList .ttpUser').removeClass('ttpItalic');
                 $('#user' + ttp.room.current_dj).addClass('ttpItalic');
             } else if (msg.command === "registered") {
@@ -125,6 +202,9 @@ var ttp = {
                 }
                 ttp.room.hearts += 1;
                 $("#ttpRoomHearts").text(ttp.room.hearts);
+                if (ttp.roominfo.users[msg.userid]) {
+                    ttp.roominfo.users[msg.userid].lastActivity = now;
+                }
             }
         } else if (typeof msg.users === "object" && typeof msg.room === "object" && typeof msg.room.metadata === "object" && typeof msg.room.metadata.songlog === "object") {
             if (ttp.roomLocation !== window.location.pathname) {
@@ -134,36 +214,19 @@ var ttp = {
                 ttp.startTime = ttp.now();
                 $("#ttpRoomHearts").text("0");
                 $('#ttpUsersList .ttpUsersList .ttpUser').remove();
+
+                // try to clear room customizations
+                if (window.ttpapi instanceof TTPAPI) {
+                    ttpapi.destroy();
+                }
+
+                $(TTPAPI_Events).triggerHandler('roomChanged', msg);
             }
             ttp.room.current_dj = msg.room.metadata.current_dj;
         }
         messageDiv = document.getElementById("ttpTurntableMessage");
         messageDiv.innerText = escape(JSON.stringify(msg));
         messageDiv.dispatchEvent(ttp.event);
-    },
-    songStart: function (msg) {
-        var room = ttp.roominfo,
-            users = room.users,
-            listeners = 0,
-            md = {
-                current_song: ttp.roominfo.currentSong,
-                current_dj: room.currentDj,
-                djcount: room.djIds.length,
-                djs: room.djIds,
-                listeners: 0,
-                moderator_id: room.moderators
-            },
-            x = 0,
-            length = users.length,
-            songStartDiv;
-
-        for (; x < length; x += 1) {
-            listeners += 1;
-        }
-        md.listeners = listeners - 1;
-        songStartDiv = document.getElementById("ttpSongStart");
-        songStartDiv.innerText = escape(JSON.stringify({metadata: md}));
-        songStartDiv.dispatchEvent(ttp.event);
     },
     saveSettings: function (settings) {
         var settingsDiv = document.getElementById("ttpSaveSettings");
@@ -242,27 +305,225 @@ var ttp = {
         $(".chatHeader").removeClass("active");
         ttp.roominfo.chatOffsetTopOld = ttp.roominfo.chatOffsetTop;
         util.setSetting("chatOffset", String(ttp.roominfo.chatOffsetTop));
+    },
+    roomCustomizations: {},
+    checkForCustomizations: function () {
+        $('#ttp-allow-custom,#ttp-disable-custom').hide();
+
+        // check preferences for local overrides first
+
+        $.getJSON('http://bots.turntableplus.fm/room/' + ttp.roominfo.roomId + '?callback=?', function (room) {
+            var url = "", script, overlay;
+            if (room.success === true) {
+                ttp.roomCustomizations = room;
+                ttp.send({get: 'preferences'}, function (prefs) {
+                    var x = prefs.roomCustomizationsAllowed.length;
+                    while (x--) {
+                        if (prefs.roomCustomizationsAllowed[x] === ttp.roominfo.roomId) {
+                            break;
+                        }
+                    }
+                    if (x !== -1) {
+                        // display icon to disable custom scripts in this room
+                        $('#ttp-disable-custom').show().click(function () {
+                            ttp.send({type: 'save', disallowRoomCuztomization: ttp.roominfo.roomId});
+                            if (window.ttpapi instanceof TTPAPI) {
+                                ttpapi.destroy();
+                                ttp.customizationScriptsLoaded = false;
+                            }
+                            ttp.checkForCustomizations();
+                            return false;
+                        });
+
+                        // build ttpapi object
+                        window.ttpapi = new TTPAPI();
+
+                        if (typeof room.bots === 'object' && room.bots.length > 0) {
+                            io.j = [];
+                            script      = document.createElement('script');
+                            script.type = 'text/javascript';
+                            script.id   = 'ttp-custom-bot';
+                            script.src  = 'http://cdn.turntableplus.fm/socket.io.js';
+                            script.onload = function () {
+                                var x = 0,
+                                    length = room.bots.length,
+                                    bots = {},
+                                    bot;
+                                ttpio.transports = ['websocket', 'xhr-polling'];
+                                for (; x < length; x += 1) {
+                                    if (room.bots[x].url !== undefined && room.bots[x].uid !== undefined && ttp.roominfo.users[room.bots[x].uid] !== undefined) {
+                                        bot = room.bots[x];
+                                        url = (typeof bot.port === 'number') ? bot.url + ':' + bot.port : bot.url;
+                                        bots[bot.uid] = ttpio.connect(url);
+                                        bots[bot.uid].on('connect', function () {
+                                            bots[bot.uid].emit('auth', {
+                                                userid: turntable.user.id,
+                                                auth: $.sha1(turntable.user.auth)
+                                            }, function (data) {
+                                                if (data.success === true) {
+                                                    bots[bot.uid].auth = true;
+                                                    if (typeof bot.name === 'string' && bot.name.length > 0) {
+                                                        ttpapi[bot.name] = bots[bot.uid];
+                                                    }
+                                                    ttpapi.bot = bots[bot.uid];
+                                                } else {
+                                                    bots[bot.uid].auth = false;
+                                                    if (typeof data.error === 'string' && data.log !== undefined && data.log === true) {
+                                                        console.log('Turntable Plus: Bot (' + (typeof room.bots[x].name === 'string' ? room.bots[x].name : '') + ' : ' + room.bots[x].uid + ') Error - ' + data.error);
+                                                    }
+                                                    if (typeof data.error === 'string' && data.alert !== undefined && data.alert === true) {
+                                                        turntable.showAlert(data.error);
+                                                    }
+                                                }
+                                                ttp.loadCustomizationScripts(room);
+                                            });
+                                        });
+                                    }
+                                }
+                                window.setTimeout(function () {
+                                    ttp.loadCustomizationScripts(room);
+                                }, 15000);
+                            };
+                            document.head.appendChild(script);
+                        } else {
+                            ttp.loadCustomizationScripts(room);
+                        }
+                    } else {
+                        // display icon to enable custom scripts in this room
+                        $('#ttp-allow-custom').show().click(function () {
+                            overlay = util.buildTree(["div.modal", {}, ["div.close-x", {event: {click: util.hideOverlay}}], ["h1", "Allow Room Customizations"], ["br"], "Are you sure you wish to enable customizations provided by this room?  The content contained within these scripts has been (loosely) vetted by Turntable Plus, but are not endorsed by Turntable or Turntable Plus.  If you have any issues with the customizations, contact the room creator or moderators.", ["br"], ["br"], ["div.ok-button.centered-button", {event: {click: function () {ttp.send({type: 'save', allowRoomCustomization: ttp.roominfo.roomId}); ttp.checkForCustomizations(); util.hideOverlay();}}}], ["br"], ["p.cancel", {}, "or ", ["span.no-thanks", {event: {click: util.hideOverlay}}, "cancel"]]]);
+                            util.showOverlay($(overlay));
+                            return false;
+                        });
+                    }
+                });
+            } else {
+                ttp.roomCustomizations = {
+                    success: false,
+                    customizations: 'none',
+                    ts: util.nowStr()
+                };
+            }
+        });
+    },
+    customizationScriptsLoaded: false,
+    loadCustomizationScripts: function (room) {
+        var script, styles;
+        if ($('#pmWindows').length < 1) {
+            window.setTimeout(ttp.loadCustomizationScripts, 200, room);
+        }
+        if (ttp.customizationScriptsLoaded === true) {
+            return;
+        } else {
+            ttp.customizationScriptsLoaded = true;
+        }
+        if (room.script !== undefined && room.script.path !== undefined && room.script.modified !== undefined) {
+            script      = document.createElement('script');
+            script.type = 'text/javascript';
+            script.id   = 'ttp-custom-script';
+            script.src  = room.script.path + "?" + room.script.modified;
+            document.head.appendChild(script);
+        }
+
+        if (room.styles !== undefined && room.styles.path !== undefined && room.styles.modified !== undefined) {
+            styles      = document.createElement('link');
+            styles.rel  = 'stylesheet';
+            styles.type = 'text/css';
+            styles.id   = 'ttp-custom-style';
+            styles.href = room.styles.path + "?" + room.styles.modified;
+            document.head.appendChild(styles);
+        }
     }
 }
 ttp.event.initEvent("ttpEvent", true, true);
 ttp.enterKey.initKeyboardEvent("keypress", true, true, null, false, false, false, false, 13, 2386);
 ttp.startTime = ttp.now();
 ttp.idleInterval = window.setInterval(ttp.updateIdleTimes, 1000);
+$('#ttpResponse').bind('ttpEvent', function () {
+    var response = JSON.parse(unescape($(this).text()));
+    if (response.source === "page" && typeof response.msgId === "number" && typeof response.response !== "undefined") {
+        for (x = 0, length = ttp.msgCallbacks.length; x < length; x += 1) {
+            if (ttp.msgCallbacks[x] !== undefined && ttp.msgCallbacks[x][0] === response.msgId) {
+                callback = ttp.msgCallbacks.splice(x, 1);
+                callback[0][1](response.response, response.msgId);
+            }
+        }
+        return;
+    }
+});
 
-turntable.addEventListener("message", ttp.newMessage);
-turntable.addEventListener("trackstart", ttp.songStart);
-
-ttp.ttpMessage("Listener Ready");
+turntable.addEventListener('message', ttp.newMessage);
+ttp.ttpMessage('Listener Ready');
 
 $(document).ready(ttp.getRoomObjects);
 
-String.prototype.padLeft = function (length, char) {
-    var output = "",
+// add API for custom scripts
+var TTPAPI = function () {
+    this.bindings = [];
+    this.roomid   = ttp.roominfo.roomId;
+    this.users    = ttp.roominfo.users;
+};
+TTPAPI.prototype.on = function (eventType, handler) {
+    if (typeof handler !== 'function') {
+        return;
+    }
+    func = function (e, data) {
+        handler(data);
+    };
+    this.bindings.push([eventType, func]);
+    $(TTPAPI_Events).bind(eventType, func);
+};
+TTPAPI.prototype.unbind = function (eventType, handler) {
+    if (typeof handler === 'function') {
+        $(TTPAPI_Events).unbind(eventType, handler);
+    } else {
+        $(TTPAPI_Events).unbind(eventType);
+    }
+};
+TTPAPI.prototype.unbindAll = function () {
+    var x = 0, length = this.bindings.length, eventType, handler;
+    for (; x < length; x += 1) {
+        eventType = this.bindings[x][0];
+        handler = this.bindings[x][1];
+        $(TTPAPI_Events).unbind(eventType, handler);
+    }
+};
+TTPAPI.prototype.destroy = function () {
+    var x = 0, length, bots;
+    if (typeof this.cleanup === 'function') {
+        this.cleanup();
+    }
+    this.unbindAll();
+    $('ttp-custom-script').remove();
+    $('ttp-custom-styles').remove();
+    $('ttp-custom-bot').remove();
+    if (window.ttpapi !== undefined) {
+        if (ttpapi.bot !== undefined && typeof ttpapi.bot.disconnect === 'function') {
+            if (typeof ttp.roomCustomizations.bots === 'object' && ttp.roomCustomizations.bots.length > 0) {
+                bots = ttp.roomCustomizations.bots;
+                length = bots.length;
+                for (; x < length; x += 1) {
+                    if (typeof bots[x].name === 'string' && bots[x].name.length > 0 && ttpapi[bots[x].name] !== undefined && typeof ttpapi[bots[x].name].disconnect === 'function') {
+                        ttpapi[bots[x].name].disconnect();
+                    }
+                }
+            }
+            ttpapi.bot.disconnect();
+            if (window.ttpio !== undefined) {
+                delete window.ttpio;
+            }
+        }
+        delete window.ttpapi;
+    }
+}
+
+String.prototype.padLeft = function (length, str) {
+    var output = '',
         i = 0;
     if (this.length < length) {
         length = length - this.length;
         for (; i < length; i++) {
-            output += char;
+            output += str;
         }
     }
     return output + this;
