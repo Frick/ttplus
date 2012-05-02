@@ -718,6 +718,9 @@ var ttplus = {
             snapTolerance: 10
         });
     },
+    addSongQueueCount: function() {
+        ttp.loadSongQueueCount();
+    },
     layoutChange:  function (expandedChat, layout, path) {
         var usersListReady = false;
         if (expandedChat !== undefined) {
@@ -744,6 +747,7 @@ var ttplus = {
                 ttplus.processUsersQueue();
             }
             ttplus.injectScript(ttplus.addDragNDrop, ttplus.layoutChange.expandedChat);
+            ttplus.injectScript(ttplus.addSongQueueCount);
         }
     },
     highlightChatMessage: function (message) {
