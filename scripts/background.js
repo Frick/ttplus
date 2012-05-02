@@ -1,118 +1,118 @@
 var ttp = {
-	tt_re: /https?:\/\/[^\/]*turntable\.fm\/.*/i,
-	ttRoom_re: /https?:\/\/turntable\.fm\/(?!lobby\/?|static\/?|settings\/?|getfile\/?|down\/?|about\/?|terms\/?|privacy\/?|copyright\/?|jobs\/?|admin\/?).+/i,
-	chatNotification_re: /$^/,
-	tabId: null,
+    tt_re: /https?:\/\/[^\/]*turntable\.fm\/.*/i,
+    ttRoom_re: /https?:\/\/turntable\.fm\/(?!lobby\/?|static\/?|settings\/?|getfile\/?|down\/?|about\/?|terms\/?|privacy\/?|copyright\/?|jobs\/?|admin\/?).+/i,
+    chatNotification_re: /$^/,
+    tabId: null,
     port: null,
     msgId: 0,
     msgCallbacks: [],
-	room: {},
-	user: {},
-	users: {},
+    room: {},
+    user: {},
+    users: {},
     isSetup: false,
-	chatMessages: [],
-	lastPopupTab: 'songtab',
-	notifications: [],
-	missedNotifications: 0,
-	powerup: 0,
-	version: '0.2.6',
-	minVersion: '0.2.1',
-	prefs: {
-		notifications: {
-			on: true,
-			textOnly: false,
-			sounds: true,
-			idleTimeout: 1200,
-			chat: {
-				on: true,
-				sound: "mario_coin.mp3",
-				duration: 5000,
-				fade: 500,
-				keywords: []
-			},
-			pm: {
-				on: true,
-				sound: "",
-				duration: 15000,
-				fade: 500
-			},
-			song: {
-				on: true,
-				sound: "",
-				duration: 10000,
-				fade: 500
-			},
-			vote: {
-				on: false,
-				sound: "",
-				duration: 2000,
-				fade: 0
-			},
-			djSpot: {
-				on: true,
-				sound: "",
-				duration: 15000,
-				fade: 500
-			}
-		},
-		searchProviders: [],
-		defaultSearchProvider: 'hulkshare',
-		alternateLayout: false,
-		layout: {
-			main: {
-				top: 0,
-				left: 0
-			},
-			chat: {
-				top: 0,
-				left: 0,
-				width: 0,
-				height: 0
-			},
-			users: {
-				top: 0,
-				left: 0,
-				width: 0,
-				height: 0
-			}
-		},
+    chatMessages: [],
+    lastPopupTab: 'songtab',
+    notifications: [],
+    missedNotifications: 0,
+    powerup: 0,
+    version: '0.2.6',
+    minVersion: '0.2.1',
+    prefs: {
+        notifications: {
+            on: true,
+            textOnly: false,
+            sounds: true,
+            idleTimeout: 1200,
+            chat: {
+                on: true,
+                sound: "mario_coin.mp3",
+                duration: 5000,
+                fade: 500,
+                keywords: []
+            },
+            pm: {
+                on: true,
+                sound: "",
+                duration: 15000,
+                fade: 500
+            },
+            song: {
+                on: true,
+                sound: "",
+                duration: 10000,
+                fade: 500
+            },
+            vote: {
+                on: false,
+                sound: "",
+                duration: 2000,
+                fade: 0
+            },
+            djSpot: {
+                on: true,
+                sound: "",
+                duration: 15000,
+                fade: 500
+            }
+        },
+        searchProviders: [],
+        defaultSearchProvider: 'hulkshare',
+        alternateLayout: false,
+        layout: {
+            main: {
+                top: 0,
+                left: 0
+            },
+            chat: {
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0
+            },
+            users: {
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0
+            }
+        },
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-		version: '0.2.6'
-	},
-	logging: {},
-	enableLogging: function (type) {
-		if (typeof type !== "string" || type.length < 1) {
+        version: '0.2.6'
+    },
+    logging: {},
+    enableLogging: function (type) {
+        if (typeof type !== "string" || type.length < 1) {
             return;
         }
-		this.logging[type] = true;
-		console.log('Enabled logging of "' + type + '"...');
-	},
-	disableLogging: function (type) {
-		if (typeof type !== "string" || type.length < 1) {
+        this.logging[type] = true;
+        console.log('Enabled logging of "' + type + '"...');
+    },
+    disableLogging: function (type) {
+        if (typeof type !== "string" || type.length < 1) {
             return;
         }
-		this.logging[type] = false;
-		console.log('Disabled logging of "' + type + '"...');
-	},
-	log: function (msg) {
-		var now = new Date(),
+        this.logging[type] = false;
+        console.log('Disabled logging of "' + type + '"...');
+    },
+    log: function (msg) {
+        var now = new Date(),
             datetime = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds() + '.' + now.getMilliseconds();
 
-		if (typeof msg.command  === "string") {
-			console.log(datetime + ' ' + msg.command + ': ', arguments);
-		} else {
+        if (typeof msg.command  === "string") {
+            console.log(datetime + ' ' + msg.command + ': ', arguments);
+        } else {
             console.log(datetime + ' - ', arguments);
         }
-	},
-	isActive: function (callback, returnState) {
-		chrome.idle.queryState(15, function (state) {
-			//seems to be a bug in current idle detection implementation (Chrome issue)
-			if (ttp.logging.idle || ttp.logging.all) {
+    },
+    isActive: function (callback, returnState) {
+        chrome.idle.queryState(15, function (state) {
+            //seems to be a bug in current idle detection implementation (Chrome issue)
+            if (ttp.logging.idle || ttp.logging.all) {
                 ttp.log('queryState,15:', state);
             }
-			if (state !== 'locked') {
-				//chrome.idle.queryState(1200, function(state2) {
-				//  if (ttp.logging.idle || ttp.logging.all) ttp.log('queryState,1200:',state2);
+            if (state !== 'locked') {
+                //chrome.idle.queryState(1200, function(state2) {
+                //  if (ttp.logging.idle || ttp.logging.all) ttp.log('queryState,1200:',state2);
                 if (state !== 'locked' && returnState) {
                     callback(true);
                 } else if (state !== 'locked') {
@@ -120,14 +120,14 @@ var ttp = {
                 } else if (returnState) {
                     callback(false);
                 }
-				//});
-			} else if (returnState) {
+                //});
+            } else if (returnState) {
                 callback(false);
             }
-		});
-	},
-	getTurntableTabId: function (callback, room) {
-		var regex = (room !== false) ? this.ttRoom_re : this.tt_re,
+        });
+    },
+    getTurntableTabId: function (callback, room) {
+        var regex = (room !== false) ? this.ttRoom_re : this.tt_re,
             found = false,
             tabId = false,
             i = 0,
@@ -135,7 +135,7 @@ var ttp = {
             windowsLength,
             tabsLength;
 
-		chrome.windows.getAll({populate: true}, function (windows) {
+        chrome.windows.getAll({populate: true}, function (windows) {
             for (i = 0, windowsLength = windows.length; i < windowsLength; i += 1) {
                 for (x = 0, tabsLength = windows[i].tabs.length; x < tabsLength; x += 1) {
                     if (regex.test(windows[i].tabs[x].url)) {
@@ -150,29 +150,29 @@ var ttp = {
             }
             callback(tabId);
         });
-	},
-	openTurntable: function () {
-		this.getTurntableTabId(function (tabId) {
-			if (tabId !== false) {
-				chrome.tabs.update(tabId, {"selected": true});
-			} else {
-				chrome.tabs.getSelected(null, function (tab) {
-					chrome.tabs.create({
+    },
+    openTurntable: function () {
+        this.getTurntableTabId(function (tabId) {
+            if (tabId !== false) {
+                chrome.tabs.update(tabId, {"selected": true});
+            } else {
+                chrome.tabs.getSelected(null, function (tab) {
+                    chrome.tabs.create({
                         index: tab.index + 1,
                         url: "http://turntable.fm/"
                     });
-				});
-			}
-		}, false);
-	},
-	injectListener: function () {
-		if (typeof this.tabId !== "number") {
+                });
+            }
+        }, false);
+    },
+    injectListener: function () {
+        if (typeof this.tabId !== "number") {
             return;
         }
         chrome.tabs.insertCSS(this.tabId, {file: "styles/ttp.css"});
-		chrome.tabs.executeScript(this.tabId, {file: "scripts/jquery.js"});
-		chrome.tabs.executeScript(this.tabId, {file: "scripts/listener.js"});
-	},
+        chrome.tabs.executeScript(this.tabId, {file: "scripts/jquery.js"});
+        chrome.tabs.executeScript(this.tabId, {file: "scripts/listener.js"});
+    },
     send: function (data, callback) {
         if (this.port === null) {
             return false;
@@ -192,21 +192,21 @@ var ttp = {
         return this.msgId;
     },
     exec: function (command, callback) {
-		ttp.send({command: command}, callback);
-	},
-	setupRoom: function (roominfo) {
+        ttp.send({command: command}, callback);
+    },
+    setupRoom: function (roominfo) {
         var songlog = [],
             x = 0,
             length = 0;
 
-		if (window.setupTimeout !== undefined) {
+        if (window.setupTimeout !== undefined) {
             window.clearTimeout(window.setupTimeout);
             delete window.setupTimeout;
         }
-		if (typeof ttp.user.userid !== "string") {
+        if (typeof ttp.user.userid !== "string") {
             ttp.setupUserInfo();
         }
-		if (typeof roominfo === "object" && typeof roominfo.room !== "undefined" && typeof roominfo.users !== "undefined") {
+        if (typeof roominfo === "object" && typeof roominfo.room !== "undefined" && typeof roominfo.users !== "undefined") {
             if (typeof roominfo.room.metadata === "object" && typeof roominfo.room.metadata.songlog === "object") {
                 ttp.room = roominfo.room;
             } else {
@@ -214,16 +214,16 @@ var ttp = {
                 ttp.room = roominfo.room;
                 ttp.room.metadata.songlog = songlog;
             }
-			ttp.users = {};
-			for (x in roominfo.users) {
+            ttp.users = {};
+            for (x in roominfo.users) {
                 if (roominfo.users[x].hasOwnProperty('userid')) {
                     ttp.users[roominfo.users[x].userid] = roominfo.users[x];
                 }
-			}
-			if (ttp.prefs.notifications.chat.keywords.length > 0) {
+            }
+            if (ttp.prefs.notifications.chat.keywords.length > 0) {
                 ttp.chatNotification_re = new RegExp("(?:[^a-z0-9]|^)(?:" + ttp.prefs.notifications.chat.keywords.join("|") + ")(?:[^a-z0-9]|$)", "i");
             }
-			ttp.send({
+            ttp.send({
                 updateUserList: "add",
                 users: roominfo.users,
                 clear: true,
@@ -234,11 +234,11 @@ var ttp = {
                     current_dj: ttp.room.metadata.current_dj
                 }
             }, ttp.setupSuccess);
-		} else {
-			ttp.send({setup: true});
-			window.setupTimeout = window.setTimeout(ttp.setupRoom, 5000);
-		}
-	},
+        } else {
+            ttp.send({setup: true});
+            window.setupTimeout = window.setTimeout(ttp.setupRoom, 5000);
+        }
+    },
     setupSuccess: function (response) {
         var x = 0,
             length;
@@ -266,30 +266,30 @@ var ttp = {
             }
         }
     },
-	setupUserInfo: function (user) {
-		if (window.userInfoTimeout !== undefined) {
+    setupUserInfo: function (user) {
+        if (window.userInfoTimeout !== undefined) {
             window.clearTimeout(window.userInfoTimeout);
             delete window.userInfoTimeout;
         }
-		if (typeof user === "object" && typeof user.userid === "string" && typeof user.name === "string") {
-			ttp.user = user;
-			delete ttp.user.msgid;
-			delete ttp.user.success;
-			if (ttp.prefs.notifications.chat.keywords.length === 0) {
+        if (typeof user === "object" && typeof user.userid === "string" && typeof user.name === "string") {
+            ttp.user = user;
+            delete ttp.user.msgid;
+            delete ttp.user.success;
+            if (ttp.prefs.notifications.chat.keywords.length === 0) {
                 ttp.addChatKeyword(ttp.user.name);
             }
             if (ttp.users) {
                 ttp.users[ttp.user.userid] = ttp.user;
             }
-		} else {
+        } else {
             ttp.send({getUserInfo: true});
-			window.userInfoTimeout = window.setTimeout(ttp.setupUserInfo, 2500);
-		}
-	},
-	setLayout: function (layout) {
-		ttp.prefs.alternateLayout = (layout) ? true : false;
-		ttp.savePrefs();
-		if (ttp.prefs.alternateLayout) {
+            window.userInfoTimeout = window.setTimeout(ttp.setupUserInfo, 2500);
+        }
+    },
+    setLayout: function (layout) {
+        ttp.prefs.alternateLayout = (layout) ? true : false;
+        ttp.savePrefs();
+        if (ttp.prefs.alternateLayout) {
             ttp.send({
                 changeLayout: true,
                 layout: ttp.prefs.layout
@@ -300,82 +300,82 @@ var ttp = {
                 layout: ttp.prefs.layout
             });
         }
-	},
-	changeLayout: function (alternateLayout, layout) {
-		ttp.send({
+    },
+    changeLayout: function (alternateLayout, layout) {
+        ttp.send({
             changeLayout: alternateLayout,
             layout: layout
         });
-	},
-	processChatMsg: function (message) {
+    },
+    processChatMsg: function (message) {
         var popups,
             avatarid,
             chatNotification;
 
-		if (ttp.storage.isIgnored(message.userid)) {
+        if (ttp.storage.isIgnored(message.userid)) {
             return;
         }
-		popups = chrome.extension.getViews({type: "popup"});
-		if (this.chatMessages.length >= 50) {
+        popups = chrome.extension.getViews({type: "popup"});
+        if (this.chatMessages.length >= 50) {
             this.chatMessages.pop();
         }
-		this.chatMessages.unshift(message);
-		if (popups.length > 0) {
+        this.chatMessages.unshift(message);
+        if (popups.length > 0) {
             popups[0].addMessage(message);
         }
-		if (this.user.userid !== message.userid && this.chatNotification_re.test(message.text)) {
-			if (popups.length > 0) {
+        if (this.user.userid !== message.userid && this.chatNotification_re.test(message.text)) {
+            if (popups.length > 0) {
                 popups[0].buildChatlog();
             }
-			avatarid = (typeof this.users[message.userid] !== "undefined") ? this.users[message.userid].avatarid : "5";
-			this.storage.saveMessage({
+            avatarid = (typeof this.users[message.userid] !== "undefined") ? this.users[message.userid].avatarid : "5";
+            this.storage.saveMessage({
                 userid: message.userid,
                 speaker: message.name,
                 text: message.text,
                 avatarId: avatarid
             });
-			if (this.prefs.notifications.on && this.prefs.notifications.chat.on) {
-				this.isActive(function (active) {
-					if (active) {
-						if (ttp.prefs.notifications.textOnly) {
-							chatNotification = webkitNotifications.createNotification(
+            if (this.prefs.notifications.on && this.prefs.notifications.chat.on) {
+                this.isActive(function (active) {
+                    if (active) {
+                        if (ttp.prefs.notifications.textOnly) {
+                            chatNotification = webkitNotifications.createNotification(
                                 "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/" + avatarid + "/headfront.png",
                                 message.name,
                                 message.text
                             );
-							chatNotification.show();
-							window.setTimeout(function () {
-								chatNotification.cancel();
-							}, ttp.prefs.notifications.chat.duration);
-						} else {
-							ttp.notifications.push({
+                            chatNotification.show();
+                            window.setTimeout(function () {
+                                chatNotification.cancel();
+                            }, ttp.prefs.notifications.chat.duration);
+                        } else {
+                            ttp.notifications.push({
                                 type: "chat",
                                 speaker: message.name,
                                 text: message.text,
                                 avatarId: avatarid
                             });
-							webkitNotifications.createHTMLNotification('chatNotification.html').show();
-						}
-					} else {
-						ttp.missedNotifications += 1;
-					}
-				}, true);
-			}
-			if (typeof this.port  === null) {
+                            webkitNotifications.createHTMLNotification('chatNotification.html').show();
+                        }
+                    } else {
+                        ttp.missedNotifications += 1;
+                    }
+                }, true);
+            }
+            if (typeof this.port  === null) {
                 return;
             }
-			var rgx = this.chatNotification_re.toString();
+            var rgx = this.chatNotification_re.toString();
             rgx = rgx.substring(1, rgx.length - 2);
-			ttp.send({
+            ttp.send({
                 highlightMessage: {
                     name: window.escape(message.name),
                     rgx: window.escape(rgx)
                 }
             });
-		}
-		if (this.users[message.userid] && this.users[message.userid].name !== message.name) {
-			this.users[message.userid].name = message.name;
-			ttp.send({
+        }
+        if (this.users[message.userid] && this.users[message.userid].name !== message.name) {
+            this.users[message.userid].name = message.name;
+            ttp.send({
                 updateUserList: "update",
                 user: ttp.users[message.userid],
                 room: {
@@ -384,79 +384,79 @@ var ttp = {
                     downvotes: ttp.room.metadata.downvotes
                 }
             });
-		}
-	},
-	addChatKeyword: function (keyword) {
+        }
+    },
+    addChatKeyword: function (keyword) {
         var found = false,
             x = 0,
             length = 0;
 
-		if (typeof keyword !== "string" || keyword.length < 1) {
+        if (typeof keyword !== "string" || keyword.length < 1) {
             return;
         }
-		keyword = RegExp.escape(keyword);
-		for (x = 0, length = this.prefs.notifications.chat.keywords.length; x < length; x += 1) {
-			if (this.prefs.notifications.chat.keywords[x] === keyword) {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			this.prefs.notifications.chat.keywords.push(keyword);
-			this.chatNotification_re = new RegExp("(?:[^a-z0-9]|^)(?:" + this.prefs.notifications.chat.keywords.join("|") + ")(?:[^a-z0-9]|$)", "i");
-			this.savePrefs();
-		}
-	},
-	removeChatKeyword: function (keyword) {
+        keyword = RegExp.escape(keyword);
+        for (x = 0, length = this.prefs.notifications.chat.keywords.length; x < length; x += 1) {
+            if (this.prefs.notifications.chat.keywords[x] === keyword) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            this.prefs.notifications.chat.keywords.push(keyword);
+            this.chatNotification_re = new RegExp("(?:[^a-z0-9]|^)(?:" + this.prefs.notifications.chat.keywords.join("|") + ")(?:[^a-z0-9]|$)", "i");
+            this.savePrefs();
+        }
+    },
+    removeChatKeyword: function (keyword) {
         var found = -1,
             x = 0,
             length = 0;
 
-		if (typeof keyword !== "string" || keyword.length < 1) {
+        if (typeof keyword !== "string" || keyword.length < 1) {
             return;
         }
-		for (x = 0, length = this.prefs.notifications.chat.keywords.length; x < length; x += 1) {
-			if (this.prefs.notifications.chat.keywords[x] === keyword) {
-				found = x;
-				break;
-			}
-		}
-		if (found > -1) {
-			this.prefs.notifications.chat.keywords.splice(found, 1);
-			this.chatNotification_re = new RegExp("(?:[^a-z0-9]|^)(?:" + this.prefs.notifications.chat.keywords.join("|") + ")(?:[^a-z0-9]|$)", "i");
-			this.savePrefs();
-		}
-	},
-	getPowerup: function () {
-		if (this.powerup === 4) {
-			this.powerup = 0;
-			return true;
-		} else {
-			if (typeof window.powerupTimer === "number") {
+        for (x = 0, length = this.prefs.notifications.chat.keywords.length; x < length; x += 1) {
+            if (this.prefs.notifications.chat.keywords[x] === keyword) {
+                found = x;
+                break;
+            }
+        }
+        if (found > -1) {
+            this.prefs.notifications.chat.keywords.splice(found, 1);
+            this.chatNotification_re = new RegExp("(?:[^a-z0-9]|^)(?:" + this.prefs.notifications.chat.keywords.join("|") + ")(?:[^a-z0-9]|$)", "i");
+            this.savePrefs();
+        }
+    },
+    getPowerup: function () {
+        if (this.powerup === 4) {
+            this.powerup = 0;
+            return true;
+        } else {
+            if (typeof window.powerupTimer === "number") {
                 window.clearTimeout(window.powerupTimer);
             }
-			this.powerup += 1;
-			window.powerupTimer = window.setTimeout(function () {
+            this.powerup += 1;
+            window.powerupTimer = window.setTimeout(function () {
                 ttp.powerup = 0;
             }, 30000);
-			return false;
-		}
-	},
-	getUserByName: function (username) {
+            return false;
+        }
+    },
+    getUserByName: function (username) {
         var x = 0,
             user = false;
 
-		for (x in this.users) {
+        for (x in this.users) {
             if (this.users.hasOwnProperty('name')) {
                 if (this.users[x].name === username) {
                     user = this.users[x];
                     break;
                 }
             }
-		}
+        }
         return user;
-	},
-	addSong: function addSong(room) {
+    },
+    addSong: function addSong(room) {
         var popups,
             notifications,
             avatarid,
@@ -465,84 +465,84 @@ var ttp = {
             x = 0,
             length = 0;
 
-		if (typeof this.room.metadata !== "object") {
+        if (typeof this.room.metadata !== "object") {
             return;
         }
-		if (typeof this.room.metadata.songlog === "object") {
+        if (typeof this.room.metadata.songlog === "object") {
             this.room.metadata.songlog.push(room.metadata.current_song);
         }
-		this.room.metadata.current_song = room.metadata.current_song;
-		this.room.metadata.current_dj   = room.metadata.current_dj;
-		this.room.metadata.djcount      = room.metadata.djcount;
-		this.room.metadata.djs          = room.metadata.djs;
-		this.room.metadata.listeners    = room.metadata.listeners;
-		this.room.metadata.moderator_id = room.metadata.moderator_id;
-		this.room.metadata.upvotes      = 0;
-		this.room.metadata.downvotes    = 0;
-		this.room.metadata.votelog      = [];
-		popups = chrome.extension.getViews({type: "popup"});
-		if (popups.length > 0) {
+        this.room.metadata.current_song = room.metadata.current_song;
+        this.room.metadata.current_dj   = room.metadata.current_dj;
+        this.room.metadata.djcount      = room.metadata.djcount;
+        this.room.metadata.djs          = room.metadata.djs;
+        this.room.metadata.listeners    = room.metadata.listeners;
+        this.room.metadata.moderator_id = room.metadata.moderator_id;
+        this.room.metadata.upvotes      = 0;
+        this.room.metadata.downvotes    = 0;
+        this.room.metadata.votelog      = [];
+        popups = chrome.extension.getViews({type: "popup"});
+        if (popups.length > 0) {
             popups[0].buildSonglog();
         }
-		if (this.prefs.notifications.on && this.prefs.notifications.song.on) {
-			notifications = chrome.extension.getViews({type: "notification"});
-			for (x = 0, length = notifications.length; x < length; x += 1) {
-				if (notifications[x].notificationType === "song") {
+        if (this.prefs.notifications.on && this.prefs.notifications.song.on) {
+            notifications = chrome.extension.getViews({type: "notification"});
+            for (x = 0, length = notifications.length; x < length; x += 1) {
+                if (notifications[x].notificationType === "song") {
                     notifications[x].window.close();
                 }
-			}
-			this.isActive(function isActive() {
-				avatarid = (typeof ttp.users[room.metadata.current_dj] !== "undefined") ? ttp.users[room.metadata.current_dj].avatarid : "5";
-				if (ttp.prefs.notifications.textOnly && ttp.users[ttp.room.metadata.current_dj] !== undefined) {
-					image = (typeof room.metadata.current_song.metadata.coverart === "string") ? room.metadata.current_song.metadata.coverart : chrome.extension.getURL('/images/ttp_icon48.png');
-					songNotification = webkitNotifications.createNotification(
+            }
+            this.isActive(function isActive() {
+                avatarid = (typeof ttp.users[room.metadata.current_dj] !== "undefined") ? ttp.users[room.metadata.current_dj].avatarid : "5";
+                if (ttp.prefs.notifications.textOnly && ttp.users[ttp.room.metadata.current_dj] !== undefined) {
+                    image = (typeof room.metadata.current_song.metadata.coverart === "string") ? room.metadata.current_song.metadata.coverart : chrome.extension.getURL('/images/ttp_icon48.png');
+                    songNotification = webkitNotifications.createNotification(
                         image,
                         ttp.users[room.metadata.current_dj].name + ' started playing',
                         '"' + room.metadata.current_song.metadata.song + '" by ' + room.metadata.current_song.metadata.artist
                     );
-					songNotification.show();
-					window.setTimeout(function () {
-						songNotification.cancel();
-					}, ttp.prefs.notifications.song.duration);
-				} else if (ttp.users[ttp.room.metadata.current_dj] !== undefined) {
-					ttp.notifications.push({
+                    songNotification.show();
+                    window.setTimeout(function () {
+                        songNotification.cancel();
+                    }, ttp.prefs.notifications.song.duration);
+                } else if (ttp.users[ttp.room.metadata.current_dj] !== undefined) {
+                    ttp.notifications.push({
                         type: "song",
                         dj: ttp.users[room.metadata.current_dj].name,
                         artist: room.metadata.current_song.metadata.artist,
                         track: room.metadata.current_song.metadata.song,
                         avatarId: avatarid
                     });
-					webkitNotifications.createHTMLNotification('songNotification.html').show();
-				}
-			});
-		}
-	},
-	queueSong: function (id) {
-		var song = null,
+                    webkitNotifications.createHTMLNotification('songNotification.html').show();
+                }
+            });
+        }
+    },
+    queueSong: function (id) {
+        var song = null,
             x = 0,
             length = 0;
 
-		for (x = 0, length = this.room.metadata.songlog.length; x < length; x += 1) {
-			if (id === this.room.metadata.songlog[x]._id) {
-				song = JSON.stringify(this.room.metadata.songlog[x]);
-				break;
-			}
-		}
-		ttp.send({
+        for (x = 0, length = this.room.metadata.songlog.length; x < length; x += 1) {
+            if (id === this.room.metadata.songlog[x]._id) {
+                song = JSON.stringify(this.room.metadata.songlog[x]);
+                break;
+            }
+        }
+        ttp.send({
             queue: true,
             song: song
         });
-	},
-	userMessages: {
-		newUser: function (user) {
+    },
+    userMessages: {
+        newUser: function (user) {
             var x = 0,
                 length;
 
-			ttp.users[user.userid] = user;
-			if (typeof ttp.room.metadata === "object") {
+            ttp.users[user.userid] = user;
+            if (typeof ttp.room.metadata === "object") {
                 ttp.room.metadata.listeners += 1;
             }
-			ttp.send({
+            ttp.send({
                 updateUserList: "add",
                 users: [user],
                 clear: false,
@@ -569,49 +569,49 @@ var ttp = {
                     }
                 }
             }
-		},
-		remUser: function (user) {
-			var wasDj = false,
+        },
+        remUser: function (user) {
+            var wasDj = false,
                 x = 0,
                 length = 0,
                 djNotification;
 
-			for (x in ttp.room.metadata.djs.length) {
-				if (ttp.room.metadata.djs[x] === user.userid) {
-					wasDj = true;
-					delete ttp.room.metadata.djs[x];
+            for (x in ttp.room.metadata.djs.length) {
+                if (ttp.room.metadata.djs[x] === user.userid) {
+                    wasDj = true;
+                    delete ttp.room.metadata.djs[x];
                     ttp.room.metadata.djs.length -= 1;
-					ttp.room.metadata.djcount -= 1;
-					break;
-				}
-			}
-			if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && wasDj) {
-				ttp.isActive(function () {
-					if (ttp.prefs.notifications.textOnly) {
-						djNotification = webkitNotifications.createNotification(
+                    ttp.room.metadata.djcount -= 1;
+                    break;
+                }
+            }
+            if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && wasDj) {
+                ttp.isActive(function () {
+                    if (ttp.prefs.notifications.textOnly) {
+                        djNotification = webkitNotifications.createNotification(
                             chrome.extension.getURL('/images/openSpot-sm.png'),
                             user.name,
                             'has stepped down'
                         );
-						djNotification.show();
-						window.setTimeout(function () {
-							djNotification.cancel();
-						}, ttp.prefs.notifications.djSpot.duration);
-					} else {
-						ttp.notifications.push({
+                        djNotification.show();
+                        window.setTimeout(function () {
+                            djNotification.cancel();
+                        }, ttp.prefs.notifications.djSpot.duration);
+                    } else {
+                        ttp.notifications.push({
                             type: "djSpot",
                             dj: user.name,
                             avatarid: user.avatarid
                         });
-						webkitNotifications.createHTMLNotification('djNotification.html').show();
-					}
-				});
-			}
-			delete ttp.users[user.userid];
-			if (typeof ttp.room.metadata === "object") {
+                        webkitNotifications.createHTMLNotification('djNotification.html').show();
+                    }
+                });
+            }
+            delete ttp.users[user.userid];
+            if (typeof ttp.room.metadata === "object") {
                 ttp.room.metadata.listeners -= 1;
             }
-			ttp.send({
+            ttp.send({
                 updateUserList: "remove",
                 userid: user.userid,
                 room: {
@@ -620,9 +620,9 @@ var ttp = {
                     downvotes: ttp.room.metadata.downvotes
                 }
             });
-		},
-		newMod: function (userid) {
-			ttp.room.metadata.moderator_id.push(userid);
+        },
+        newMod: function (userid) {
+            ttp.room.metadata.moderator_id.push(userid);
             if (typeof ttp.users[userid] !== "undefined") {
                 ttp.send({
                     updateUserList: "update",
@@ -634,16 +634,16 @@ var ttp = {
                     }
                 });
             }
-		},
-		remMod: function (userid) {
+        },
+        remMod: function (userid) {
             var x = 0,
                 length = 0;
 
-			for (x = 0, length = ttp.room.metadata.moderator_id.length; x < length; x += 1) {
-				if (ttp.room.metadata.moderator_id[x] === userid) {
+            for (x = 0, length = ttp.room.metadata.moderator_id.length; x < length; x += 1) {
+                if (ttp.room.metadata.moderator_id[x] === userid) {
                     ttp.room.metadata.moderator_id.splice(x, 1);
                 }
-			}
+            }
             if (typeof ttp.users[userid] !== "undefined") {
                 ttp.send({
                     updateUserList: "update",
@@ -655,34 +655,34 @@ var ttp = {
                     }
                 });
             }
-		},
-		addDj: function (user) {
+        },
+        addDj: function (user) {
             var notifyViews,
                 x = 0,
                 length = 0;
 
-			if (typeof ttp.room.metadata !== "object") {
+            if (typeof ttp.room.metadata !== "object") {
                 return;
             }
-			if (typeof ttp.room.metadata.djs === "object") {
+            if (typeof ttp.room.metadata.djs === "object") {
                 ttp.room.metadata.djs.push(user.userid);
             }
-			ttp.room.metadata.djcount += 1;
-			if (ttp.room.metadata.djcount > ttp.room.metadata.max_djs) {
-				ttp.room.metadata.djcount = ttp.room.metadata.max_djs;
-			}
-			ttp.room.metadata.djs.length += 1;
-			if (ttp.room.metadata.djs.length > ttp.room.metadata.max_djs) {
-				ttp.room.metadata.djs.length = ttp.room.metadata.max_djs;
-			}
-			if (ttp.room.metadata.djs.length === ttp.room.metadata.max_djs) {
-				notifyViews = chrome.extension.getViews({type: "notification"});
-				for (x = 0, length = notifyViews.length; x < length; x += 1) {
-					if (notifyViews[x].notificationType === "djSpot") {
+            ttp.room.metadata.djcount += 1;
+            if (ttp.room.metadata.djcount > ttp.room.metadata.max_djs) {
+                ttp.room.metadata.djcount = ttp.room.metadata.max_djs;
+            }
+            ttp.room.metadata.djs.length += 1;
+            if (ttp.room.metadata.djs.length > ttp.room.metadata.max_djs) {
+                ttp.room.metadata.djs.length = ttp.room.metadata.max_djs;
+            }
+            if (ttp.room.metadata.djs.length === ttp.room.metadata.max_djs) {
+                notifyViews = chrome.extension.getViews({type: "notification"});
+                for (x = 0, length = notifyViews.length; x < length; x += 1) {
+                    if (notifyViews[x].notificationType === "djSpot") {
                         notifyViews[x].window.close();
                     }
-				}
-			}
+                }
+            }
             if (typeof ttp.users[user.userid] !== "undefined") {
                 ttp.send({
                     updateUserList: "update",
@@ -694,44 +694,44 @@ var ttp = {
                     }
                 });
             }
-		},
-		remDj: function (user) {
-			var notDj = true,
+        },
+        remDj: function (user) {
+            var notDj = true,
                 x = 0,
                 djNotification;
 
-			for (x in ttp.room.metadata.djs) {
-				if (ttp.room.metadata.djs[x] === user.userid) {
-					delete ttp.room.metadata.djs[x];
-				}
-				if (ttp.room.metadata.djs[x] === ttp.user.userid) {
-					notDj = false;
-				}
-			}
-			ttp.room.metadata.djs.length -= 1;
-			ttp.room.metadata.djcount -= 1;
-			if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && ttp.user.userid !== user.userid && notDj) {
-				ttp.isActive(function () {
-					if (ttp.prefs.notifications.textOnly) {
-						djNotification = webkitNotifications.createNotification(
+            for (x in ttp.room.metadata.djs) {
+                if (ttp.room.metadata.djs[x] === user.userid) {
+                    delete ttp.room.metadata.djs[x];
+                }
+                if (ttp.room.metadata.djs[x] === ttp.user.userid) {
+                    notDj = false;
+                }
+            }
+            ttp.room.metadata.djs.length -= 1;
+            ttp.room.metadata.djcount -= 1;
+            if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && ttp.user.userid !== user.userid && notDj) {
+                ttp.isActive(function () {
+                    if (ttp.prefs.notifications.textOnly) {
+                        djNotification = webkitNotifications.createNotification(
                             chrome.extension.getURL('/images/openSpot-sm.png'),
                             user.name,
                             'has stepped down'
                         );
-						djNotification.show();
-						window.setTimeout(function () {
-							djNotification.cancel();
-						}, ttp.prefs.notifications.djSpot.duration);
-					} else {
-						ttp.notifications.push({
+                        djNotification.show();
+                        window.setTimeout(function () {
+                            djNotification.cancel();
+                        }, ttp.prefs.notifications.djSpot.duration);
+                    } else {
+                        ttp.notifications.push({
                             type: "djSpot",
                             dj: user.name,
                             avatarid: user.avatarid
                         });
-						webkitNotifications.createHTMLNotification('djNotification.html').show();
-					}
-				});
-			}
+                        webkitNotifications.createHTMLNotification('djNotification.html').show();
+                    }
+                });
+            }
             if (typeof ttp.users[user.userid] !== "undefined") {
                 ttp.send({
                     updateUserList: "update",
@@ -743,113 +743,115 @@ var ttp = {
                     }
                 });
             }
-		},
-		vote: function (metadata) {
+        },
+        vote: function (metadata) {
             var x = 0,
                 length = 0,
                 avatarid,
                 name,
                 voteNotification,
-                popups;
+                popups,
+                vote;
 
-			//"metadata":{"upvotes":12,"downvotes":1,"listeners":143,"votelog":[["4e3855c2a3f75118b60f4101","up"]]}
-			if (typeof ttp.room.metadata !== "object") {
+            //"metadata":{"upvotes":12,"downvotes":1,"listeners":143,"votelog":[["4e3855c2a3f75118b60f4101","up"]]}
+            if (typeof ttp.room.metadata !== "object") {
                 return;
             }
-			ttp.room.metadata.upvotes   = metadata.upvotes;
-			ttp.room.metadata.downvotes = metadata.downvotes;
-			ttp.room.metadata.listeners = metadata.listeners;
-			for (x = 0, length = metadata.votelog.length; x < length; x += 1) {
-				if (typeof ttp.room.metadata.votelog === "object") {
-                    ttp.room.metadata.votelog.push(metadata.votelog[x]);
+            ttp.room.metadata.upvotes   = metadata.upvotes;
+            ttp.room.metadata.downvotes = metadata.downvotes;
+            ttp.room.metadata.listeners = metadata.listeners;
+            for (x = 0, length = metadata.votelog.length; x < length; x += 1) {
+                vote = metadata.votelog[x];
+                if (typeof ttp.room.metadata.votelog === "object") {
+                    ttp.room.metadata.votelog.push(vote);
                 }
-				if (ttp.user.userid === metadata.votelog[x][0] && typeof ttp.room.metadata === "object" && typeof ttp.room.metadata.current_song === "object" && typeof ttp.room.metadata.current_song._id === "string") {
-					// useless waste of storage space until the data is used
-                    // ttp.storage.logVote(metadata.votelog[x][1], ttp.room.metadata.current_song._id);
-				}
-				if (typeof ttp.users[metadata.votelog[x][0]] === "object") {
-					if (ttp.prefs.notifications.on && ttp.prefs.notifications.vote.on && ttp.user.userid !== metadata.votelog[x][0]) {
-						ttp.isActive(function () {
-							avatarid = (typeof ttp.users[metadata.votelog[x][0]] !== "undefined") ? ttp.users[metadata.votelog[x][0]].avatarid : "5";
-							name = (typeof ttp.users[metadata.votelog[x][0]] !== "undefined") ? ttp.users[metadata.votelog[x][0]].name : "unknown user";
-							if (ttp.prefs.notifications.textOnly) {
-								voteNotification = webkitNotifications.createNotification(
-                                    chrome.extension.getURL('/images/' + metadata.votelog[x][1] + 'vote.png'),
+                if (ttp.user.userid === vote[0] && typeof ttp.room.metadata === "object" && typeof ttp.room.metadata.current_song === "object" && typeof ttp.room.metadata.current_song._id === "string") {
+                    // useless waste of storage space until the data is used
+                    // ttp.storage.logVote(vote[1], ttp.room.metadata.current_song._id);
+                }
+                if (typeof ttp.users[vote[0]] === "object") {
+                    if (ttp.prefs.notifications.on && ttp.prefs.notifications.vote.on && ttp.user.userid !== vote[0]) {
+                        ttp.isActive(function () {
+                            avatarid = (typeof ttp.users[vote[0]] !== "undefined") ? ttp.users[vote[0]].avatarid : "5";
+                            name = (typeof ttp.users[vote[0]] !== "undefined") ? ttp.users[vote[0]].name : "unknown user";
+                            if (ttp.prefs.notifications.textOnly) {
+                                voteNotification = webkitNotifications.createNotification(
+                                    chrome.extension.getURL('/images/' + vote[1] + 'vote.png'),
                                     name,
                                     ''
                                 );
-								voteNotification.show();
-								window.setTimeout(function () {
-									voteNotification.cancel();
-								}, ttp.prefs.notifications.vote.duration);
-							} else {
-								ttp.notifications.push({
+                                voteNotification.show();
+                                window.setTimeout(function () {
+                                    voteNotification.cancel();
+                                }, ttp.prefs.notifications.vote.duration);
+                            } else {
+                                ttp.notifications.push({
                                     type: "vote",
                                     user: name,
-                                    vote: metadata.votelog[x][1],
+                                    vote: vote[1],
                                     avatarid: avatarid
                                 });
-								webkitNotifications.createHTMLNotification('voteNotification.html').show();
-							}
-						});
-					}
-				}
-			}
-			popups = chrome.extension.getViews({type: "popup"});
-			if (popups.length > 0) {
+                                webkitNotifications.createHTMLNotification('voteNotification.html').show();
+                            }
+                        });
+                    }
+                }
+            }
+            popups = chrome.extension.getViews({type: "popup"});
+            if (popups.length > 0) {
                 popups[0].updateVotes({
                     downvotes: metadata.downvotes,
                     upvotes: metadata.upvotes
                 });
             }
-		},
-		userBooted: function (userid) {
-			var isDj = false,
+        },
+        userBooted: function (userid) {
+            var isDj = false,
                 x = 0,
                 djNotification;
 
-			for (x in ttp.room.metadata.djs) {
-				if (ttp.room.metadata.djs[x] === userid) {
-					isDj = true;
-					delete ttp.room.metadata.djs[x];
-					ttp.room.metadata.djs.length -= 1;
-					ttp.room.metadata.djcount -= 1;
-					break;
-				}
-			}
-			if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && isDj) {
-				ttp.isActive(function () {
+            for (x in ttp.room.metadata.djs) {
+                if (ttp.room.metadata.djs[x] === userid) {
+                    isDj = true;
+                    delete ttp.room.metadata.djs[x];
+                    ttp.room.metadata.djs.length -= 1;
+                    ttp.room.metadata.djcount -= 1;
+                    break;
+                }
+            }
+            if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && isDj) {
+                ttp.isActive(function () {
                     var name = '',
                         avatarid = '';
                     if (ttp.users[userid] !== undefined) {
                         name = ttp.users[userid].name;
                         avatarid = ttp.users[userid].avatarid;
                     }
-					if (ttp.prefs.notifications.textOnly) {
-						djNotification = webkitNotifications.createNotification(
+                    if (ttp.prefs.notifications.textOnly) {
+                        djNotification = webkitNotifications.createNotification(
                             chrome.extension.getURL('/images/openSpot-sm.png'),
                             name,
                             'has stepped down'
                         );
-						djNotification.show();
-						window.setTimeout(function () {
-							djNotification.cancel();
-						}, ttp.prefs.notifications.djSpot.duration);
-					} else {
-						ttp.notifications.push({
+                        djNotification.show();
+                        window.setTimeout(function () {
+                            djNotification.cancel();
+                        }, ttp.prefs.notifications.djSpot.duration);
+                    } else {
+                        ttp.notifications.push({
                             type: "djSpot",
                             dj: name,
                             avatarid: avatarid
                         });
-						webkitNotifications.createHTMLNotification('djNotification.html').show();
-					}
-				});
-			}
-			delete ttp.users[userid];
-			if (typeof ttp.room.metadata === "object") {
+                        webkitNotifications.createHTMLNotification('djNotification.html').show();
+                    }
+                });
+            }
+            delete ttp.users[userid];
+            if (typeof ttp.room.metadata === "object") {
                 ttp.room.metadata.listeners -= 1;
             }
-			ttp.send({
+            ttp.send({
                 updateUserList: "remove",
                 userid: userid,
                 room: {
@@ -858,12 +860,12 @@ var ttp = {
                     downvotes: ttp.room.metadata.downvotes
                 }
             });
-		}
-	},
-	performSearch: function (searchInfo) {
-		var searchString = encodeURIComponent(searchInfo.artist) + '+' + encodeURIComponent(searchInfo.title),
+        }
+    },
+    performSearch: function (searchInfo) {
+        var searchString = encodeURIComponent(searchInfo.artist) + '+' + encodeURIComponent(searchInfo.title),
             searchUrl = "http://www.google.com/";
-		switch (searchInfo.provider) {
+        switch (searchInfo.provider) {
         case "hulkshare":
             searchUrl = 'http://www.google.com/search?op=find_user&sitesearch=http%3A%2F%2Fhulkshare.com&q=' + searchString + '&searchtype=files';
             break;
@@ -881,257 +883,257 @@ var ttp = {
             break;
         default:
             searchUrl = 'http://www.google.com/search?op=find_user&sitesearch=http%3A%2F%2Fhulkshare.com&q=' + searchString + '&searchtype=files';
-		}
-		chrome.tabs.getSelected(null, function (tab) {
-			chrome.tabs.create({
+        }
+        chrome.tabs.getSelected(null, function (tab) {
+            chrome.tabs.create({
                 index: tab.index + 1,
                 url: searchUrl
             });
-		});
-	},
-	vote: function (vote) {
-		if (vote === "up" || vote === "down") {
+        });
+    },
+    vote: function (vote) {
+        if (vote === "up" || vote === "down") {
             this.exec("ttp.vote('" + vote + "');");
         }
-	},
-	showDj: function () {
-		chrome.tabs.update(this.tabId, {selected: true});
-		this.exec("ttp.roommanager.toggle_listener(ttp.roominfo.currentDj)");
-	},
-	getNotification: function (type) {
+    },
+    showDj: function () {
+        chrome.tabs.update(this.tabId, {selected: true});
+        this.exec("ttp.roommanager.toggle_listener(ttp.roominfo.currentDj)");
+    },
+    getNotification: function (type) {
         var x = 0,
             length = this.notifications.length,
             i = 0,
             notifyViews;
 
-		for (; x < length; x += 1) {
-			if (this.notifications[x].type === type) {
-				notifyViews = chrome.extension.getViews({type: "notification"});
+        for (; x < length; x += 1) {
+            if (this.notifications[x].type === type) {
+                notifyViews = chrome.extension.getViews({type: "notification"});
                 i = notifyViews.length;
-				if (i > 0) {
-					while (i--) {
-						if (notifyViews[i].notificationType === type && !notifyViews[i].populated) {
-							notifyViews[i].buildNotification(this.notifications.splice(x, 1)[0]);
-						}
-					}
-				}
-				break;
-			}
-		}
-	},
-	setNotificationSound: function (type, path) {
-		this.prefs.notifications[type].sound = path;
-		this.savePrefs();
-	},
-	savePrefs: function () {
-		localStorage.ttpPrefs = JSON.stringify(this.prefs);
-	},
-	loadPrefs: function () {
-		try {
-			var prefs        = JSON.parse(localStorage.ttpPrefs),
+                if (i > 0) {
+                    while (i--) {
+                        if (notifyViews[i].notificationType === type && !notifyViews[i].populated) {
+                            notifyViews[i].buildNotification(this.notifications.splice(x, 1)[0]);
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    },
+    setNotificationSound: function (type, path) {
+        this.prefs.notifications[type].sound = path;
+        this.savePrefs();
+    },
+    savePrefs: function () {
+        localStorage.ttpPrefs = JSON.stringify(this.prefs);
+    },
+    loadPrefs: function () {
+        try {
+            var prefs        = JSON.parse(localStorage.ttpPrefs),
                 prefsVersion = prefs.version.split('.'),
                 minVersion   = this.minVersion.split('.'),
                 valid        = true,
                 x            = 0,
                 length       = 0;
 
-			for (x = 0, length = minVersion.length; x < length; x += 1) {
-				if (+minVersion[x] > +prefsVersion[x]) {
+            for (x = 0, length = minVersion.length; x < length; x += 1) {
+                if (+minVersion[x] > +prefsVersion[x]) {
                     valid = false;
                 }
-			}
-			if (!valid) {
-				this.prefs = this.upgradePrefs(prefs);
-				this.savePrefs();
-			} else {
+            }
+            if (!valid) {
+                this.prefs = this.upgradePrefs(prefs);
+                this.savePrefs();
+            } else {
                 this.prefs = prefs;
             }
-		} catch (e) {}
-	},
-	upgradePrefs: function (prefs) {
-		var prefsVersion = prefs.version.split('.');
-		if (+prefsVersion[2] < 29) {
-			prefs.layout = {
-				main: {
-					top: 0,
-					left: 0
-				},
-				chat: {
-					top: 0,
-					left: 0,
-					width: 0,
-					height: 0
-				},
-				users: {
-					top: 0,
-					left: 0,
-					width: 0,
-					height: 0
-				}
-			};
-			prefs.version = "0.0.29";
-		}
+        } catch (e) {}
+    },
+    upgradePrefs: function (prefs) {
+        var prefsVersion = prefs.version.split('.');
+        if (+prefsVersion[2] < 29) {
+            prefs.layout = {
+                main: {
+                    top: 0,
+                    left: 0
+                },
+                chat: {
+                    top: 0,
+                    left: 0,
+                    width: 0,
+                    height: 0
+                },
+                users: {
+                    top: 0,
+                    left: 0,
+                    width: 0,
+                    height: 0
+                }
+            };
+            prefs.version = "0.0.29";
+        }
         if (+prefsVersion[2] < 34) {
-			prefs.notifications.textOnly = false;
+            prefs.notifications.textOnly = false;
             prefs.version = "0.0.34";
-		}
+        }
         if (+prefsVersion[2] < 40) {
-			this.storage.voteHistory = [];
+            this.storage.voteHistory = [];
             prefs.version = "0.0.40";
-		}
+        }
         if (+prefsVersion[1] < 2 || (+prefsVersion[1] && +prefsVersion[2] < 12)) {
             prefs.roomCustomizationsAllowed = ['4e091b2214169c018f008ea5'];
             prefs.version = "0.2.1";
         }
-		return prefs;
-	},
-	storage: {
-		messages: [],
-		saveMessage: function (msg) {
-			var now = new Date(),
+        return prefs;
+    },
+    storage: {
+        messages: [],
+        saveMessage: function (msg) {
+            var now = new Date(),
                 numMessages = 0;
-			this.messages.push({
-				userid: msg.userid,
-				sender: msg.speaker,
-				text: msg.text,
-				avatarId: msg.avatarId,
-				timestamp: now.getTime(),
-				formattedTime: formatDate(now)
-			});
+            this.messages.push({
+                userid: msg.userid,
+                sender: msg.speaker,
+                text: msg.text,
+                avatarId: msg.avatarId,
+                timestamp: now.getTime(),
+                formattedTime: formatDate(now)
+            });
             if (this.messages.length > 500) {
                 numMessages = this.messages.length - 500;
                 this.messages.splice(0, numMessages);
             }
-			localStorage.ttpMessages = JSON.stringify(this.messages);
-		},
-		removeMessage: function (msgId) {
-			if (msgId === 'all') {
-				this.messages = [];
-			} else {
+            localStorage.ttpMessages = JSON.stringify(this.messages);
+        },
+        removeMessage: function (msgId) {
+            if (msgId === 'all') {
+                this.messages = [];
+            } else {
                 this.messages.splice(msgId, 1);
             }
-			localStorage.ttpMessages = JSON.stringify(this.messages);
-		},
-		favoriteSongs: [],
-		favoriteSong: function (song) {
+            localStorage.ttpMessages = JSON.stringify(this.messages);
+        },
+        favoriteSongs: [],
+        favoriteSong: function (song) {
 
-		},
-		removeSong: function (songId) {
+        },
+        removeSong: function (songId) {
 
-		},
-		voteHistory: [],
-		logVote: function (vote, songId) {
+        },
+        voteHistory: [],
+        logVote: function (vote, songId) {
             var x = 0,
                 length = 0,
                 now = new Date();
 
-			for (x = 0, length = this.voteHistory.length; x < length; x += 1) {
-				if (this.voteHistory[x].songId === songId) {
-					this.voteHistory.splice(x, 1);
+            for (x = 0, length = this.voteHistory.length; x < length; x += 1) {
+                if (this.voteHistory[x].songId === songId) {
+                    this.voteHistory.splice(x, 1);
                     break;
-				}
-			}
-			this.voteHistory.push({
-				songId: songId,
-				vote: vote,
-				timestamp: now.getTime(),
-				formattedTime: formatDate(now)
-			});
-			localStorage.ttpVoteHistory = JSON.stringify(this.voteHistory);
-		},
-		getVote: function (songId) {
+                }
+            }
+            this.voteHistory.push({
+                songId: songId,
+                vote: vote,
+                timestamp: now.getTime(),
+                formattedTime: formatDate(now)
+            });
+            localStorage.ttpVoteHistory = JSON.stringify(this.voteHistory);
+        },
+        getVote: function (songId) {
             var x = 0,
                 length = 0;
-			for (x = 0, length = this.voteHistory.length; x < length; x += 1) {
-				if (this.voteHistory[x].songId === songId) {
-					return this.voteHistory[x];
-				}
-			}
-			return false;
-		},
-		ignoredUsers: [],
-		ignoreUser: function (userid) {
+            for (x = 0, length = this.voteHistory.length; x < length; x += 1) {
+                if (this.voteHistory[x].songId === songId) {
+                    return this.voteHistory[x];
+                }
+            }
+            return false;
+        },
+        ignoredUsers: [],
+        ignoreUser: function (userid) {
             var x = 0,
                 length = 0;
 
-			for (x = 0, length = this.ignoredUsers.length; x < length; x += 1) {
-				if (this.ignoredUsers[x] === userid) {
+            for (x = 0, length = this.ignoredUsers.length; x < length; x += 1) {
+                if (this.ignoredUsers[x] === userid) {
                     return;
                 }
-			}
-			this.ignoredUsers.push(userid);
-			localStorage.ttpIgnoredUsers = JSON.stringify(this.ignoredUsers);
-		},
-		unignoreUser: function (userid) {
+            }
+            this.ignoredUsers.push(userid);
+            localStorage.ttpIgnoredUsers = JSON.stringify(this.ignoredUsers);
+        },
+        unignoreUser: function (userid) {
             var x = 0,
                 length = 0;
 
-			for (x = 0, length = this.ignoredUsers.length; x < length; x += 1) {
-				if (this.ignoredUsers[x] === userid) {
+            for (x = 0, length = this.ignoredUsers.length; x < length; x += 1) {
+                if (this.ignoredUsers[x] === userid) {
                     this.ignoredUsers.splice(x, 1);
                 }
-			}
-			localStorage.ttpIgnoredUsers = JSON.stringify(this.ignoredUsers);
-		},
-		isIgnored: function (userid) {
-			var x = 0,
+            }
+            localStorage.ttpIgnoredUsers = JSON.stringify(this.ignoredUsers);
+        },
+        isIgnored: function (userid) {
+            var x = 0,
                 length = 0;
 
-			for (x = 0, length = this.ignoredUsers.length; x < length; x += 1) {
-				if (this.ignoredUsers[x] === userid) {
+            for (x = 0, length = this.ignoredUsers.length; x < length; x += 1) {
+                if (this.ignoredUsers[x] === userid) {
                     return true;
                 }
-			}
-			return false;
-		}
-	}
+            }
+            return false;
+        }
+    }
 };
 
 // monitor activity
 chrome.idle.onStateChanged.addListener(function (state) {
     var missedNotification;
 
-	if (ttp.logging.idle || ttp.logging.all) {
+    if (ttp.logging.idle || ttp.logging.all) {
         ttp.log('stateChanged:', state);
     }
-	if (state !== 'active') {
+    if (state !== 'active') {
         return;
     }
-	if (ttp.missedNotifications < 1) {
+    if (ttp.missedNotifications < 1) {
         return;
     }
-	missedNotification = webkitNotifications.createNotification(
+    missedNotification = webkitNotifications.createNotification(
         chrome.extension.getURL('/images/alert.png'),
         'You missed ' + ttp.missedNotifications + ' chat notification(s)!',
         'while your machine was locked or idle'
     );
-	missedNotification.show();
-	window.setTimeout(function () {
-		missedNotification.cancel();
-	}, 20000);
-	ttp.missedNotifications = 0;
+    missedNotification.show();
+    window.setTimeout(function () {
+        missedNotification.cancel();
+    }, 20000);
+    ttp.missedNotifications = 0;
 });
 
 // monitor tabs to inject listener
 chrome.tabs.onCreated.addListener(function (tab) {
-	if (tab.url !== "undefined" && ttp.ttRoom_re.test(tab.url)) {
+    if (tab.url !== "undefined" && ttp.ttRoom_re.test(tab.url)) {
         ttp.chatMessages = [];
         ttp.notifications = [];
         ttp.msgId = 0;
-		ttp.tabId = tab.id;
-		ttp.injectListener();
-		window.setupTimeout = window.setTimeout(ttp.setupRoom, 10000, {makeRequest: true});
-	}
+        ttp.tabId = tab.id;
+        ttp.injectListener();
+        window.setupTimeout = window.setTimeout(ttp.setupRoom, 10000, {makeRequest: true});
+    }
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
-	if (tab.url !== "undefined" && changeInfo.status === "complete") {
-		if (ttp.tabId === tabId && !ttp.ttRoom_re.test(tab.url)) {
-			ttp.tabId   = null;
-			ttp.room    = null;
-			ttp.users   = null;
+    if (tab.url !== "undefined" && changeInfo.status === "complete") {
+        if (ttp.tabId === tabId && !ttp.ttRoom_re.test(tab.url)) {
+            ttp.tabId   = null;
+            ttp.room    = null;
+            ttp.users   = null;
             ttp.isSetup = false;
-		} else if (ttp.ttRoom_re.test(tab.url)) {
+        } else if (ttp.ttRoom_re.test(tab.url)) {
             if (ttp.tabId !== tabId || ttp.port === null) {
                 ttp.chatMessages = [];
                 ttp.notifications = [];
@@ -1140,41 +1142,41 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
                 ttp.injectListener();
                 window.setupTimeout = window.setTimeout(ttp.setupRoom, 10000, {makeRequest: true});
             }
-		}
-	}
+        }
+    }
 });
 
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-	if (tabId === ttp.tabId) {
-		ttp.tabId   = null;
-		ttp.room    = null;
-		ttp.users   = null;
+    if (tabId === ttp.tabId) {
+        ttp.tabId   = null;
+        ttp.room    = null;
+        ttp.users   = null;
         ttp.isSetup = false;
-	}
+    }
 });
 
 // handle requests
 chrome.extension.onConnect.addListener(function (port) {
     ttp.port = port;
 
-	port.onMessage.addListener(function (request) {
+    port.onMessage.addListener(function (request) {
         var id,
             x,
             length,
             callback,
             msg;
 
-		if (typeof ttp.tabId !== "number") {
-			if (ttp.logging.all) {
+        if (typeof ttp.tabId !== "number") {
+            if (ttp.logging.all) {
                 ttp.log('No tabId - fetching');
             }
-			ttp.getTurntableTabId(function (tabId) {
-				if (ttp.logging.all) {
+            ttp.getTurntableTabId(function (tabId) {
+                if (ttp.logging.all) {
                     ttp.log('Found tabId - ', tabId);
                 }
-				ttp.tabId = tabId;
-			});
-		}
+                ttp.tabId = tabId;
+            });
+        }
 
         // see if it's a response to a request
         if (typeof request.msgId === "number" && request.source === 'background' && typeof request.response !== "undefined") {
@@ -1327,7 +1329,7 @@ chrome.extension.onConnect.addListener(function (port) {
                 }
             }
         }
-	});
+    });
     port.onDisconnect.addListener(function () {
         ttp.port = null;
     });
@@ -1335,38 +1337,38 @@ chrome.extension.onConnect.addListener(function (port) {
 
 // load data from local storage
 if (localStorage.ttpPrefs !== undefined && localStorage.ttpPrefs.length > 0) {
-	ttp.loadPrefs();
+    ttp.loadPrefs();
 }
 if (localStorage.ttpMessages !== undefined && localStorage.ttpMessages.length > 0) {
-	ttp.storage.messages = JSON.parse(localStorage.ttpMessages);
+    ttp.storage.messages = JSON.parse(localStorage.ttpMessages);
 }
 if (localStorage.ttpVoteHistory !== undefined && localStorage.ttpVoteHistory.length > 0) {
-	ttp.storage.voteHistory = JSON.parse(localStorage.ttpVoteHistory);
+    ttp.storage.voteHistory = JSON.parse(localStorage.ttpVoteHistory);
 }
 if (localStorage.ttpIgnoredUsers !== undefined && localStorage.ttpIgnoredUsers.length > 0) {
-	ttp.storage.ignoredUsers = JSON.parse(localStorage.ttpIgnoredUsers);
+    ttp.storage.ignoredUsers = JSON.parse(localStorage.ttpIgnoredUsers);
 }
 
 // get this party started
 ttp.getTurntableTabId(function (tabId) {
-	if (tabId !== false) {
+    if (tabId !== false) {
         ttp.chatMessages = [];
         ttp.notifications = [];
         ttp.msgId = 0;
-		ttp.tabId = tabId;
-		ttp.injectListener();
-		window.setupTimeout = window.setTimeout(ttp.setupRoom, 4000, {makeRequest: true});
-	}
+        ttp.tabId = tabId;
+        ttp.injectListener();
+        window.setupTimeout = window.setTimeout(ttp.setupRoom, 4000, {makeRequest: true});
+    }
 }, true);
 
 window.setTimeout(function () {
-	// add Google Analytics
-	var _gaq = _gaq || [];
-	_gaq.push(['_setAccount', 'UA-24876382-1']);
-	_gaq.push(['_trackPageview']);
-	_gaq.push(['_trackEvent', 'Version', ttp.version]);
+    // add Google Analytics
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-24876382-1']);
+    _gaq.push(['_trackPageview']);
+    _gaq.push(['_trackEvent', 'Version', ttp.version]);
 
-	(function () {
+    (function () {
         var ga = document.createElement('script'),
             s;
         ga.type = 'text/javascript';
@@ -1374,7 +1376,7 @@ window.setTimeout(function () {
         ga.src = 'https://ssl.google-analytics.com/ga.js';
         s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(ga, s);
-	})();
+    })();
 }, 10000);
 
 // little helper functions
@@ -1383,31 +1385,31 @@ RegExp.escape = function (text) {
 };
 
 String.prototype.padLeft = function (padding, char) {
-	var output = '',
+    var output = '',
         x = 0,
         length = this.length;
 
-	if (length < padding) {
+    if (length < padding) {
         length = padding - length;
-		for (x = 0; x < length; x += 1) {
-			output += char;
-		}
-	}
-	return output + this;
+        for (x = 0; x < length; x += 1) {
+            output += char;
+        }
+    }
+    return output + this;
 };
 
 function formatDate(date, hour24) {
-	var hours = date.getHours(),
+    var hours = date.getHours(),
         abbr = '';
-	if (!hour24) {
-		if (hours >= 12) {
-			if (hours > 12) {
+    if (!hour24) {
+        if (hours >= 12) {
+            if (hours > 12) {
                 hours -= 12;
             }
-			abbr = ' PM';
-		} else {
+            abbr = ' PM';
+        } else {
             abbr = ' AM';
         }
-	}
-	return date.getFullYear() + '-' + (date.getMonth() + 1).toString().padLeft(2, '0') + '-' + date.getDate().toString().padLeft(2, '0') + ' ' + hours.toString().padLeft(2, '0') + ':' + date.getMinutes().toString().padLeft(2, '0') + ':' + date.getSeconds().toString().padLeft(2, '0') + abbr;
+    }
+    return date.getFullYear() + '-' + (date.getMonth() + 1).toString().padLeft(2, '0') + '-' + date.getDate().toString().padLeft(2, '0') + ' ' + hours.toString().padLeft(2, '0') + ':' + date.getMinutes().toString().padLeft(2, '0') + ':' + date.getSeconds().toString().padLeft(2, '0') + abbr;
 }

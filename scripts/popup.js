@@ -315,7 +315,7 @@ var bgPage = chrome.extension.getBackgroundPage(),
                     $(this).hide();
                 }
             });
-        } else 	if ($('.tabs .chatlogtab').hasClass('selected')) {
+        } else     if ($('.tabs .chatlogtab').hasClass('selected')) {
             $('#main #chatlog .message').each(function(){
                 if (!searchTerm.test($(this).find('.sender').text() + ' ' + $(this).find('.text').text() + ' ' + $(this).find('.timestamp').text())) {
                     $(this).hide();
@@ -333,17 +333,17 @@ var bgPage = chrome.extension.getBackgroundPage(),
     };
 
 $(document).ready(function () {
-	$('.roomName').click(function () {
-		bgPage.ttp.openTurntable();
-	});
-	bgPage.ttp.getTurntableTabId(function (tabId) {
-		if (typeof tabId !== "number") {
-			$('.header').width('350px').css('border-radius', '4px').find('.controls').height('0px');
-			$('html,body').height('39px').css('margin', '0');
-		} else {
+    $('.roomName').click(function () {
+        bgPage.ttp.openTurntable();
+    });
+    bgPage.ttp.getTurntableTabId(function (tabId) {
+        if (typeof tabId !== "number") {
+            $('.header').width('350px').css('border-radius', '4px').find('.controls').height('0px');
+            $('html,body').height('39px').css('margin', '0');
+        } else {
             buildPopup(tabId);
         }
-	}, true);
+    }, true);
 });
 
 // Google Analytics

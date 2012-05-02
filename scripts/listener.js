@@ -183,15 +183,15 @@ var ttplus = {
         script.src  = chrome.extension.getURL('/scripts/onPage.js') + "?" + Date.now();
         document.head.appendChild(script);
     },
-	exec: function (command) {
-		return eval(command);
-	},
-	setupRoom: function () {
+    exec: function (command) {
+        return eval(command);
+    },
+    setupRoom: function () {
         ttp.request({api: "room.info", roomid: ttp.roominfo.roomId});
-	},
+    },
     getUserInfo: function () {
         ttp.request({api: "user.info"});
-	},
+    },
     addUsersList: function (expandedChat, layout, path) {
         var attachTo = (expandedChat === true) ? ".chat-container" : "#outer",
             bodyWidth = $('body').width(),
@@ -585,7 +585,7 @@ var ttplus = {
         $('.playlist-container .searchView .songlist').height(outerHeight - 193 + 'px');
 
         // make sure chat is scrolled to bottom
-		$(".chat-container .messages").prop({
+        $(".chat-container .messages").prop({
             scrollTop: $(".chat-container .messages").prop("scrollHeight")
         });
 
@@ -753,26 +753,26 @@ var ttplus = {
     highlightChatMessage: function (message) {
         var name = window.unescape(message.name),
             rgx = new RegExp(window.unescape(message.rgx), 'i');
-		$($(".message").get().reverse()).each(function () {
-			if ($(this).find(".speaker").text() === name && rgx.test($(this).find(".text").text())) {
-				$(this).css("background-color", "#ff9");
-				return false;
-			}
-		});
-	},
+        $($(".message").get().reverse()).each(function () {
+            if ($(this).find(".speaker").text() === name && rgx.test($(this).find(".text").text())) {
+                $(this).css("background-color", "#ff9");
+                return false;
+            }
+        });
+    },
     toggleMute: function () {
         var volume = ttp.roommanager.volume_bars ? 0 : ttp.roommanager.last_volume_bars;
-		ttp.roommanager.set_volume(volume);
-		ttp.roommanager.callback("set_volume", ttp.roommanager.volume_bars);
-		$("#left_speaker").mouseenter().mouseleave();
-	},
+        ttp.roommanager.set_volume(volume);
+        ttp.roommanager.callback("set_volume", ttp.roommanager.volume_bars);
+        $("#left_speaker").mouseenter().mouseleave();
+    },
     speak: function (text) {
-		ttp.roominfo.nodes.chatText.value = text;
-		ttp.roominfo.speak(ttp.enterKey);
-	},
+        ttp.roominfo.nodes.chatText.value = text;
+        ttp.roominfo.speak(ttp.enterKey);
+    },
     queueSong: function (song) {
-		ttp.roominfo.addSong("queue", song);
-	},
+        ttp.roominfo.addSong("queue", song);
+    },
     processUsersQueue: function () {
         var x = 0,
             length = ttplus.usersQueue.length;
@@ -909,9 +909,9 @@ var ttplus = {
             $('#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected').after($('#ttpUserActions')).click();
         }
         return true;
-	},
-	updateUser: function (user, vote) {
-		var $el             = $('#user' + user.userid),
+    },
+    updateUser: function (user, vote) {
+        var $el             = $('#user' + user.userid),
             djs             = (ttp.roominfo.djIds.length) ? new RegExp(ttp.roominfo.djIds.join('|')) : false,
             moderators      = (ttp.roominfo.moderators.length) ? new RegExp(ttp.roominfo.moderators.join('|')) : false,
             fanof           = (turntable.user.fanOf.length) ? new RegExp(turntable.user.fanOf.join('|')) : false,
@@ -928,93 +928,93 @@ var ttplus = {
         if ($el.length < 1) {
             return false;
         }
-		if (typeof vote  === "string" && vote === "up") {
-			$el.removeClass("ttpUserDownVote").addClass("ttpUserUpVote");
-		} else if (typeof vote === "string" && vote === "down") {
-			$el.removeClass("ttpUserUpVote").addClass("ttpUserDownVote");
-		}
-		if (moderators && moderators.test(user.userid)) {
-			usertype     = "30";
-			displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Moderator"></span>';
-			showIdleTime = true;
-		}
-		if (user.userid === ttp.roominfo.creatorId) {
-			usertype     = "20";
-			displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Room Creator"></span>';
-			showIdleTime = true;
-		}
-		if (user.acl > 0) {
-			usertype     = "10";
-			displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpSuper" title="Super User"></span>';
-			showIdleTime = true;
-		}
-		if (fanof && fanof.test(user.userid)) {
-			usertype     = (usertype === "60") ? "50" : usertype;
-			displayName += '<span class="ttpFanned" title="You\'re a fan"></span>';
-		}
-		if (djs && djs.test(user.userid)) {
-			if (usertype === "50" || usertype === "60") {
-				usertype = "40";
-			}
-			showIdleTime = true;
-			isDj = true;
-		}
-		$el.removeClass('ttpUserType10 ttpUserType20 ttpUserType30 ttpUserType40 ttpUserType50 ttpUserType60').addClass('ttpUserType' + usertype).attr('ttpusertype', usertype).attr('ttpusername', user.name.replace(/"/g, '\"')).attr('ttpusersort', usertype + user.name.replace(/"/g, '\"').toUpperCase()).html(displayName);
-		if (isDj) {
+        if (typeof vote  === "string" && vote === "up") {
+            $el.removeClass("ttpUserDownVote").addClass("ttpUserUpVote");
+        } else if (typeof vote === "string" && vote === "down") {
+            $el.removeClass("ttpUserUpVote").addClass("ttpUserDownVote");
+        }
+        if (moderators && moderators.test(user.userid)) {
+            usertype     = "30";
+            displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Moderator"></span>';
+            showIdleTime = true;
+        }
+        if (user.userid === ttp.roominfo.creatorId) {
+            usertype     = "20";
+            displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Room Creator"></span>';
+            showIdleTime = true;
+        }
+        if (user.acl > 0) {
+            usertype     = "10";
+            displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpSuper" title="Super User"></span>';
+            showIdleTime = true;
+        }
+        if (fanof && fanof.test(user.userid)) {
+            usertype     = (usertype === "60") ? "50" : usertype;
+            displayName += '<span class="ttpFanned" title="You\'re a fan"></span>';
+        }
+        if (djs && djs.test(user.userid)) {
+            if (usertype === "50" || usertype === "60") {
+                usertype = "40";
+            }
+            showIdleTime = true;
+            isDj = true;
+        }
+        $el.removeClass('ttpUserType10 ttpUserType20 ttpUserType30 ttpUserType40 ttpUserType50 ttpUserType60').addClass('ttpUserType' + usertype).attr('ttpusertype', usertype).attr('ttpusername', user.name.replace(/"/g, '\"')).attr('ttpusersort', usertype + user.name.replace(/"/g, '\"').toUpperCase()).html(displayName);
+        if (isDj) {
             $el.addClass('ttpBold')
         } else {
             $el.removeClass('ttpBold');
         }
-		if (showIdleTime) {
+        if (showIdleTime) {
             $el.prepend('<span class="ttpIdleTime">' + idleTime + '</span>');
         }
-		if (oldDisplayName !== displayName || oldUsertype !== usertype) {
-			$('#ttpUsersList .ttpUsersList .ttpUser').sortElements(function (a, b) {
-				return $(a).attr('ttpusersort') > $(b).attr('ttpusersort') ? 1 : -1;
-			});
-		}
-		if ($('#ttpUserActions').css('display') === 'block') {
-			userActionsOpen = true;
-			$('#ttpUserActions').hide();
-		}
-		if (userActionsOpen) {
+        if (oldDisplayName !== displayName || oldUsertype !== usertype) {
+            $('#ttpUsersList .ttpUsersList .ttpUser').sortElements(function (a, b) {
+                return $(a).attr('ttpusersort') > $(b).attr('ttpusersort') ? 1 : -1;
+            });
+        }
+        if ($('#ttpUserActions').css('display') === 'block') {
+            userActionsOpen = true;
+            $('#ttpUserActions').hide();
+        }
+        if (userActionsOpen) {
             $('#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected').after($('#ttpUserActions')).click();
         }
         return true;
-	},
+    },
     removeUser: function (userid) {
-		if ($('#user' + userid).next().attr('id') == "ttpUserActions") {
+        if ($('#user' + userid).next().attr('id') == "ttpUserActions") {
             $('#ttpUserActions').hide();
         }
-		$('#user' + userid).remove();
-		$('#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected').after($('#ttpUserActions'));
+        $('#user' + userid).remove();
+        $('#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected').after($('#ttpUserActions'));
         ttp.room.listeners -= 1;
         $("#ttpRoomListeners").text(ttp.room.listeners);
-		return true;
-	},
+        return true;
+    },
     updateRoomStats: function (room) {
         var hearts = 0;
-		if (typeof room !== "object") {
+        if (typeof room !== "object") {
             return;
         }
         if (ttp.room.hearts !== undefined) {
             hearts = ttp.room.hearts;
         }
-		ttp.room = room;
+        ttp.room = room;
         ttp.room.hearts = hearts;
-		$('#ttpRoomListeners').text(ttp.room.listeners);
-		$('#ttpRoomUpvotes').text(ttp.room.upvotes);
-		$('#ttpRoomDownvotes').text(ttp.room.downvotes);
-	},
+        $('#ttpRoomListeners').text(ttp.room.listeners);
+        $('#ttpRoomUpvotes').text(ttp.room.upvotes);
+        $('#ttpRoomDownvotes').text(ttp.room.downvotes);
+    },
     getUsers: function () {
-		return ttp.roominfo.users;
-	},
+        return ttp.roominfo.users;
+    },
     ignoreUsers: function (ignoredUsers) {
-		ttp.roominfo.ignoredUsers = ignoredUsers;
-	},
+        ttp.roominfo.ignoredUsers = ignoredUsers;
+    },
     setStartTime: function () {
-		ttp.startTime = ttp.now();
-	},
+        ttp.startTime = ttp.now();
+    },
     injectScript: function (source) {
         //////////////////////////////////////////////////////////////////////////////////////////////
         // Copyright(C) 2010 Abdullah Ali, voodooattack@hotmail.com                                 //

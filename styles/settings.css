@@ -8,158 +8,158 @@
 
 /* main styles */
 body {
-	background: #0c3e85 url(/images/bg.jpg) no-repeat top center;
-	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
-	overflow-x: hidden;
+    background: #0c3e85 url(/images/bg.jpg) no-repeat top center;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    overflow-x: hidden;
 }
 
 .inner {
-	width: 1000px;
-	margin: 0 auto 0 auto;
+    width: 1000px;
+    margin: 0 auto 0 auto;
 }
 
 .panes {
-	width: 10000px;
+    width: 10000px;
 }
 
 .clear {
-	clear: both;
+    clear: both;
 }
 
 header h2 a {
-	font-family: 'StreetCornerSlabRegular', Arial, Verdana;
-	font-weight: normal;
-	font-size: 20px;
-	color: #FFF;
-	float: right;
-	display: block;
-	margin: 35px 30px 0 0;
-	text-decoration: none;
+    font-family: 'StreetCornerSlabRegular', Arial, Verdana;
+    font-weight: normal;
+    font-size: 20px;
+    color: #FFF;
+    float: right;
+    display: block;
+    margin: 35px 30px 0 0;
+    text-decoration: none;
 }
 
 .logo {
-	float: left;
-	position: relative;
+    float: left;
+    position: relative;
 }
 
 .container {
-	width: 970px;
-	min-height: 650px;
-	border-radius: 0 25px 0 25px;
-	background: #FFF;
-	margin: 0 auto;
-	padding: 0 0 15px 0;
-	color: #333;
-	position: relative;
-	float: left;
+    width: 970px;
+    min-height: 650px;
+    border-radius: 0 25px 0 25px;
+    background: #FFF;
+    margin: 0 auto;
+    padding: 0 0 15px 0;
+    color: #333;
+    position: relative;
+    float: left;
 }
 
 
 .container h3 {
-	font-family: 'StreetCornerSlabRegular', Arial, Verdana;
-	color: #0b4d93;
-	margin: 15px 0 0 0;
-	padding: 15px 0 0 30px;
-	font-weight: lighter;
-	font-size: 1.5em;
+    font-family: 'StreetCornerSlabRegular', Arial, Verdana;
+    color: #0b4d93;
+    margin: 15px 0 0 0;
+    padding: 15px 0 0 30px;
+    font-weight: lighter;
+    font-size: 1.5em;
 }
 
 .settings_form {
-	margin: 5px 0 0 45px;
+    margin: 5px 0 0 45px;
 }
 
 .settings_form strong {
-	color: 	#0b4d93;
+    color:     #0b4d93;
 }
 
 .settings_form ul {
-	margin: 0;
-	padding: 0;
-	font-size: .8em;
-	list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: .8em;
+    list-style: none;
 }
 
 #keyword_list li {
-	margin: 3px 0;
-	color: #333;
+    margin: 3px 0;
+    color: #333;
 }
 .remove {
-	float: left;
-	background: url(../images/remove.png) no-repeat;
-	width: 15px;
-	height: 15px;
-	margin: 0 10px 0 0;
-	cursor: pointer;
+    float: left;
+    background: url(../images/remove.png) no-repeat;
+    width: 15px;
+    height: 15px;
+    margin: 0 10px 0 0;
+    cursor: pointer;
 }
 
 .settings_form table {
-	width: 90%;
+    width: 90%;
 }
 
 table.small {
-	font-size: .8em;
+    font-size: .8em;
 }
 
 th {
-	text-align: left;
-	background-image: -webkit-linear-gradient(top, #CCC, #999);
+    text-align: left;
+    background-image: -webkit-linear-gradient(top, #CCC, #999);
 }
 
 footer {
-	clear: both;
-	color: #FFF;
-	text-align: center;
-	font-size: .8em;
-	padding: .8em;
+    clear: both;
+    color: #FFF;
+    text-align: center;
+    font-size: .8em;
+    padding: .8em;
 }
 
 footer a {
-	color: #F93;
-	text-decoration: none;
+    color: #F93;
+    text-decoration: none;
 }
 
 .fine_print {
-	font-size: 11px;
+    font-size: 11px;
 }
 
 .cbButton {
     background: #ccc;
     background: -webkit-linear-gradient(top, #ccc 1%, #666 100%);
-	color: #fff;
-	display: inline-block;
-	width: 60px;
-	height: 25px;
-	border-radius: 8px;
-	text-align: center;
-	padding: 3px 0 0 0;
-	cursor: pointer;
-	box-shadow: 1px 1px 1px 1px #999;
+    color: #fff;
+    display: inline-block;
+    width: 60px;
+    height: 25px;
+    border-radius: 8px;
+    text-align: center;
+    padding: 3px 0 0 0;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px 1px #999;
 }
 .cbButton:hover {
-	background: #ddd;
-	background: -webkit-linear-gradient(top, #ddd 1%,#777 100%);
+    background: #ddd;
+    background: -webkit-linear-gradient(top, #ddd 1%,#777 100%);
 }
 .cbButton:active {
-	box-shadow: none;
-	position: relative;
-	top: 2px;
-	left: 2px;
+    box-shadow: none;
+    position: relative;
+    top: 2px;
+    left: 2px;
 }
 .cbButton.true {
-	background: #7baa61;
-	background: -webkit-linear-gradient(top, #7baa61 1%,#2d6b0e 100%);
+    background: #7baa61;
+    background: -webkit-linear-gradient(top, #7baa61 1%,#2d6b0e 100%);
 }
 .cbButton.true:hover {
-	background: #87b270;
-	background: -webkit-linear-gradient(top, #87b270 1%,#3c8d13 100%);
+    background: #87b270;
+    background: -webkit-linear-gradient(top, #87b270 1%,#3c8d13 100%);
 }
 .cbButton.false {
-	background: #ff3019;
-	background: -webkit-linear-gradient(top, #ff3019 0%,#cf0404 63%);
+    background: #ff3019;
+    background: -webkit-linear-gradient(top, #ff3019 0%,#cf0404 63%);
 }
 .cbButton.false:hover {
-	background: #ff4631;
-	background: -webkit-linear-gradient(top, #ff4631 0%,#ed0505 63%);
+    background: #ff4631;
+    background: -webkit-linear-gradient(top, #ff4631 0%,#ed0505 63%);
 }
 .cbButton.disabled {
     background: #777777;
@@ -177,6 +177,6 @@ footer a {
     cursor: default;
 }
 table.small .cbButton {
-	width: 50px;
-	height: 20px;
+    width: 50px;
+    height: 20px;
 }
