@@ -435,9 +435,8 @@ var ttp = {
         }
     },
     // Counter for the user's song queue
-    songQueueCountReady: false,
     loadSongQueueCount: function() {
-        if(ttp.songQueueCountReady == false) {
+        if($("#ttpSongQueueCount").length == 0) {
             // Prepare an div that will be used to display the number of songs in your queue
             // This reduces the number of DOM updates
             var countDiv = document.createElement("div");
@@ -454,9 +453,7 @@ var ttp = {
             $('#right-panel .playlist-container .black-right-header').css('position', 'relative').append(countDiv);
 
             // Bind an event so any modification to the song queue will update the count
-            $("#right-panel .realPlaylist").bind('DOMSubtreeModified', function(){ ttp.updateSongQueueCount() })
-
-            ttp.songQueueCountReady = true;
+            $("#right-panel .realPlaylist").bind('DOMSubtreeModified', function(){ ttp.updateSongQueueCount() });
         }
 
         ttp.updateSongQueueCount();
