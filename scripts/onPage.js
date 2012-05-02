@@ -433,6 +433,34 @@ var ttp = {
             styles.href = room.styles.path + "?" + room.styles.modified;
             document.head.appendChild(styles);
         }
+    },
+    // Counter for the user's song queue
+    loadSongQueueCount: function() {
+        if($("#ttpSongQueueCount").length == 0) {
+            // Prepare an div that will be used to display the number of songs in your queue
+            // This reduces the number of DOM updates
+            var countDiv = document.createElement("div");
+            $(countDiv).attr("id", "ttpSongQueueCount");
+            $(countDiv).css({
+                "font-weight": "bold",
+                position: "absolute",
+                right: "5px",
+                top: "3px",
+                color: "white"
+            });
+
+            // Append song count div to the DOM
+            $('#right-panel .playlist-container .black-right-header').css('position', 'relative').append(countDiv);
+
+            // Bind an event so any modification to the song queue will update the count
+            $("#right-panel .realPlaylist").bind('DOMSubtreeModified', function(){ ttp.updateSongQueueCount() });
+        }
+
+        ttp.updateSongQueueCount();
+    },
+    updateSongQueueCount: function() {
+        songCount = $("#right-panel .realPlaylist").children().length
+        $("#ttpSongQueueCount").html(songCount + " songs");
     }
 }
 ttp.event.initEvent("ttpEvent", true, true);
