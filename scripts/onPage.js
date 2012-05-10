@@ -459,8 +459,8 @@ var ttp = {
         ttp.updateSongQueueCount();
     },
     updateSongQueueCount: function() {
-        songCount = $("#right-panel .realPlaylist").children().length
-        $("#ttpSongQueueCount").html(songCount + " songs");
+        songCount = $("#right-panel .realPlaylist .song:not(.ui-sortable-placeholder)").length;
+        $("#ttpSongQueueCount").html(songCount.commafy() + " songs");
     }
 }
 ttp.event.initEvent("ttpEvent", true, true);
@@ -543,6 +543,17 @@ TTPAPI.prototype.destroy = function () {
         }
         delete window.ttpapi;
     }
+}
+
+Number.prototype.commafy = function () {
+    var len;
+    num = this.toString();
+    len = num.length;
+    while (len > 3) {
+        num = num.substr(0, len - 3) + ',' + num.substr(len - 3);
+        len -= 3;
+    }
+    return num;
 }
 
 String.prototype.padLeft = function (length, str) {
