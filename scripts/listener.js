@@ -5,6 +5,9 @@ var ttplus = {
     usersQueue: [],
     port: null,
     msgId: 0,
+    speak: $.noop,
+    anim: $.noop,
+    animations: true,
     msgCallbacks: [],
     send: function (data, callback) {
         if (this.port === null) {
@@ -199,8 +202,8 @@ var ttplus = {
             outerHeight = $('#outer').height()
             usersListLeft = (expandedChat === true) ? bodyWidth - 205 : (bodyWidth - outerWidth) / 2 + outerWidth;
 
-        if ($('#ttpUsersList').length < 1) {
-            $('<div id="ttpUsersList"><div class="ttpUsersListHeader"><span style="padding: 0 0 0 5px;">Votes: </span><span id="ttpRoomHearts" title="Number of Times Queued">0</span><span id="ttpRoomUpvotes" title="Awesomes">0</span><span id="ttpRoomDownvotes" title="Lames">0</span></div><div class="ttpBanner"><a href="' + path + 'settings.html" target="_blank"><img src="' + path + 'images/banner-logo.png" width="66" height="38" style="margin-left: 1px;" /></a><a href="#" id="ttp-allow-custom"><img src="' + path + 'images/script-add.png" width="19" height="18" class="ttpCustom" title="Allow Room Customizations" /></a><a href="#" id="ttp-disable-custom"><img src="' + path + 'images/script-remove.png" width="19" height="18" class="ttpCustom" title="Disable Room Customizations" /></a><img src="' + path + 'images/banner-listeners.png" width="23" height="18" style="position:absolute;top:10px;right:38px;"><span id="ttpRoomListeners">0</span></div><div class="ttpUsersList"></div><div id="ttpUserSearch"><input type="text" placeholder="search users" /></div></div>').insertAfter(attachTo);
+         if ($('#ttpUsersList').length < 1) {
+            $('<div id="ttpUsersList"><div class="ttpUsersListHeader"><span style="padding: 0 0 0 5px;">Votes: </span><span id="ttpRoomHearts" title="Number of Times Queued">0</span><span id="ttpRoomUpvotes" title="Awesomes">0</span><span id="ttpRoomDownvotes" title="Lames">0</span></div><div class="ttpBanner"><a href="' + path + 'settings.html" target="_blank"><img src="' + path + 'images/banner-logo.png" width="66" height="38" style="margin-left: 1px;" /></a><a href="#" id="ttp-allow-custom"><img src="' + path + 'images/script-add.png" width="19" height="18" class="ttpCusto" title="Allow Room Customizations" /></a><a href="#" id="ttp-disable-custom"><img src="' + path + 'images/script-remove.png" width="19" height="18" class="ttpCusto" title="Disable Room Customizations" /></a><a href = "#" id="ttp-stop-animation"><img src="' + path + 'images/noAnimation.png" width="20" height="23" style="margin-left:40px; margin-bottom:8px;"id="ttpAnimation" title="Toggle Animations" /></a><img src="' + path + 'images/banner-listeners.png" width="23" height="18" style="position:absolute;top:10px;right:38px;"><span id="ttpRoomListeners">0</span></div><div class="ttpUsersList"></div><div id="ttpUserSearch"><input type="text" placeholder="search users" /></div></div>').insertAfter(attachTo);
 
             $('#ttpUsersList .ttpUsersList').append('<div id="ttpUserActions"><span class="ttpUserActionsIdle">Idle: <span class="ttpIdleTime"></span></span><br /><span class="icon ttpFan" title="Fan"></span><span class="icon ttpProfile" title="View Profile"></span><span class="icon ttpTtdash" title="View Turntable Dashboard Profile"></span><span class="icon ttpAddMod" title="Grant Moderator Privileges"></span><span class="icon ttpIgnore" title="Ignore User"></span><span class="icon ttpBoot" title="Boot User"></span><span class="icon ttpRemoveDj" title="Remove DJ"></span></div>');
 
@@ -211,6 +214,88 @@ var ttplus = {
                     });
                 }
             });
+
+
+            //Edited By Nathan Follin 05/29/2012
+             $('#ttp-stop-animation').on("click",function(e){
+                e.preventDefault();
+                ttp.animations=!ttp.animations;
+                
+                
+                if(ttp.animations){ //disable animations
+                    ttp.anim = ttp.roommanager.add_animation_to;
+                    ttp.speak = ttp.roommanager.speak;
+                    var a,c=null,b=null;
+                    for(a in turntable)
+                        if("object"===typeof turntable[a]&&null!==turntable[a]&&turntable[a].hasOwnProperty("selfId"))
+                        {
+                            c=turntable[a];
+                            break
+                        }       
+                    if(null!==c)
+                        for(a in c)
+                            if("object"===typeof c[a]&&null!==c[a]&&c[a].hasOwnProperty("myuserid"))
+                            {
+                                b=c[a];
+                                break
+                            }
+                    if(null!==b)
+                    {
+                        b.add_animation_to=function(){};
+                        $("#meterNeedle").hide();
+                        b.speak=function(){};
+                        for(a in b.djs_uid)
+                            b.djs_uid[a][0].stop();
+                        for(a in b.listeners)
+                            b.listeners[a].stop();
+                            $("#top-panel").next().children("div").first().hide();
+                    }           
+                    document.getElementById("ttpAnimation").src= path + "images/animationOn.png";
+                }else{ 
+                    //reenable animations
+                    var a,c=null,b=null;
+                    for(a in turntable)
+                        if("object"===typeof turntable[a]&&null!==turntable[a]&&turntable[a].hasOwnProperty("selfId"))
+                        {
+                            c=turntable[a];
+                            break
+                        }       
+                    if(null!==c)
+                        for(a in c)
+                            if("object"===typeof c[a]&&null!==c[a]&&c[a].hasOwnProperty("myuserid"))
+                            {
+                                b=c[a];
+                                break
+                            }
+                    if(null!==b)
+                    {
+                        b.add_animation_to=ttp.anim;
+                        $("#meterNeedle").show();
+                        b.speak=ttp.speak;
+                        for(a in b.djs_uid){
+                            
+                            var dancer = b.djs_uid[a][0];
+                            if (a === ttp.roominfo.currentDj){
+                                ttp.roommanager.add_animation_to(dancer, 'bob');
+                            }
+                            
+                            if ($.inArray(a, ttp.roominfo.upvoters) >-1) {
+                                
+                                ttp.roommanager.add_animation_to(dancer,'rock');
+                            }
+                        }
+                        
+                        for(a in b.listeners)
+                            if ($.inArray(a, ttp.roominfo.upvoters) > -1)
+                                ttp.roommanager.add_animation_to(b.listeners[a], 'rock');
+                        $("#top-panel").next().children("div").first().show();
+                    }           
+                    document.getElementById("ttpAnimation").src= path + "images/noAnimation.png";
+                }
+            });
+            //end edit
+
+
 
             $('#ttpUsersList .ttpUsersList .ttpUser').live('click', function (e) {
                 e.stopPropagation();
