@@ -222,7 +222,7 @@ var ttplus = {
                 ttp.animations = !ttp.animations;
 
                 // disable animations
-                if (ttp.animations) {
+                 if (ttp.animations === true) {
                     var a, c = null, b = null;
                     // store current functions
                     ttp.danceAnim = ttp.roommanager.add_animation_to;
@@ -262,8 +262,7 @@ var ttplus = {
                     $("#meterNeedle").show();
 
                     // make DJ avatars dance (if current DJ or if upvoted)
-                    for (dj in tpp.roommanager.djs_uid) {
-                        var dancer = b.djs_uid[a][0];
+                    for (dj in ttp.roommanager.djs_uid) {
                         if (dj === ttp.roominfo.currentDj){
                             ttp.roommanager.add_animation_to(ttp.roommanager.djs_uid[dj][0], 'bob');
                         }
