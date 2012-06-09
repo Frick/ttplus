@@ -106,10 +106,8 @@ var bgPage = chrome.extension.getBackgroundPage(),
             var height = parseInt($('.fixedHeader').height(), 10) + parseInt($('#main').height(), 10);
             if (height < 580) {
                 $('html,body').height(height);
-                $('body').css('margin', '0');
             } else {
                 $('html,body').height('580px');
-                $('body').css('margin', '0 17px 0 0');
             }
             $('.fixedHeader .controls .search .frmSearch .songSearch').focus();
             popupSearch();
@@ -233,10 +231,8 @@ var bgPage = chrome.extension.getBackgroundPage(),
             var height = parseInt($('.fixedHeader').height()) + parseInt($('#main').height());
             if (height < 580) {
                 $('html,body').height(height);
-                $('body').css('margin','0');
             } else {
                 $('html,body').height('580px');
-                $('body').css('margin','0 17px 0 0');
             }
         }
     },
@@ -275,10 +271,8 @@ var bgPage = chrome.extension.getBackgroundPage(),
             var height = parseInt($('.fixedHeader').height()) + parseInt($('#main').height());
             if (height < 580) {
                 $('html,body').height(height);
-                $('body').css('margin','0');
             } else {
                 $('html,body').height('580px');
-                $('body').css('margin','0 17px 0 0');
             }
         }
     },
@@ -325,10 +319,8 @@ var bgPage = chrome.extension.getBackgroundPage(),
         var height = parseInt($('.fixedHeader').height()) + parseInt($('#main').height());
         if (height < 580) {
             $('html,body').height(height);
-            $('body').css('margin','0');
         } else {
             $('html,body').height('580px');
-            $('body').css('margin','0 17px 0 0');
         }
     };
 
