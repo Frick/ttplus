@@ -453,13 +453,15 @@ var ttp = {
             $('#right-panel .playlist-container .black-right-header').css('position', 'relative').append(countDiv);
 
             // Bind an event so any modification to the song queue will update the count
-            $("#right-panel .realPlaylist").bind('DOMSubtreeModified', function(){ ttp.updateSongQueueCount() });
+            $("#right-panel .realPlaylist").bind('DOMSubtreeModified', function () {
+                ttp.updateSongQueueCount();
+            });
         }
 
         ttp.updateSongQueueCount();
     },
     updateSongQueueCount: function() {
-        songCount = $("#right-panel .realPlaylist .song:not(.ui-sortable-placeholder)").length;
+        songCount = turntable.playlist.files.length;
         $("#ttpSongQueueCount").html(songCount.commafy() + " songs");
     }
 }
