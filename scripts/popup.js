@@ -81,6 +81,7 @@ var bgPage = chrome.extension.getBackgroundPage(),
         buildSonglog();
         buildChat();
         buildChatlog();
+        buildCalendar();
 
         $('.tabs').show();
         $('.tab').click(function (e) {
@@ -102,6 +103,11 @@ var bgPage = chrome.extension.getBackgroundPage(),
                 $('#chatlog').show();
                 $("body").prop({scrollTop: "0"});
                 $('.fixedHeader .controls .search .frmSearch .songSearch').css({background: "#FAFAFA url(/images/search.png) no-repeat right"}).prop("placeholder", "search");
+            } else if ($(this).hasClass('calendar')) {
+                bgPage.ttp.lastPopupTab = 'calendar';
+                $('#calendar').show();
+                $('body').prop({scrollTop: '0'});
+                $('html,body').height('575px');
             }
             var height = parseInt($('.fixedHeader').height(), 10) + parseInt($('#main').height(), 10);
             if (height < 580) {
@@ -276,6 +282,9 @@ var bgPage = chrome.extension.getBackgroundPage(),
             }
         }
     },
+    buildCalendar = function () {
+        $('#calendar').html('<iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showNav=0&amp;showDate=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;mode=AGENDA&amp;height=440&amp;wkst=1&amp;bgcolor=%230C5AA2&amp;src=r45malsboglaloqguqve4n375o%40group.calendar.google.com&amp;color=%230C5AA2&amp;ctz=America%2FNew_York" style="border-width:0;width:350px;height:440px;" width="350" height="440" frameborder="0" scrolling="no"></iframe>');
+    },
     popupSearch = function (e) {
         if ($('.tabs .chattab').hasClass('selected')) {
             if (typeof(e) == "object" && e.keyCode == 13) {
@@ -331,7 +340,8 @@ $(document).ready(function () {
     bgPage.ttp.getTurntableTabId(function (tabId) {
         if (typeof tabId !== "number") {
             $('.header').width('350px').css('border-radius', '4px').find('.controls').height('0px');
-            $('html,body').height('39px').css('margin', '0');
+            $('html,body').height('479px').css('margin', '0');
+            buildCalendar();
         } else {
             buildPopup(tabId);
         }

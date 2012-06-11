@@ -1,5 +1,5 @@
 var ttp = {
-    tt_re: /https?:\/\/[^\/]*turntable\.fm\/.*/i,
+    tt_re: /https?:\/\/turntable\.fm\/.*/i,
     ttRoom_re: /https?:\/\/turntable\.fm\/(?!lobby\/?|static\/?|settings\/?|getfile\/?|down\/?|about\/?|terms\/?|privacy\/?|copyright\/?|jobs\/?|admin\/?).+/i,
     chatNotification_re: /$^/,
     tabId: null,
@@ -15,7 +15,7 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.2.7',
+    version: '0.2.8',
     minVersion: '0.2.1',
     prefs: {
         notifications: {
@@ -77,7 +77,7 @@ var ttp = {
             }
         },
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.2.7'
+        version: '0.2.8'
     },
     logging: {},
     enableLogging: function (type) {
