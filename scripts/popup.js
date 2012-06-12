@@ -284,6 +284,13 @@ var bgPage = chrome.extension.getBackgroundPage(),
     },
     buildCalendar = function () {
         $('#calendar').html('<iframe src="https://www.google.com/calendar/embed?showTitle=0&amp;showNav=0&amp;showDate=0&amp;showPrint=0&amp;showTabs=0&amp;showCalendars=0&amp;mode=AGENDA&amp;height=440&amp;wkst=1&amp;bgcolor=%230C5AA2&amp;src=r45malsboglaloqguqve4n375o%40group.calendar.google.com&amp;color=%230C5AA2&amp;ctz=America%2FNew_York" style="border-width:0;width:350px;height:440px;" width="350" height="440" frameborder="0" scrolling="no"></iframe>');
+        /*
+         *
+         * Eventually replace with custom styling, HTTP linking, etc by using JSON feed
+         *
+         * $.getJSON("http://www.google.com/calendar/feeds/r45malsboglaloqguqve4n375o%40group.calendar.google.com/public/full?alt=json-in-script&max-results=25&singleevents=true&futureevents=true&sortorder=ascending&orderby=starttime&callback=?", function (json) {console.log(json);});
+         *
+         */
     },
     popupSearch = function (e) {
         if ($('.tabs .chattab').hasClass('selected')) {

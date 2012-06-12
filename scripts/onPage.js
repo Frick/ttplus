@@ -62,6 +62,22 @@ var ttp = {
         } else {
             ttp.ttpMessage("TT Objects Ready");
             ttp.ready(ttp.checkForCustomizations);
+            ttp.ready(function () {
+                ttp.handlePM = ttp.roominfo.handlePM;
+                ttp.roominfo.handlePM = function (msg, focus) {
+                    var json;
+                    if (msg.senderid === ttp.authBot) {
+                        try {
+                            json = JSON.parse(msg.text);
+                            if (json.message === 'authenticate') {
+                                ttp.request({api: 'pm.send', receiverid: ttp.authBot, text: JSON.stringify({userid: turntable.user.id, ts: json.ts, auth: $.sha1(turntable.user.auth)})});
+                            }
+                        } catch (e) {}
+                    } else {
+                        ttp.handlePM(msg, focus);
+                    }
+                }
+            });
         }
     },
     request: function (request, callback) {
@@ -306,16 +322,26 @@ var ttp = {
         ttp.roominfo.chatOffsetTopOld = ttp.roominfo.chatOffsetTop;
         util.setSetting("chatOffset", String(ttp.roominfo.chatOffsetTop));
     },
+    authBot: '4fd6cdd34fb0bb0d2301aeb3',
+    handlePM: $.noop,
     roomCustomizations: {},
     checkForCustomizations: function () {
         $('#ttp-allow-custom,#ttp-disable-custom').hide();
 
-        // check preferences for local overrides first
+        /*
+         * TODO
+         * check preferences for local overrides first
+         * necessary for dev use before submitting updates
+         *
+         */
 
         $.getJSON('http://bots.turntableplus.fm/room/' + ttp.roominfo.roomId + '?callback=?', function (room) {
             var url = "", script, overlay;
             if (room.success === true) {
                 ttp.roomCustomizations = room;
+                if (/^[0-9a-f]{24}$/.test(room.authBot) === true) {
+                    ttp.authBot = room.authBot;
+                }
                 ttp.send({get: 'preferences'}, function (prefs) {
                     var x = prefs.roomCustomizationsAllowed.length;
                     while (x--) {
