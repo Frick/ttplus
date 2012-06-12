@@ -15,7 +15,7 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.2.8',
+    version: '0.2.9',
     minVersion: '0.2.1',
     prefs: {
         notifications: {
@@ -77,7 +77,7 @@ var ttp = {
             }
         },
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.2.8'
+        version: '0.2.9'
     },
     logging: {},
     enableLogging: function (type) {
