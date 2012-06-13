@@ -62,22 +62,6 @@ var ttp = {
         } else {
             ttp.ttpMessage("TT Objects Ready");
             ttp.ready(ttp.checkForCustomizations);
-            ttp.ready(function () {
-                ttp.handlePM = ttp.roominfo.handlePM;
-                ttp.roominfo.handlePM = function (msg, focus) {
-                    var json;
-                    if (msg.senderid === ttp.authBot) {
-                        try {
-                            json = JSON.parse(msg.text);
-                            if (json.message === 'authenticate') {
-                                ttp.request({api: 'pm.send', receiverid: ttp.authBot, text: JSON.stringify({userid: turntable.user.id, ts: json.ts, auth: $.sha1(turntable.user.auth)})});
-                            }
-                        } catch (e) {}
-                    } else {
-                        ttp.handlePM(msg, focus);
-                    }
-                }
-            });
         }
     },
     request: function (request, callback) {
@@ -395,7 +379,7 @@ var ttp = {
                                                 } else {
                                                     bots[bot.uid].auth = false;
                                                     if (typeof data.error === 'string' && data.log !== undefined && data.log === true) {
-                                                        console.log('Turntable Plus: Bot (' + (typeof room.bots[x].name === 'string' ? room.bots[x].name : '') + ' : ' + room.bots[x].uid + ') Error - ' + data.error);
+                                                        console.warn('Turntable Plus: Bot (' + (typeof bot.name === 'string' ? bot.name : '[unnamed]') + ' : ' + bot.uid + ') Error - ' + data.error);
                                                     }
                                                     if (typeof data.error === 'string' && data.alert !== undefined && data.alert === true) {
                                                         turntable.showAlert(data.error);
@@ -510,6 +494,22 @@ $('#ttpResponse').bind('ttpEvent', function () {
 
 turntable.addEventListener('message', ttp.newMessage);
 ttp.ttpMessage('Listener Ready');
+ttp.ready(function () {
+    ttp.handlePM = ttp.roominfo.handlePM;
+    ttp.roominfo.handlePM = function (msg, focus) {
+        var json;
+        if (msg.senderid === ttp.authBot) {
+            try {
+                json = JSON.parse(msg.text);
+                if (json.message === 'authenticate') {
+                    ttp.request({api: 'pm.send', receiverid: ttp.authBot, text: JSON.stringify({userid: turntable.user.id, ts: json.ts, auth: $.sha1(turntable.user.auth)})});
+                }
+            } catch (e) {}
+        } else {
+            ttp.handlePM(msg, focus);
+        }
+    }
+});
 
 $(document).ready(ttp.getRoomObjects);
 
