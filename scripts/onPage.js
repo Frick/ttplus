@@ -495,18 +495,20 @@ $('#ttpResponse').bind('ttpEvent', function () {
 turntable.addEventListener('message', ttp.newMessage);
 ttp.ttpMessage('Listener Ready');
 ttp.ready(function () {
-    ttp.handlePM = ttp.roominfo.handlePM;
-    ttp.roominfo.handlePM = function (msg, focus) {
-        var json;
-        if (msg.senderid === ttp.authBot) {
-            try {
-                json = JSON.parse(msg.text);
-                if (json.message === 'authenticate') {
-                    ttp.request({api: 'pm.send', receiverid: ttp.authBot, text: JSON.stringify({userid: turntable.user.id, ts: json.ts, auth: $.sha1(turntable.user.auth)})});
-                }
-            } catch (e) {}
-        } else {
-            ttp.handlePM(msg, focus);
+    if (ttp.handlePM === $.noop) {
+        ttp.handlePM = ttp.roominfo.handlePM;
+        ttp.roominfo.handlePM = function (msg, focus) {
+            var json;
+            if (msg.senderid === ttp.authBot) {
+                try {
+                    json = JSON.parse(msg.text);
+                    if (json.message === 'authenticate') {
+                        ttp.request({api: 'pm.send', receiverid: ttp.authBot, text: JSON.stringify({userid: turntable.user.id, ts: json.ts, auth: $.sha1(turntable.user.auth)})});
+                    }
+                } catch (e) {}
+            } else {
+                ttp.handlePM(msg, focus);
+            }
         }
     }
 });
