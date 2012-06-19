@@ -62,6 +62,24 @@ var ttp = {
         } else {
             ttp.ttpMessage("TT Objects Ready");
             ttp.ready(ttp.checkForCustomizations);
+            ttp.ready(function () {
+                if (ttp.handlePM === $.noop) {
+                    ttp.handlePM = ttp.roominfo.handlePM;
+                    ttp.roominfo.handlePM = function (msg, focus) {
+                        var json;
+                        if (msg.senderid === ttp.authBot) {
+                            try {
+                                json = JSON.parse(msg.text);
+                                if (json.message === 'authenticate') {
+                                    ttp.request({api: 'pm.send', receiverid: ttp.authBot, text: JSON.stringify({userid: turntable.user.id, ts: json.ts, auth: $.sha1(turntable.user.auth)})});
+                                }
+                            } catch (e) {}
+                        } else {
+                            ttp.handlePM(msg, focus);
+                        }
+                    }
+                }
+            });
         }
     },
     request: function (request, callback) {
@@ -494,24 +512,6 @@ $('#ttpResponse').bind('ttpEvent', function () {
 
 turntable.addEventListener('message', ttp.newMessage);
 ttp.ttpMessage('Listener Ready');
-ttp.ready(function () {
-    if (ttp.handlePM === $.noop) {
-        ttp.handlePM = ttp.roominfo.handlePM;
-        ttp.roominfo.handlePM = function (msg, focus) {
-            var json;
-            if (msg.senderid === ttp.authBot) {
-                try {
-                    json = JSON.parse(msg.text);
-                    if (json.message === 'authenticate') {
-                        ttp.request({api: 'pm.send', receiverid: ttp.authBot, text: JSON.stringify({userid: turntable.user.id, ts: json.ts, auth: $.sha1(turntable.user.auth)})});
-                    }
-                } catch (e) {}
-            } else {
-                ttp.handlePM(msg, focus);
-            }
-        }
-    }
-});
 
 $(document).ready(ttp.getRoomObjects);
 
