@@ -51,7 +51,7 @@ var ttp = {
         }
         if (ttp.roommanager !== null) {
             for (x in ttp.roommanager.listeners) {
-                if (ttp.roommanager.listeners[x].hasOwnProperty('avatarid') === true) {
+                if (ttp.roommanager.listeners[x].hasOwnProperty('avatarid') || ttp.roommanager.listeners[x].hasOwnProperty('isAvatar')) {
                     listenerCount += 1;
                 }
             }

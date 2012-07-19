@@ -5,8 +5,6 @@ var ttplus = {
     usersQueue: [],
     port: null,
     msgId: 0,
-    speakAnim: $.noop,
-    danceAnim: $.noop,
     msgCallbacks: [],
     send: function (data, callback) {
         if (this.port === null) {
@@ -219,6 +217,7 @@ var ttplus = {
                 e.preventDefault();
                 ttp.animations = !ttp.animations;
 
+                // find speaker animations
                 $("#top-panel").next().children("div").each(function (i, el) {
                     if (speaker_rgx.test($(el).children().children().first().attr('src'))) {
                         speakers = $(el);
@@ -227,31 +226,36 @@ var ttplus = {
 
                 // disable animations
                  if (ttp.animations === false) {
-                    // store current functions
-                    ttp.voteAnim = ttp.roommanager.update_vote;
-                    ttp.djAnim = ttp.roommanager.set_active_dj;
-                    ttp.speakAnim = ttp.roommanager.speak;
+                    if (typeof BlackSwanCanvasDancer === 'function') {
+                        // store / replace current functions
+                        ttp.voteAnim = ttp.roommanager.update_vote;
+                        ttp.djAnim = ttp.roommanager.set_active_dj;
 
-                    // remove dancing and speaking animations
-                    ttp.roommanager.update_vote = $.noop;
-                    ttp.roommanager.set_active_dj = function (pos) {
-                        ttp.djAnim.call(ttp.roommanager, pos);
-                        ttp.roommanager.djs[pos][1].stop();
-                    };
+                        ttp.roommanager.update_vote = $.noop;
+                        ttp.roommanager.set_active_dj = function (pos) {
+                            ttp.djAnim.call(ttp.roommanager, pos);
+                            ttp.roommanager.djs[pos][1].stop();
+                        };
+                    } else {
+                        // store / replace current functions
+                        ttp.danceAnim = ttp.roommanager.add_animation_to;
+                        ttp.roommanager.add_animation_to = $.noop;
+                    }
+
+                    // stop DJs / listeners from dancing
+                    for (dj in ttp.roommanager.djs_uid) {
+                        ttp.roommanager.djs_uid[dj][0].stop();
+                    }
+                    for (listener in ttp.roommanager.listeners) {
+                        ttp.roommanager.listeners[listener].stop();
+                    }
+
+                    // stop speech bubbles
+                    ttp.speakAnim = ttp.roommanager.speak;
                     ttp.roommanager.speak = $.noop;
 
                     // hide meter needle (animated movement)
                     $("#meterNeedle").hide();
-
-                    // stop DJs from dancing
-                    for (dj in ttp.roommanager.djs_uid) {
-                        ttp.roommanager.djs_uid[dj][0].stop();
-                    }
-
-                    // stop listeners from dancing
-                    for (listener in ttp.roommanager.listeners) {
-                        ttp.roommanager.listeners[listener].stop();
-                    }
 
                     // hide vibrating speaker animations
                     speakers.hide();
@@ -260,34 +264,55 @@ var ttplus = {
                     $("#ttpAnimation").attr("src", path + "images/animationOn.png");
                 } else {
                     // re-enable animations
-                    // replace dancing and speaking animations
-                    ttp.roommanager.update_vote = ttp.voteAnim;
-                    ttp.roommanager.set_active_dj = ttp.djAnim;
+
+                    if (typeof BlackSwanCanvasDancer === 'function') {
+                        // replace dancing animations
+                        ttp.roommanager.update_vote = ttp.voteAnim;
+                        ttp.roommanager.set_active_dj = ttp.djAnim;
+
+                        // make avatars dance (if upvoted)
+                        for (dj in ttp.roommanager.djs_uid) {
+                            if (dj === ttp.roominfo.currentDj){
+                                ttp.roommanager.djs_uid[dj][0].setAnimation('bob');
+                                ttp.roommanager.djs_uid[dj][0].start();
+                            }
+
+                            if ($.inArray(dj, ttp.roominfo.upvoters) !== -1) {
+                                ttp.roommanager.djs_uid[dj][0].setAnimation('smallrock');
+                                ttp.roommanager.djs_uid[dj][0].start();
+                            }
+                        }
+                        for (listener in ttp.roommanager.listeners) {
+                            if ($.inArray(listener, ttp.roominfo.upvoters) !== -1) {
+                                ttp.roommanager.listeners[listener].setAnimation('rock');
+                                ttp.roommanager.listeners[listener].start();
+                            }
+                        }
+                    } else {
+                        // replace dancing animations
+                        ttp.roommanager.add_animation_to = ttp.danceAnim;
+
+                        // make avatars dance (if upvoted)
+                        for (dj in ttp.roommanager.djs_uid) {
+                            if (dj === ttp.roominfo.currentDj){
+                                ttp.roommanager.add_animation_to(ttp.roommanager.djs_uid[dj][0], 'bob');
+                            }
+                            if ($.inArray(dj, ttp.roominfo.upvoters) !== -1) {
+                                ttp.roommanager.add_animation_to(ttp.roommanager.djs_uid[dj][0], 'rock');
+                            }
+                        }
+                        for (listener in ttp.roommanager.listeners) {
+                            if ($.inArray(listener, ttp.roominfo.upvoters) !== -1) {
+                                ttp.roommanager.add_animation_to(ttp.roommanager.listeners[listener], 'rock');
+                            }
+                        }
+                    }
+
+                    // replace speech bubbles
                     ttp.roommanager.speak = ttp.speakAnim;
 
                     // show meter needle (animated movement)
                     $("#meterNeedle").show();
-
-                    // make DJ avatars dance (if current DJ or if upvoted)
-                    for (dj in ttp.roommanager.djs_uid) {
-                        if (dj === ttp.roominfo.currentDj){
-                            ttp.roommanager.djs_uid[dj][0].setAnimation('bob');
-                            ttp.roommanager.djs_uid[dj][0].start();
-                        }
-
-                        if ($.inArray(dj, ttp.roominfo.upvoters) !== -1) {
-                            ttp.roommanager.djs_uid[dj][0].setAnimation('smallrock');
-                            ttp.roommanager.djs_uid[dj][0].start();
-                        }
-                    }
-                    
-                    // make listeners dance (if upvoted)
-                    for (listener in ttp.roommanager.listeners) {
-                        if ($.inArray(listener, ttp.roominfo.upvoters) !== -1) {
-                            ttp.roommanager.listeners[listener].setAnimation('rock');
-                            ttp.roommanager.listeners[listener].start();
-                        }
-                    }
 
                     // show vibrating speaker animation
                     speakers.show();
