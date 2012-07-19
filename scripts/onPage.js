@@ -12,6 +12,7 @@ var ttp = {
     event: document.createEvent("Event"),
     enterKey: document.createEvent("KeyboardEvent"),
     roomLocation: window.location.pathname,
+    animations: true,
     msgId: 0,
     msgCallbacks: [],
     send: function (data, callback) {
@@ -232,6 +233,8 @@ var ttp = {
                 ttp.startTime = ttp.now();
                 $("#ttpRoomHearts").text("0");
                 $('#ttpUsersList .ttpUsersList .ttpUser').remove();
+                ttp.animations = true;
+                $("#ttpAnimation").attr("src", $("#ttpAnimation").attr("src").replace('animationOn', 'noAnimation'));
 
                 // try to clear room customizations
                 if (window.ttpapi instanceof TTPAPI) {

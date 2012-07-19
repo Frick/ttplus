@@ -7,7 +7,6 @@ var ttplus = {
     msgId: 0,
     speakAnim: $.noop,
     danceAnim: $.noop,
-    animations: true,
     msgCallbacks: [],
     send: function (data, callback) {
         if (this.port === null) {
@@ -215,21 +214,30 @@ var ttplus = {
                 }
             });
 
-/*
-            // Edited By Nathan Follin 05/29/2012
             $('#ttp-stop-animation').on("click", function (e) {
+                var speakers = null, speaker_rgx = /\/roommanager_assets\/speaker\//;
                 e.preventDefault();
                 ttp.animations = !ttp.animations;
 
+                $("#top-panel").next().children("div").each(function (i, el) {
+                    if (speaker_rgx.test($(el).children().children().first().attr('src'))) {
+                        speakers = $(el);
+                    }
+                });
+
                 // disable animations
-                 if (ttp.animations === true) {
-                    var a, c = null, b = null;
+                 if (ttp.animations === false) {
                     // store current functions
-                    ttp.danceAnim = ttp.roommanager.add_animation_to;
+                    ttp.voteAnim = ttp.roommanager.update_vote;
+                    ttp.djAnim = ttp.roommanager.set_active_dj;
                     ttp.speakAnim = ttp.roommanager.speak;
 
                     // remove dancing and speaking animations
-                    ttp.roommanager.add_animation_to = $.noop;
+                    ttp.roommanager.update_vote = $.noop;
+                    ttp.roommanager.set_active_dj = function (pos) {
+                        ttp.djAnim.call(ttp.roommanager, pos);
+                        ttp.roommanager.djs[pos][1].stop();
+                    };
                     ttp.roommanager.speak = $.noop;
 
                     // hide meter needle (animated movement)
@@ -246,16 +254,15 @@ var ttplus = {
                     }
 
                     // hide vibrating speaker animations
-                    $("#top-panel").next().children("div").first().hide();
+                    speakers.hide();
 
                     // replace animations icon
                     $("#ttpAnimation").attr("src", path + "images/animationOn.png");
                 } else {
                     // re-enable animations
-                    var a, c = null, b = null;
-
                     // replace dancing and speaking animations
-                    ttp.roommanager.add_animation_to = ttp.danceAnim;
+                    ttp.roommanager.update_vote = ttp.voteAnim;
+                    ttp.roommanager.set_active_dj = ttp.djAnim;
                     ttp.roommanager.speak = ttp.speakAnim;
 
                     // show meter needle (animated movement)
@@ -264,29 +271,31 @@ var ttplus = {
                     // make DJ avatars dance (if current DJ or if upvoted)
                     for (dj in ttp.roommanager.djs_uid) {
                         if (dj === ttp.roominfo.currentDj){
-                            ttp.roommanager.add_animation_to(ttp.roommanager.djs_uid[dj][0], 'bob');
+                            ttp.roommanager.djs_uid[dj][0].setAnimation('bob');
+                            ttp.roommanager.djs_uid[dj][0].start();
                         }
 
                         if ($.inArray(dj, ttp.roominfo.upvoters) !== -1) {
-                            ttp.roommanager.add_animation_to(ttp.roommanager.djs_uid[dj][0], 'rock');
+                            ttp.roommanager.djs_uid[dj][0].setAnimation('smallrock');
+                            ttp.roommanager.djs_uid[dj][0].start();
                         }
                     }
                     
                     // make listeners dance (if upvoted)
                     for (listener in ttp.roommanager.listeners) {
                         if ($.inArray(listener, ttp.roominfo.upvoters) !== -1) {
-                            ttp.roommanager.add_animation_to(ttp.roommanager.listeners[listener], 'rock');
+                            ttp.roommanager.listeners[listener].setAnimation('rock');
+                            ttp.roommanager.listeners[listener].start();
                         }
                     }
 
                     // show vibrating speaker animation
-                    $("#top-panel").next().children("div").first().show();
+                    speakers.show();
 
                     // replace animation icon
                     $("#ttpAnimation").attr("src", path + "images/noAnimation.png");
                 }
             });
-*/
 
             $('#ttpUsersList .ttpUsersList .ttpUser').live('click', function (e) {
                 e.stopPropagation();
