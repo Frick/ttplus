@@ -132,7 +132,12 @@ var ttplus = {
             delete window.initTimeout;
         }
 
-        $('body').append('<div id="ttp-messages" style="display:none;"><div id="ttpTurntableMessage"></div><div id="ttpSaveSettings"></div><div id="ttpMessage"></div><div id="ttpResponse"></div></div>');
+        $('body').append('<div id="ttp-messages" style="display:none;">' +
+                             '<div id="ttpTurntableMessage"></div>' +
+                             '<div id="ttpSaveSettings"></div>' +
+                             '<div id="ttpMessage"></div>' +
+                             '<div id="ttpResponse"></div>' +
+                         '</div>');
 
         $('#ttpTurntableMessage').bind('ttpEvent', function () {
             ttplus.send({
@@ -197,12 +202,53 @@ var ttplus = {
             bodyWidth = $('body').width(),
             outerWidth = $('#outer').width(),
             outerHeight = $('#outer').height()
-            usersListLeft = (expandedChat === true) ? bodyWidth - 205 : (bodyWidth - outerWidth) / 2 + outerWidth;
+            usersListLeft = (expandedChat === true) ? bodyWidth - 205 : (bodyWidth - outerWidth) / 2 + outerWidth,
+            userslistHtml = '',
+            userActionsHtml = '';
 
          if ($('#ttpUsersList').length < 1) {
-            $('<div id="ttpUsersList"><div class="ttpUsersListHeader"><span style="padding: 0 0 0 5px;">Votes: </span><span id="ttpRoomHearts" title="Number of Times Queued">0</span><span id="ttpRoomUpvotes" title="Awesomes">0</span><span id="ttpRoomDownvotes" title="Lames">0</span></div><div class="ttpBanner"><a href="' + path + 'settings.html" target="_blank"><img src="' + path + 'images/banner-logo.png" width="66" height="38" style="margin-left: 1px;" /></a><a href="#" id="ttp-allow-custom"><img src="' + path + 'images/script-add.png" width="19" height="18" class="ttpCustom" title="Allow Room Customizations" /></a><a href="#" id="ttp-disable-custom"><img src="' + path + 'images/script-remove.png" width="19" height="18" class="ttpCustom" title="Disable Room Customizations" /></a><a href = "#" id="ttp-stop-animation"><img src="' + path + 'images/noAnimation.png" width="20" height="23" style="margin-left:40px; margin-bottom:8px;"id="ttpAnimation" title="Toggle Animations" /></a><img src="' + path + 'images/banner-listeners.png" width="23" height="18" style="position:absolute;top:10px;right:38px;"><span id="ttpRoomListeners">0</span></div><div class="ttpUsersList"></div><div id="ttpUserSearch"><input type="text" placeholder="search users" /></div></div>').insertAfter(attachTo);
+            userslistHtml = '<div id="ttpUsersList">' +
+                                '<div class="ttpUsersListHeader">' +
+                                    '<span style="padding: 0 0 0 5px;">Votes: </span>' +
+                                    '<span id="ttpRoomHearts" title="Number of Times Queued">0</span>' +
+                                    '<span id="ttpRoomUpvotes" title="Awesomes">0</span>' +
+                                    '<span id="ttpRoomDownvotes" title="Lames">0</span>' +
+                                '</div>' +
+                                '<div class="ttpBanner">' +
+                                    '<a href="' + path + 'settings.html" target="_blank">' +
+                                        '<img src="' + path + 'images/banner-logo.png" width="66" height="38" style="margin-left: 1px;" />' +
+                                    '</a>' +
+                                    '<a href="#" id="ttp-allow-custom">' +
+                                        '<img src="' + path + 'images/script-add.png" width="19" height="18" class="ttpCustom" title="Allow Room Customizations" />' +
+                                    '</a>' +
+                                    '<a href="#" id="ttp-disable-custom">' +
+                                        '<img src="' + path + 'images/script-remove.png" width="19" height="18" class="ttpCustom" title="Disable Room Customizations" />' +
+                                    '</a>' +
+                                    '<a href = "#" id="ttp-stop-animation">' +
+                                        '<img src="' + path + 'images/noAnimation.png" width="20" height="23" style="margin-left:40px; margin-bottom:8px;" id="ttpAnimation" title="Toggle Animations" />' +
+                                    '</a>' +
+                                    '<img src="' + path + 'images/banner-listeners.png" width="23" height="18" style="position:absolute;top:10px;right:38px;">' +
+                                    '<span id="ttpRoomListeners">0</span>' +
+                                '</div>' +
+                                '<div class="ttpUsersList"></div>' +
+                                '<div id="ttpUserSearch">' +
+                                    '<input type="text" placeholder="search users" />' +
+                                '</div>' +
+                            '</div>';
+            $(userslistHtml).insertAfter(attachTo);
 
-            $('#ttpUsersList .ttpUsersList').append('<div id="ttpUserActions"><span class="ttpUserActionsIdle">Idle: <span class="ttpIdleTime"></span></span><br /><span class="icon ttpFan" title="Fan"></span><span class="icon ttpProfile" title="View Profile"></span><span class="icon ttpTtdash" title="View Turntable Dashboard Profile"></span><span class="icon ttpAddMod" title="Grant Moderator Privileges"></span><span class="icon ttpIgnore" title="Ignore User"></span><span class="icon ttpBoot" title="Boot User"></span><span class="icon ttpRemoveDj" title="Remove DJ"></span></div>');
+            userActionsHtml = '<div id="ttpUserActions">' +
+                                  '<span class="ttpUserActionsIdle">Idle: <span class="ttpIdleTime"></span></span>' +
+                                  '<br />' +
+                                  '<span class="icon ttpFan" title="Fan"></span>' +
+                                  '<span class="icon ttpProfile" title="View Profile"></span>' +
+                                  '<span class="icon ttpTtdash" title="View Turntable Dashboard Profile"></span>' +
+                                  '<span class="icon ttpAddMod" title="Grant Moderator Privileges"></span>' +
+                                  '<span class="icon ttpIgnore" title="Ignore User"></span>' +
+                                  '<span class="icon ttpBoot" title="Boot User"></span>' +
+                                  '<span class="icon ttpRemoveDj" title="Remove DJ"></span>' +
+                              '</div>';
+            $('#ttpUsersList .ttpUsersList').append(userActionsHtml);
 
             $(window).click(function () {
                 if ($('#ttpUserActions').css('display') === 'block') {
