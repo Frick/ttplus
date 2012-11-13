@@ -216,18 +216,18 @@ var ttplus = {
                                 '</div>' +
                                 '<div class="ttpBanner">' +
                                     '<a href="' + path + 'settings.html" target="_blank">' +
-                                        '<img src="' + path + 'images/banner-logo.png" width="66" height="38" style="margin-left: 1px;" />' +
+                                        '<img src="' + path + 'images/bannerLogo.png" width="66" height="38" style="margin-left: 1px;" />' +
                                     '</a>' +
                                     '<a href="#" id="ttp-allow-custom">' +
-                                        '<img src="' + path + 'images/script-add.png" width="19" height="18" class="ttpCustom" title="Allow Room Customizations" />' +
+                                        '<img src="' + path + 'images/scriptAdd.png" width="19" height="18" class="ttpCustom" title="Allow Room Customizations" />' +
                                     '</a>' +
                                     '<a href="#" id="ttp-disable-custom">' +
-                                        '<img src="' + path + 'images/script-remove.png" width="19" height="18" class="ttpCustom" title="Disable Room Customizations" />' +
+                                        '<img src="' + path + 'images/scriptRemove.png" width="19" height="18" class="ttpCustom" title="Disable Room Customizations" />' +
                                     '</a>' +
                                     '<a href = "#" id="ttp-stop-animation">' +
                                         '<img src="' + path + 'images/noAnimation.png" width="20" height="23" style="margin-left:40px; margin-bottom:8px;" id="ttpAnimation" title="Toggle Animations" />' +
                                     '</a>' +
-                                    '<img src="' + path + 'images/banner-listeners.png" width="23" height="18" style="position:absolute;top:10px;right:38px;">' +
+                                    '<img src="' + path + 'images/bannerListeners.png" width="23" height="18" style="position:absolute;top:10px;right:38px;">' +
                                     '<span id="ttpRoomListeners">0</span>' +
                                 '</div>' +
                                 '<div class="ttpUsersList"></div>' +
@@ -736,9 +736,7 @@ var ttplus = {
             padding: '0 5px'
         });
 
-        $('.playlist-container').height(outerHeight - 96 + 'px').find('.mainPane').height(outerHeight - 122 + 'px');
-        $('.playlist-container .queueView .songlist').height(outerHeight - 190);
-        $('.playlist-container .searchView .songlist').height(outerHeight - 193 + 'px');
+        $('#playlist').height(outerHeight - 96 + 'px').find('.mainPane').height(outerHeight - 122 + 'px');
 
         // make sure chat is scrolled to bottom
         $(".chat-container .messages").prop({
@@ -759,9 +757,7 @@ var ttplus = {
             height: outerHeight - 96 - ttChat + 'px'
         }).find('.messages').height(outerHeight - 159 - ttChat + 'px');
         $('.chat-container .input-box').attr('style', '').children('input').attr('style', '');
-        $('.playlist-container').attr('style', '').height(ttChat + 'px').find('.mainPane').height(ttChat - 25 + 'px');
-        $('.playlist-container .queueView .songlist').height(ttChat - 95 + 'px');
-        $('.playlist-container .searchView .songlist').height(ttChat - 95 + 'px');
+        $('#playlist').attr('style', '').height(ttChat + 'px').find('.mainPane').height(ttChat - 25 + 'px');
         $('#tfmExtended').attr('style', '');
         $('.guest-list-container').appendTo('#right-panel');
 

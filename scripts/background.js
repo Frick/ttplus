@@ -15,7 +15,7 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.2.16',
+    version: '0.2.20',
     minVersion: '0.2.1',
     prefs: {
         notifications: {
@@ -77,7 +77,7 @@ var ttp = {
             }
         },
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.2.16'
+        version: '0.2.20'
     },
     logging: {},
     enableLogging: function (type) {
@@ -494,7 +494,7 @@ var ttp = {
             this.isActive(function isActive() {
                 avatarid = (typeof ttp.users[room.metadata.current_dj] !== "undefined") ? ttp.users[room.metadata.current_dj].avatarid : "5";
                 if (ttp.prefs.notifications.textOnly && ttp.users[ttp.room.metadata.current_dj] !== undefined) {
-                    image = (typeof room.metadata.current_song.metadata.coverart === "string") ? room.metadata.current_song.metadata.coverart : chrome.extension.getURL('/images/ttp_icon48.png');
+                    image = (typeof room.metadata.current_song.metadata.coverart === "string") ? room.metadata.current_song.metadata.coverart : chrome.extension.getURL('/images/ttpIcon48.png');
                     songNotification = webkitNotifications.createNotification(
                         image,
                         ttp.users[room.metadata.current_dj].name + ' started playing',
@@ -589,7 +589,7 @@ var ttp = {
                 ttp.isActive(function () {
                     if (ttp.prefs.notifications.textOnly) {
                         djNotification = webkitNotifications.createNotification(
-                            chrome.extension.getURL('/images/openSpot-sm.png'),
+                            chrome.extension.getURL('/images/openSpotSm.png'),
                             user.name,
                             'has stepped down'
                         );
@@ -714,7 +714,7 @@ var ttp = {
                 ttp.isActive(function () {
                     if (ttp.prefs.notifications.textOnly) {
                         djNotification = webkitNotifications.createNotification(
-                            chrome.extension.getURL('/images/openSpot-sm.png'),
+                            chrome.extension.getURL('/images/openSpotSm.png'),
                             user.name,
                             'has stepped down'
                         );
@@ -829,7 +829,7 @@ var ttp = {
                     }
                     if (ttp.prefs.notifications.textOnly) {
                         djNotification = webkitNotifications.createNotification(
-                            chrome.extension.getURL('/images/openSpot-sm.png'),
+                            chrome.extension.getURL('/images/openSpotSm.png'),
                             name,
                             'has stepped down'
                         );

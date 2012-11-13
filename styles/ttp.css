@@ -1,3 +1,6 @@
+#ttpUserActions .ttpFan, #ttpUserActions .ttpFan:hover, #ttpUserActions .ttpFan:active, #ttpUserActions .ttpUnfan, #ttpUserActions .ttpUnfan, #ttpUserActions .ttpUnfan:hover, #ttpUserActions .ttpUnfan:active, #ttpUserActions .ttpAddMod, #ttpUserActions .ttpAddMod:hover, #ttpUserActions .ttpAddMod:active, #ttpUserActions .ttpRemMod, #ttpUserActions .ttpRemMod:hover, #ttpUserActions .ttpRemMod:active, #ttpUserActions .ttpIgnore, #ttpUserActions .ttpIgnore:hover, #ttpUserActions .ttpIgnore:active, #ttpUserActions .ttpUnignore, #ttpUserActions .ttpUnignore:hover, #ttpUserActions .ttpUnignore:active, #ttpUserActions .ttpProfile, #ttpUserActions .ttpProfile:hover, #ttpUserActions .ttpProfile:active, #ttpUserActions .ttpBoot, #ttpUserActions .ttpBoot:hover, #ttpUserActions .ttpBoot:active, #ttpUserActions .ttpRemoveDj, #ttpUserActions .ttpRemoveDj:hover, #ttpUserActions .ttpRemoveDj:active, #ttpUserActions .ttpTtdash, #ttpUserActions .ttpTtdash:hover, #ttpUserActions .ttpTtdash:active, #ttpUsersList .ttpUsersList .ttpUser .ttpFanned, #ttpUsersList .ttpUsersList .ttpUser .ttpMod, #ttpUsersList .ttpUsersList .ttpUser .ttpSuper {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/sprites.png) no-repeat;
+}
 #ttpRoom {
     background: url(chrome-extension://__MSG_@@extension_id__/images/uparrow.png) 25% 50% no-repeat;
     float: right;
@@ -47,7 +50,7 @@
 }
 #ttpUsersList .ttpBanner {
     position: relative;
-    background: url(chrome-extension://__MSG_@@extension_id__/images/banner-bg.png) repeat-x;
+    background: url(chrome-extension://__MSG_@@extension_id__/images/bannerBg.png) repeat-x;
     height: 39px;
 }
 #ttpUsersList .ttpUsersList {
@@ -86,7 +89,7 @@
     background: -webkit-linear-gradient(top, #2f98f1 0%, #f78e56 90%, #f78e56 100%);
 }
 #ttpUsersList .ttpUsersList .ttpUser .ttpFanned {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/fanned.png) no-repeat;
+    background-position: 0 -375px;
     width: 16px;
     height: 16px;
     float: right;
@@ -94,7 +97,7 @@
     margin: 0 4px 0 0;
 }
 #ttpUsersList .ttpUsersList .ttpUser .ttpMod {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-icon.png) no-repeat;
+    background-position: 0 -225px;
     width: 16px;
     height: 16px;
     float: left;
@@ -102,7 +105,7 @@
     margin: 0 4px 0 0;
 }
 #ttpUsersList .ttpUsersList .ttpUser .ttpSuper {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/super-icon.png) no-repeat;
+    background-position: 0 -70px;
     width: 16px;
     height: 16px;
     float: left;
@@ -125,99 +128,100 @@
     margin: 7px;
     cursor: pointer;
 }
+
 #ttpUserActions .ttpFan {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/fan.png) no-repeat;
+    background-position: 0 -431px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpFan:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/fan-hover.png) no-repeat;
+    background-position: 0 -391px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpFan:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/fan-active.png) no-repeat;
+    background-position: 0 -411px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpUnfan {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/fan-hover.png) no-repeat;
+    background-position: 0 -391px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpUnfan:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/fan.png) no-repeat;
+    background-position: 0 -431px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpUnfan:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/fan-active.png) no-repeat;
+    background-position: 0 -411px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpAddMod {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/mod.png) no-repeat;
+    background-position: 0 -281px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpAddMod:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-hover.png) no-repeat;
+    background-position: 0 -241px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpAddMod:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-active.png) no-repeat;
+    background-position: 0 -261px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpRemMod {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-hover.png) no-repeat;
+    background-position: 0 -241px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpRemMod:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/mod.png) no-repeat;
+    background-position: 0 -281px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpRemMod:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/mod-active.png) no-repeat;
+    background-position: 0 -261px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpIgnore {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore.png) no-repeat;
+    background-position: 0 -341px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpIgnore:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore-hover.png) no-repeat;
+    background-position: 0 -301px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpIgnore:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore-active.png) no-repeat;
+    background-position: 0 -321px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpUnignore {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore-hover.png) no-repeat;
+    background-position: 0 -301px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpUnignore:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore.png) no-repeat;
+    background-position: 0 -341px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpUnignore:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ignore-active.png) no-repeat;
+    background-position: 0 -321px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpProfile {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/profile.png) no-repeat;
+    background-position: 0 -182px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpProfile:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/profile-hover.png) no-repeat;
+    background-position: 0 -162px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpProfile:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/profile.png) no-repeat;
+    background-position: 0 -182px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpBoot {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/boot.png) no-repeat;
+    background-position: 0 -481px; width: 20px; height: 20px;
     display:none;
 }
 #ttpUserActions .ttpBoot:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/boot-hover.png) no-repeat;
+    background-position: 0 -461px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpBoot:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/boot.png) no-repeat;
+    background-position: 0 -481px; width: 20px; height: 20px;
     display:none;
 }
 #ttpUserActions .ttpRemoveDj {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/remove-dj.png) no-repeat;
+    background-position: 0 -142px; width: 20px; height: 20px;
     display:none;
 }
 #ttpUserActions .ttpRemoveDj:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/remove-dj-hover.png) no-repeat;
+    background-position: 0 -122px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpRemoveDj:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/remove-dj.png) no-repeat;
+    background-position: 0 -142px; width: 20px; height: 20px;
     display:none;
 }
 #ttpUserActions .ttpTtdash {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ttdash.png) no-repeat;
+    background-position: 0 -50px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpTtdash:hover {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ttdash-hover.png) no-repeat;
+    background-position: 0 -10px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpTtdash:active {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/ttdash-active.png) no-repeat;
+    background-position: 0 -10px; width: 20px; height: 20px;
 }
 #ttpUserActions .ttpUserActionsIdle {
     margin: 10px 0 0 10px;

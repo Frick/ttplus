@@ -131,7 +131,7 @@ var bgPage = chrome.extension.getBackgroundPage(),
 
         $('.tabs .tab.' + bgPage.ttp.lastPopupTab).click().addClass('selected');
 
-        $('.fixedHeader .controls .search .frmSearch .songSearch').focus().keyup(function (e) {
+        $('.fixedHeader .controls .search .frmSearch .songSearch').focus().keydown(function (e) {
             popupSearch(e);
         });
     },

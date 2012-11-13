@@ -481,10 +481,10 @@ var ttp = {
             });
 
             // Append song count div to the DOM
-            $('#right-panel .playlist-container .black-right-header').css('position', 'relative').append(countDiv);
+            $('#playlist .black-right-header').css('position', 'relative').append(countDiv);
 
             // Bind an event so any modification to the song queue will update the count
-            $("#right-panel .realPlaylist").bind('DOMSubtreeModified', function () {
+            $("#playlist").bind('DOMSubtreeModified', function () {
                 ttp.updateSongQueueCount();
             });
         }
@@ -492,7 +492,7 @@ var ttp = {
         ttp.updateSongQueueCount();
     },
     updateSongQueueCount: function() {
-        songCount = turntable.playlist.files.length;
+        songCount = turntable.playlist.fileids.length;
         $("#ttpSongQueueCount").html(songCount.commafy() + " songs");
     }
 }
