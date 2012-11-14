@@ -15,7 +15,7 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.2.20',
+    version: '0.2.21',
     minVersion: '0.2.1',
     prefs: {
         notifications: {
@@ -77,7 +77,7 @@ var ttp = {
             }
         },
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.2.20'
+        version: '0.2.21'
     },
     logging: {},
     enableLogging: function (type) {
@@ -140,15 +140,11 @@ var ttp = {
                 for (x = 0, tabsLength = windows[i].tabs.length; x < tabsLength; x += 1) {
                     if (regex.test(windows[i].tabs[x].url)) {
                         tabId = windows[i].tabs[x].id;
-                        found = true;
+                        callback(tabId);
                         break;
                     }
                 }
-                if (found) {
-                    break;
-                }
             }
-            callback(tabId);
         });
     },
     openTurntable: function () {

@@ -1,6 +1,6 @@
 {
   "name": "Turntable Plus",
-  "version": "0.2.20",
+  "version": "0.2.21",
   "manifest_version": 2,
   "description": "Add abilities to turntable.fm that you thought were missing!",
   "icons": {
@@ -15,6 +15,7 @@
   },
   "permissions": [
     "tabs",
+    "storage",
     "unlimitedStorage",
     "idle",
     "notifications",
@@ -36,7 +37,9 @@
     "images/uparrow.png"
   ],
   "background": {
-    "scripts": ["scripts/background.js"]
+    "scripts": [
+      "scripts/background.js"
+    ]
   },
   "options_page": "settings.html",
   "homepage_url": "http://turntableplus.fm",

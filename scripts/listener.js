@@ -59,6 +59,9 @@ var ttplus = {
                 });
             } else if (typeof request.updateUserList === "string") {
                 response = false;
+                if ($('#header').length) {
+                    return;
+                }
                 if (!ttplus.usersListReady) {
                     ttplus.usersQueue.push(request);
                     response = true;
@@ -99,6 +102,9 @@ var ttplus = {
             } else if (request.getUserInfo === true) {
                 ttplus.injectScript(ttplus.getUserInfo);
             } else if (typeof request.expandChat === "boolean") {
+                if ($('#header').length) {
+                    return;
+                }
                 if (request.expandChat && typeof request.layout === "object") {
                     response = ttplus.injectScript(ttplus.expandChat, request.layout);
                     if (response) {
@@ -108,6 +114,9 @@ var ttplus = {
                     ttplus.injectScript(ttplus.defaultChat);
                 }
             } else if (typeof request.changeLayout === "string" || typeof request.changeLayout === "boolean") {
+                if ($('#header').length) {
+                    return;
+                }
                 path = chrome.extension.getURL('/');
                 ttplus.layoutChange(request.changeLayout, request.layout, path);
             }
@@ -242,7 +251,6 @@ var ttplus = {
                                   '<br />' +
                                   '<span class="icon ttpFan" title="Fan"></span>' +
                                   '<span class="icon ttpProfile" title="View Profile"></span>' +
-                                  '<span class="icon ttpTtdash" title="View Turntable Dashboard Profile"></span>' +
                                   '<span class="icon ttpAddMod" title="Grant Moderator Privileges"></span>' +
                                   '<span class="icon ttpIgnore" title="Ignore User"></span>' +
                                   '<span class="icon ttpBoot" title="Boot User"></span>' +
@@ -400,10 +408,6 @@ var ttplus = {
                             $(document).trigger("add_sticker_placements", placements);
                             getPlacements.resolve(res);
                         });
-                    });
-                    $(this).find('.ttpTtdash').unbind('click').click(function (e) {
-                        e.stopPropagation();
-                        window.open('http://ttdashboard.com/user/uid/' + userid + '/');
                     });
                     if (turntable.user.id === userid) {
                         $(this).find('.ttpBoot,.ttpRemoveDj,.ttpAddMod,.ttpRemMod,.ttpIgnore,.ttpUnignore').hide();
@@ -640,7 +644,7 @@ var ttplus = {
                 top: "0px",
                 left: usersListLeft + "px"
             });
-            $('#ttpUsersList .ttpUsersList').height(outerHeight - 99 + 'px');
+            $('#ttpUsersList .ttpUsersList').height(outerHeight - 99);
         } else {
             $('#ttpUsersList').css({
                 width: layout.users.width + "px",
@@ -649,7 +653,7 @@ var ttplus = {
                 top: layout.users.top + "px",
                 left: layout.users.left + "px"
             });
-            $('#ttpUsersList .ttpUsersList').height(layout.users.height - 99 + 'px');
+            $('#ttpUsersList .ttpUsersList').height(layout.users.height - 99);
         }
 
         return true;
@@ -736,7 +740,7 @@ var ttplus = {
             padding: '0 5px'
         });
 
-        $('#playlist').height(outerHeight - 96 + 'px').find('.mainPane').height(outerHeight - 122 + 'px');
+        $('#playlist').height(outerHeight - 98).find('.mainPane').height(outerHeight - 123);
 
         // make sure chat is scrolled to bottom
         $(".chat-container .messages").prop({
@@ -755,9 +759,9 @@ var ttplus = {
         $('.chat-container').attr('style', '').appendTo('#right-panel').css({
             top: ttChat + 'px',
             height: outerHeight - 96 - ttChat + 'px'
-        }).find('.messages').height(outerHeight - 159 - ttChat + 'px');
+        }).find('.messages').height(outerHeight - 159 - ttChat);
         $('.chat-container .input-box').attr('style', '').children('input').attr('style', '');
-        $('#playlist').attr('style', '').height(ttChat + 'px').find('.mainPane').height(ttChat - 25 + 'px');
+        $('#playlist').attr('style', '').height(ttChat).find('.mainPane').height(ttChat - 25);
         $('#tfmExtended').attr('style', '');
         $('.guest-list-container').appendTo('#right-panel');
 
@@ -875,6 +879,9 @@ var ttplus = {
     },
     layoutChange:  function (expandedChat, layout, path) {
         var usersListReady = false;
+        if ($('#header').length) {
+            return;
+        }
         if (expandedChat !== undefined) {
             ttplus.layoutChange.expandedChat = expandedChat;
         }
@@ -1227,5 +1234,7 @@ var ttplus = {
         } else return (elem);
     }
 }
-ttplus.event.initEvent("ttpEvent", true, true);
-ttplus.init();
+if ($('#header').length < 1) {
+    ttplus.event.initEvent("ttpEvent", true, true);
+    ttplus.init();
+}

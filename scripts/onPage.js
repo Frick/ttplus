@@ -210,6 +210,9 @@ var ttp = {
                 for (x = 0, length = msg.user.length; x < length; x += 1) {
                     userid = msg.user[x].userid;
                     window.setTimeout(function () {
+                        if ($('#header').length < 1) {
+                            return;
+                        }
                         if (ttp.roominfo.users[userid] !== undefined) {
                             ttp.roominfo.users[userid].lastActivity = now;
                         }
@@ -332,6 +335,9 @@ var ttp = {
     roomCustomizations: {},
     checkForCustomizations: function () {
         $('#ttp-allow-custom,#ttp-disable-custom').hide();
+        if ($('#header').length) {
+            return;
+        }
 
         /*
          * TODO
@@ -499,7 +505,9 @@ var ttp = {
 ttp.event.initEvent("ttpEvent", true, true);
 ttp.enterKey.initKeyboardEvent("keypress", true, true, null, false, false, false, false, 13, 2386);
 ttp.startTime = ttp.now();
-ttp.idleInterval = window.setInterval(ttp.updateIdleTimes, 1000);
+if ($('#header').length < 1) {
+    ttp.idleInterval = window.setInterval(ttp.updateIdleTimes, 1000);
+}
 $('#ttpResponse').bind('ttpEvent', function () {
     var response = JSON.parse(unescape($(this).text()));
     if (response.source === "page" && typeof response.msgId === "number" && typeof response.response !== "undefined") {
@@ -513,10 +521,11 @@ $('#ttpResponse').bind('ttpEvent', function () {
     }
 });
 
-turntable.addEventListener('message', ttp.newMessage);
-ttp.ttpMessage('Listener Ready');
-
-$(document).ready(ttp.getRoomObjects);
+if ($('#header').length < 1) {
+    turntable.addEventListener('message', ttp.newMessage);
+    ttp.ttpMessage('Listener Ready');
+    $(document).ready(ttp.getRoomObjects);
+}
 
 // add API for custom scripts
 var TTPAPI = function () {
