@@ -1,4 +1,25 @@
 var TTPAPI_Events = {};
+Number.prototype.commafy = function () {
+    var len;
+    num = this.toString();
+    len = num.length;
+    while (len > 3) {
+        num = num.substr(0, len - 3) + ',' + num.substr(len - 3);
+        len -= 3;
+    }
+    return num;
+}
+String.prototype.padLeft = function (length, str) {
+    var output = '',
+        i = 0;
+    if (this.length < length) {
+        length = length - this.length;
+        for (; i < length; i++) {
+            output += str;
+        }
+    }
+    return output + this;
+}
 var ttp = {
     roominfo: null,
     roommanager: null,
@@ -6,7 +27,9 @@ var ttp = {
         listeners: 0,
         upvotes: 0,
         downvotes: 0,
-        upvoters: []
+        downvoters: [],
+        hearts: 0,
+        snaggers: []
     },
     logging: false,
     event: document.createEvent("Event"),
@@ -31,20 +54,22 @@ var ttp = {
         return this.msgId;
     },
     getRoomObjects: function (roomChange) {
-        var x, listenerCount = 0;
+        var x, prop, listenerCount = 0;
 
         if (ttp.roominfo === null || roomChange) {
             for (x in turntable) {
-                if (typeof turntable[x] === "object" && turntable[x] !== null && turntable[x].hasOwnProperty("selfId") && turntable[x].selfId === turntable.user.id) {
-                    ttp.roominfo = turntable[x];
+                prop = turntable[x];
+                if (typeof prop === "object" && prop !== null && typeof prop.setupRoom !== 'undefined') {
+                    ttp.roominfo = prop;
                     break;
                 }
             }
         }
         if (ttp.roominfo !== null) {
             for (x in ttp.roominfo) {
-                if (typeof ttp.roominfo[x] === "object" && ttp.roominfo[x] !== null && ttp.roominfo[x].hasOwnProperty("myuserid") && ttp.roominfo[x].myuserid === turntable.user.id) {
-                    ttp.roommanager = ttp.roominfo[x];
+                prop = ttp.roominfo[x];
+                if (typeof prop === "object" && prop !== null && prop.hasOwnProperty("prefix") && prop.prefix === 'room') {
+                    ttp.roommanager = prop;
                     break;
                 }
             }
@@ -59,10 +84,13 @@ var ttp = {
         if (ttp.roominfo === null || ttp.roommanager === null || listenerCount === 0) {
             window.setTimeout(ttp.getRoomObjects, 100, roomChange);
         } else if (roomChange === true) {
-            ttp.ready(ttp.checkForCustomizations);
+            //ttp.ready(ttp.checkForCustomizations);
+            ttp.roominfo.muted = false;
         } else {
             ttp.ttpMessage("TT Objects Ready");
-            ttp.ready(ttp.checkForCustomizations);
+            ttp.replaceFunctions();
+            ttp.roominfo.muted = false;
+            /*ttp.ready(ttp.checkForCustomizations);
             ttp.ready(function () {
                 if (ttp.handlePM === $.noop) {
                     ttp.handlePM = ttp.roominfo.handlePM;
@@ -80,7 +108,7 @@ var ttp = {
                         }
                     }
                 }
-            });
+            });*/
         }
     },
     request: function (request, callback) {
@@ -88,40 +116,27 @@ var ttp = {
             x;
 
         for (x in turntable) {
-            if (typeof turntable[x] === "function") {
-                turntable[x].toString = Function.prototype.toString;
-                if (request_re.test(turntable[x].toString())) {
-                    ttp.request = turntable[x];
-                    ttp.request(request, callback);
-                    break;
-                }
+            if (typeof turntable[x] !== "function") continue;
+            if (request_re.test(Function.prototype.toString.apply(turntable[x]))) {
+                ttp.request = turntable[x];
+                ttp.request(request, callback);
+                break;
             }
         }
     },
     voteFunc: null,
     vote: function (vote) {
-        var vote_re = /api: ?"room\.vote"/i,
-            x;
-
-        if (typeof ttp.roominfo === "object" && ttp.roominfo !== null) {
-            for (x in ttp.roominfo) {
-                if (typeof ttp.roominfo[x] === "function") {
-                    ttp.roominfo[x].toString = Function.prototype.toString;
-                    if (vote_re.test(ttp.roominfo[x].toString())) {
-                        ttp.voteFunc = ttp.roominfo[x];
-                        ttp.vote = function (vote) {
-                            ttp.voteFunc.apply(ttp.roominfo, [vote]);
-                        };
-                        ttp.vote(vote);
-                        break;
-                    }
-                }
-            }
+        if (vote === "down") {
+            vote = "downvote";
+            $("#lame-button").addClass("selected");
+            $("#awesome-button").removeClass("selected");
         } else {
-            window.setTimeout(function () {
-                ttp.vote(vote);
-            }, 500);
+            vote = "upvote";
+            $("#awesome-button").addClass("selected");
+            $("#lame-button").removeClass("selected");
         }
+        $(window).trigger(ttp.leftKey);
+        ttp.roommanager.callback(vote);
     },
     readyList: [],
     ready: function (fn) {
@@ -144,6 +159,20 @@ var ttp = {
             }
         });
     },
+    getListElByName: function (name) {
+        var id = ttp.roominfo.userIdFromName(name);
+        return ttp.getListElById(id);
+    },
+    getListElById: function (id) {
+        var output = null;
+        $('#guest-list .guests .guest').each(function () {
+            if ($(this).data('id') === id) {
+                output = $(this);
+                return;
+            }
+        });
+        return output;
+    },
     newMessage: function (msg) {
         var now = ttp.now(),
             x = 0,
@@ -155,25 +184,29 @@ var ttp = {
             a;
 
         if (typeof msg.command === "string") {
-            $(TTPAPI_Events).triggerHandler(msg.command, msg);
+            //$(TTPAPI_Events).triggerHandler(msg.command, msg);
             if (msg.command === "update_votes") {
                 for (x = 0, length = msg.room.metadata.votelog.length; x < length; x += 1) {
                     user = ttp.roominfo.users[msg.room.metadata.votelog[x][0]];
                     if (user) {
                         user.lastActivity = now;
-                        $user = $("#user" + user.userid);
-                        $user.attr("ttplastactivity", now);
-                        if (user) {
-                            a = $.inArray(user.userid, ttp.room.upvoters);
-                            if (msg.room.metadata.votelog[x][1] === "up") {
-                                $user.removeClass("ttpUserDownVote").addClass("ttpUserUpVote");
-                                if (a === -1) {
-                                    ttp.room.upvoters.push(user.userid);
-                                }
-                            } else if (msg.room.metadata.votelog[x][1] === "down") {
-                                $user.removeClass("ttpUserUpVote").addClass("ttpUserDownVote");
-                                if (a !== -1) {
-                                    ttp.room.upvoters.splice(a, 1);
+                        user.lastVote = now;
+                        $user = ttp.getListElByName(user.name);
+                        if ($user !== null) {
+                            $user.data("ttplastactivity", now);
+                            $user.data("ttplastvote", now);
+                            if (user) {
+                                a = $.inArray(user.userid, ttp.room.downvoters);
+                                if (msg.room.metadata.votelog[x][1] === "up") {
+                                    $user.removeClass("downvoted").addClass("upvoted");
+                                    if (a > -1) {
+                                        ttp.room.downvoters.splice(a, 1);
+                                    }
+                                } else if (msg.room.metadata.votelog[x][1] === "down") {
+                                    $user.removeClass("upvoted").addClass("downvoted");
+                                    if (a === -1) {
+                                        ttp.room.downvoters.push(user.userid);
+                                    }
                                 }
                             }
                         }
@@ -182,50 +215,61 @@ var ttp = {
                 ttp.room.listeners = msg.room.metadata.listeners;
                 ttp.room.upvotes = msg.room.metadata.upvotes;
                 ttp.room.downvotes = msg.room.metadata.downvotes;
-                if ($("#ttpRoomListeners").length > 0) {
-                    $("#ttpRoomListeners").text(ttp.room.listeners);
-                    $("#ttpRoomUpvotes").text(ttp.room.upvotes);
-                    $("#ttpRoomDownvotes").text(ttp.room.downvotes);
-                }
+                $("#ttpUpvotes").text(ttp.room.upvotes);
+                $("#ttpDownvotes").text(ttp.room.downvotes);
             } else if (msg.command === "speak") {
                 if (ttp.roominfo.users[msg.userid]) {
                     ttp.roominfo.users[msg.userid].lastActivity = now;
+                    ttp.roominfo.users[msg.userid].lastChat = now;
                 }
-                $("#user" + msg.userid).attr("ttplastactivity", now);
+                $user = ttp.getListElById(msg.userid);
+                if ($user !== null) {
+                    $user.data("ttplastactivity", now);
+                    $user.data("ttplastchat", now);
+                }
             } else if (msg.command === "newsong") {
                 ttp.room.upvotes = 0;
                 ttp.room.downvotes = 0;
                 ttp.room.hearts = 0;
-                ttp.room.upvoters = [];
+                ttp.room.downvoters = [];
+                ttp.room.snaggers = [];
                 ttp.room.listeners = msg.room.metadata.listeners;
                 ttp.room.current_dj = msg.room.metadata.current_dj;
-                $('#ttpUsersList .ttpUsersList .ttpUser').removeClass('ttpUserUpVote ttpUserDownVote');
-                $('#ttpRoomUpvotes').text('0');
-                $('#ttpRoomDownvotes').text('0');
-                $('#ttpRoomHearts').text('0');
-                $("#ttpRoomListeners").text(ttp.room.listeners);
-                $('#ttpUsersList .ttpUser').removeClass('ttpItalic');
-                $('#user' + ttp.room.current_dj).addClass('ttpItalic');
+                $('#guest-list .guests .guest').removeClass('upvoted downvoted');
+                $('#ttpUpvotes').text('0');
+                $('#ttpDownvotes').text('0');
+                $('#ttpHearts').text('0');
+                $('.guest-list-container .guests .guest .icons .snagged.icon').remove();
+                $('.guest-list-container .guests .guest .current-dj').remove();
+                $user = ttp.getListElById(ttp.room.current_dj);
+                if ($user !== null) {
+                    $user.prepend('<div class="current-dj"></div>');
+                }
             } else if (msg.command === "registered") {
                 for (x = 0, length = msg.user.length; x < length; x += 1) {
                     userid = msg.user[x].userid;
                     window.setTimeout(function () {
-                        if ($('#header').length < 1) {
-                            return;
-                        }
                         if (ttp.roominfo.users[userid] !== undefined) {
                             ttp.roominfo.users[userid].lastActivity = now;
+                            ttp.roominfo.users[userid].lastChat = now;
+                            ttp.roominfo.users[userid].lastVote = now;
+                            ttp.roominfo.updateGuestList();
                         }
                     }, 500);
                 }
             } else if (msg.command === "snagged") {
-                if (ttp.room.hearts === undefined) {
-                    ttp.room.hearts = 0;
-                }
+                ttp.room.hearts = 0;
                 ttp.room.hearts += 1;
-                $("#ttpRoomHearts").text(ttp.room.hearts);
-                if (ttp.roominfo.users[msg.userid]) {
-                    ttp.roominfo.users[msg.userid].lastActivity = now;
+                $("#ttpHearts").text(ttp.room.hearts);
+                ttp.room.snaggers.push(msg.userid);
+                user = ttp.roominfo.users[msg.userid];
+                if (user !== undefined) {
+                    user.lastActivity = now;
+                }
+                $user = ttp.getListElById(msg.userid);
+                if ($user !== null) {
+                    $user.data("ttplastactivity", now);
+                    $user.find('.icons').append('<div class="snagged icon"></div>');
                 }
             }
         } else if (typeof msg.users === "object" && typeof msg.room === "object" && typeof msg.room.metadata === "object" && typeof msg.room.metadata.songlog === "object") {
@@ -234,23 +278,42 @@ var ttp = {
                 ttp.getRoomObjects(true);
                 ttp.roomLocation = window.location.pathname;
                 ttp.startTime = ttp.now();
-                $("#ttpRoomHearts").text("0");
-                $('#ttpUsersList .ttpUsersList .ttpUser').remove();
+                ttp.room.hearts = 0;
+                $("#ttpHearts").text("0");
                 ttp.animations = true;
-                $("#ttpAnimation").attr("src", $("#ttpAnimation").attr("src").replace('animationOn', 'noAnimation'));
+                ttp.replaceFunctions();
+                //$("#ttpAnimation").attr("src", $("#ttpAnimation").attr("src").replace('animationOn', 'noAnimation'));
 
                 // try to clear room customizations
-                if (window.ttpapi instanceof TTPAPI) {
+                /*if (window.ttpapi instanceof TTPAPI) {
                     ttpapi.destroy();
                 }
 
-                $(TTPAPI_Events).triggerHandler('roomChanged', msg);
+                $(TTPAPI_Events).triggerHandler('roomChanged', msg);*/
             }
             ttp.room.current_dj = msg.room.metadata.current_dj;
+            ttp.room.upvotes = msg.room.metadata.upvotes;
+            ttp.room.downvotes = msg.room.metadata.downvotes;
+
+            if ($("#right-panel .ttpHeader").length === 0) {
+                ttp.addHeader();
+            }
+
+            $("#ttpUpvotes").text(ttp.room.upvotes);
+            $("#ttpDownvotes").text(ttp.room.downvotes);
         }
         messageDiv = document.getElementById("ttpTurntableMessage");
         messageDiv.innerText = escape(JSON.stringify(msg));
         messageDiv.dispatchEvent(ttp.event);
+    },
+    addHeader: function () {
+        var header = '<div class="ttpHeader">' +
+                        '<span style="padding: 0 0 0 5px;">Votes: </span>' +
+                        '<span id="ttpHearts" title="Number of Times Queued">' + ttp.room.hearts + '</span>' +
+                        '<span id="ttpUpvotes" title="Awesomes">' + ttp.room.upvotes + '</span>' +
+                        '<span id="ttpDownvotes" title="Lames">' + ttp.room.downvotes + '</span>' +
+                    '</div>'
+        $('#right-panel').prepend(header);
     },
     saveSettings: function (settings) {
         var settingsDiv = document.getElementById("ttpSaveSettings");
@@ -266,12 +329,16 @@ var ttp = {
         return Math.round(Date.now() / 1000);
     },
     formatTime: function (seconds) {
+        if (typeof seconds !== "number") {
+            return "00:00";
+        }
+        var hours = minutes = 0;
         if (seconds > 3600) {
             hours = Math.floor(seconds / 3600);
         } else {
             hours = 0;
         }
-        if (seconds > 60) {
+        if (seconds >= 60) {
             minutes = Math.floor((seconds - (hours * 3600)) / 60);
         } else {
             minutes = 0;
@@ -284,60 +351,20 @@ var ttp = {
     },
     updateIdleTimes: function () {
         var now = ttp.now();
-        $("#ttpUsersList .ttpUsersList .ttpUser.ttpUserType10,#ttpUsersList .ttpUsersList .ttpUser.ttpUserType20,#ttpUsersList .ttpUsersList .ttpUser.ttpUserType30,#ttpUsersList .ttpUsersList .ttpUser.ttpUserType40").each(function () {
-            if ($(this).attr("ttplastactivity") !== "") {
-                $(this).find(".ttpIdleTime").html(ttp.formatTime((now - (+$(this).attr("ttplastactivity")))));
-            } else {
-                $(this).find(".ttpIdleTime").html(ttp.formatTime((now - ttp.startTime)));
-            }
+        $("#guest-list .guests .guest").each(function () {
+            $(this).find(".idletime").html(ttp.formatTime((now - (+$(this).data("ttplastactivity")))));
         });
-        $("#ttpUserActions:visible").each(function () {
-            if ($("#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected").attr("ttplastactivity") !== "") {
-                $(this).find(".ttpIdleTime").html(ttp.formatTime((now - (+$("#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected").attr("ttplastactivity")))));
-            } else {
-                $(this).find(".ttpIdleTime").html(ttp.formatTime((now - ttp.startTime)));
-            }
+        $("#guest-list .guests .guestOptionsContainer:visible").each(function () {
+            $(this).find(".lastChat").text('Last Chat: ' + ttp.formatTime((now - (+$("#guest-list .guests .guest.selected").data("ttplastchat")))));
+            $(this).find(".lastVote").text('Last Vote: ' + ttp.formatTime((now - (+$("#guest-list .guests .guest.selected").data("ttplastvote")))));
         });
-    },
-    ttChatResizeSetOffset: function (offset) {
-        $(ttp.roominfo.view).find(".chat-container, .guest-list-container").css({top: offset, height: 602 - offset});
-        $(ttp.roominfo.view).find(".chat-container .messages, .guest-list-container .guests").css({height: 539 - offset});
-        ttp.roominfo.chatOffsetTop = offset;
-    },
-    ttChatResizeStart: function (e) {
-        $(document.body).bind("mousemove", ttp.ttChatResizeMove);
-        $(document.body).bind("mouseup mouseout", ttp.ttChatResizeStop);
-        $(document.body).bind("selectstart", ttp.roominfo.chatResizeCancelSelect);
-        $(".chatHeader").addClass("active");
-        ttp.roominfo.chatOffsetTopOld = ttp.roominfo.chatOffsetTop;
-        ttp.roominfo.chatResizeStartY = e.pageY;
-    },
-    ttChatResizeMove: function (e) {
-        ttp.roominfo.chatOffsetTop = ttp.roominfo.chatOffsetTopOld + (e.pageY - ttp.roominfo.chatResizeStartY);
-        if (ttp.roominfo.chatOffsetTop > 577) {
-            ttp.roominfo.chatOffsetTop = 577;
-        }
-        ttp.ttChatResizeSetOffset(ttp.roominfo.chatOffsetTop);
-    },
-    ttChatResizeStop: function (e) {
-        if (e.type == "mouseout" && $(e.target).closest("#outer").length) {
-            return;
-        }
-        $(document.body).unbind("mousemove", ttp.ttChatResizeMove);
-        $(document.body).unbind("mouseup mouseout", ttp.ttChatResizeStop);
-        $(document.body).unbind("selectstart", ttp.roominfo.chatResizeCancelSelect);
-        $(".chatHeader").removeClass("active");
-        ttp.roominfo.chatOffsetTopOld = ttp.roominfo.chatOffsetTop;
-        util.setSetting("chatOffset", String(ttp.roominfo.chatOffsetTop));
     },
     authBot: '4fd6cdd34fb0bb0d2301aeb3',
     handlePM: $.noop,
     roomCustomizations: {},
     checkForCustomizations: function () {
         $('#ttp-allow-custom,#ttp-disable-custom').hide();
-        if ($('#header').length) {
-            return;
-        }
+        return;
 
         /*
          * TODO
@@ -445,6 +472,7 @@ var ttp = {
     },
     customizationScriptsLoaded: false,
     loadCustomizationScripts: function (room) {
+        return;
         var script, styles;
         if ($('#pmWindows').length < 1) {
             window.setTimeout(ttp.loadCustomizationScripts, 200, room);
@@ -473,8 +501,8 @@ var ttp = {
     },
     // Counter for the user's song queue
     loadSongQueueCount: function() {
-        if($("#ttpSongQueueCount").length == 0) {
-            // Prepare an div that will be used to display the number of songs in your queue
+        if ($("#ttpSongQueueCount").length == 0) {
+            // Prepare a div that will be used to display the number of songs in your queue
             // This reduces the number of DOM updates
             var countDiv = document.createElement("div");
             $(countDiv).attr("id", "ttpSongQueueCount");
@@ -500,14 +528,160 @@ var ttp = {
     updateSongQueueCount: function() {
         songCount = turntable.playlist.fileids.length;
         $("#ttpSongQueueCount").html(songCount.commafy() + " songs");
+    },
+    replaceFunctions: function () {
+        ttp.oldGuestListName = Room.layouts.guestListName;
+        Room.layouts.guestListName = function(user, room, selected, now) {
+            try {
+                var a = "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/" + user.avatarid + "/scaled/55/headfront.png";
+                var guestClass = selected ? ".guest.selected" : ".guest";
+                if (ttp.roominfo.upvoters.indexOf(user.userid) > -1) {
+                    guestClass += ".upvoted";
+                } else if (ttp.room.downvoters.indexOf(user.userid) > -1) {
+                    guestClass += ".downvoted";
+                }
+                
+                if (user.lastActivity === undefined) {
+                    user.lastActivity = ttp.startTime;
+                }
+                if (user.lastChat === undefined) {
+                    user.lastChat = ttp.startTime;
+                }
+                if (user.lastVote === undefined) {
+                    user.lastVote = ttp.startTime;
+                }
+
+                var icons = ['div.icons', {}];
+                if (user.acl > 0) {
+                    icons.push(['div.superuser.icon', {title: 'Superuser'}]);
+                } else {
+                    if (ttp.roominfo.roomData.metadata.moderator_id.indexOf(user.userid) > -1) {
+                        icons.push(['div.mod.icon', {title: 'Moderator'}]);
+                    }
+                }
+                if (turntable.user.fanOf.indexOf(user.userid) > -1) {
+                    icons.push(['div.fanned.icon', {title: 'Fanned'}]);
+                }
+                if (ttp.room.snaggers.indexOf(user.userid) > -1) {
+                    icons.push(['div.snagged.icon', {title: 'Queued Current Song'}]);
+                }
+
+                var spec = ["div" + guestClass, {event: {mouseover: function() {
+                                $(this).find("div.guestArrow").show();
+                            },mouseout: function() {
+                                $(this).find("div.guestArrow").hide();
+                            },click: function() {
+                                var g = $(this).parent().find("div.guestOptionsContainer");
+                                var h = $(this);
+                                if (!g.length) {
+                                    $.proxy(function() {
+                                        this.addGuestListMenu(user, h);
+                                    }, room)();
+                                } else {
+                                    if ($(this).hasClass("selected")) {
+                                        room.removeGuestListMenu();
+                                    } else {
+                                        room.removeGuestListMenu($.proxy(function() {
+                                            this.addGuestListMenu(user, h);
+                                        }, room));
+                                    }
+                                }
+                            },dblclick: function() { room.handlePM({ senderid: user.userid }, true); }},
+                            data: {id: user.userid, ttplastactivity: user.lastActivity, ttplastchat: user.lastChat, ttplastvote: user.lastVote}},
+                            ["div.guest-avatar", {style: {"background-image": "url(" + a + ")"}}],
+                            ["div.guestName", {}, user.name],
+                            icons,
+                            ["div.guestArrow"],
+                            ["div.idletime", {}, ttp.formatTime(now - user.lastActivity)]];
+                if (room.roomData.metadata.currentDj === user.userid) {
+                    spec.splice(3, 0, ['div.current-dj']);
+                }
+                return spec;
+            } catch (e) {
+                console.log("Error in guestListName: ", e);
+                ttp.oldGuestListName(user, room, selected);
+            }
+        }
+
+        ttp.oldGuestListUpdate = ttp.roominfo.updateGuestList;
+        ttp.roominfo.updateGuestList = function() {
+            try {
+                var supers = [],
+                    mods = [], 
+                    djs = [],
+                    fanof = [],
+                    audience = [],
+                    $list = $(".guest-list-container .guests"),
+                    users = ttp.roominfo.users;
+
+                for (var o = 0, s = ttp.roominfo.djids, q = s.length; o < q; o++) {
+                    djs.push(users[s[o]]);
+                }
+
+                for (var o = 0, s = ttp.roominfo.listenerids, q = s.length; o < q; o++) {
+                    if (ttp.roominfo.djids.indexOf(s[o]) > -1) {
+                        continue;
+                    } else if (users[s[o]].acl > 0) {
+                        supers.push(users[s[o]]);
+                    } else if (ttp.roominfo.roomData.metadata.moderator_id.indexOf(s[o]) > -1) {
+                        mods.push(users[s[o]]);
+                    } else if (turntable.user.fanOf.indexOf(s[o]) > -1) {
+                        fanof.push(users[s[o]]);
+                    } else {
+                        audience.push(users[s[o]]);
+                    }
+                }
+
+                mods = supers.sort(this.guestListSort).concat(mods.sort(this.guestListSort));
+                audience = fanof.sort(this.guestListSort).concat(audience.sort(this.guestListSort));
+
+                var c = $list.find(".guest.selected").data("id");
+                $list.children().remove();
+                var t = [djs, mods, audience], v = ["DJs", "Moderators", "Audience"];
+                var now = ttp.now();
+                for (var m = 0, k = t.length; m < k; m++) {
+                    var d = t[m];
+                    if (d.length > 0) {
+                        $list.append(util.buildTree(["div.separator", ["div.text", v[m]]]));
+                    }
+                    for (var o = 0, q = d.length; o < q; o++) {
+                        var e = (c && c == d[o].userid);
+                        $list.append(util.buildTree(Room.layouts.guestListName(d[o], ttp.roominfo, e, now)));
+                    }
+                }
+                var p = mods.length + audience.length, r;
+                if (ttp.roominfo.section === undefined) {
+                    p += djs.length;
+                }
+                if (p === 1) {
+                    r = p + " person here";
+                } else {
+                    r = p + " people here";
+                }
+                $("span#totalUsers").text(r);
+                ttp.roominfo.updateGuestListMenu();
+            } catch (e) {
+                console.log("Error in updateGuestList: ", e);
+                ttp.oldGuestListUpdate.call(ttp.roominfo);
+            }
+        }
+        ttp.roominfo.updateGuestList();
     }
 }
 ttp.event.initEvent("ttpEvent", true, true);
 ttp.enterKey.initKeyboardEvent("keypress", true, true, null, false, false, false, false, 13, 2386);
+ttp.leftKey = $.Event("keydown", {keyCode: 37});
+
 ttp.startTime = ttp.now();
-if ($('#header').length < 1) {
-    ttp.idleInterval = window.setInterval(ttp.updateIdleTimes, 1000);
-}
+ttp.guestOptions = Room.layouts.guestOptions;
+Room.layouts.guestOptions = function (a, b) {
+    var c = ttp.guestOptions(a, b), now = ttp.now();
+    c[2].splice(2, 0, ['span.lastChat', {}, 'Last Chat: ' + ttp.formatTime(now - ttp.roominfo.users[a.userid].lastChat)]);
+    c[2].splice(3, 0, ['span.lastVote', {}, 'Last Vote: ' + ttp.formatTime(now - ttp.roominfo.users[a.userid].lastVote)]);
+    return c;
+};
+ttp.idleInterval = window.setInterval(ttp.updateIdleTimes, 1000);
+
 $('#ttpResponse').bind('ttpEvent', function () {
     var response = JSON.parse(unescape($(this).text()));
     if (response.source === "page" && typeof response.msgId === "number" && typeof response.response !== "undefined") {
@@ -521,11 +695,9 @@ $('#ttpResponse').bind('ttpEvent', function () {
     }
 });
 
-if ($('#header').length < 1) {
-    turntable.addEventListener('message', ttp.newMessage);
-    ttp.ttpMessage('Listener Ready');
-    $(document).ready(ttp.getRoomObjects);
-}
+turntable.addEventListener('message', ttp.newMessage);
+ttp.ttpMessage('Listener Ready');
+$(document).ready(ttp.getRoomObjects);
 
 // add API for custom scripts
 var TTPAPI = function () {
@@ -585,29 +757,6 @@ TTPAPI.prototype.destroy = function () {
         }
         delete window.ttpapi;
     }
-}
-
-Number.prototype.commafy = function () {
-    var len;
-    num = this.toString();
-    len = num.length;
-    while (len > 3) {
-        num = num.substr(0, len - 3) + ',' + num.substr(len - 3);
-        len -= 3;
-    }
-    return num;
-}
-
-String.prototype.padLeft = function (length, str) {
-    var output = '',
-        i = 0;
-    if (this.length < length) {
-        length = length - this.length;
-        for (; i < length; i++) {
-            output += str;
-        }
-    }
-    return output + this;
 }
 
 /*

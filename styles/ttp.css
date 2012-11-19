@@ -1,45 +1,4 @@
-#ttpUserActions .ttpFan, #ttpUserActions .ttpFan:hover, #ttpUserActions .ttpFan:active, #ttpUserActions .ttpUnfan, #ttpUserActions .ttpUnfan, #ttpUserActions .ttpUnfan:hover, #ttpUserActions .ttpUnfan:active, #ttpUserActions .ttpAddMod, #ttpUserActions .ttpAddMod:hover, #ttpUserActions .ttpAddMod:active, #ttpUserActions .ttpRemMod, #ttpUserActions .ttpRemMod:hover, #ttpUserActions .ttpRemMod:active, #ttpUserActions .ttpIgnore, #ttpUserActions .ttpIgnore:hover, #ttpUserActions .ttpIgnore:active, #ttpUserActions .ttpUnignore, #ttpUserActions .ttpUnignore:hover, #ttpUserActions .ttpUnignore:active, #ttpUserActions .ttpProfile, #ttpUserActions .ttpProfile:hover, #ttpUserActions .ttpProfile:active, #ttpUserActions .ttpBoot, #ttpUserActions .ttpBoot:hover, #ttpUserActions .ttpBoot:active, #ttpUserActions .ttpRemoveDj, #ttpUserActions .ttpRemoveDj:hover, #ttpUserActions .ttpRemoveDj:active, #ttpUserActions .ttpTtdash, #ttpUserActions .ttpTtdash:hover, #ttpUserActions .ttpTtdash:active, #ttpUsersList .ttpUsersList .ttpUser .ttpFanned, #ttpUsersList .ttpUsersList .ttpUser .ttpMod, #ttpUsersList .ttpUsersList .ttpUser .ttpSuper {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/sprites.png) no-repeat;
-}
-#ttpRoom {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/uparrow.png) 25% 50% no-repeat;
-    float: right;
-    margin: 0 5px 0 0;
-    padding: 0 5px 0 20px;
-}
-#ttpRoomHearts {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/heart.png) 0% 40% no-repeat;
-    float: right;
-    margin: 0 5px 0 0;
-    padding: 0 5px 0 20px;
-}
-#ttpRoomUpvotes {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/uparrow.png) 25% 40% no-repeat;
-    float: right;
-    margin: 0 5px 0 0;
-    padding: 0 5px 0 20px;
-}
-#ttpRoomDownvotes {
-    background: url(chrome-extension://__MSG_@@extension_id__/images/downarrow.png) 25% 40% no-repeat;
-    float: right;
-    padding: 0 0 0 20px;
-}
-#ttpRoomListeners {
-    position: absolute;
-    top: 9px;
-    right: 4px;
-    width: 30px;
-    text-align: right;
-    color: #000;
-    font-size: 18px;
-}
-.ttpBold {
-    font-weight: bold;
-}
-.ttpItalic {
-    font-style: italic;
-}
-#ttpUsersList .ttpUsersListHeader {
+#right-panel .ttpHeader {
     background: url(https://s3.amazonaws.com/static.turntable.fm/images/room/black_playlist_bg.png) repeat-x;
     width: 100%;
     height: 25px;
@@ -48,185 +7,101 @@
     line-height: 25px;
     cursor: move;
 }
-#ttpUsersList .ttpBanner {
-    position: relative;
-    background: url(chrome-extension://__MSG_@@extension_id__/images/bannerBg.png) repeat-x;
-    height: 39px;
+#ttpHearts {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/heart.png) 0% 40% no-repeat;
+    float: right;
+    margin: 0 5px 0 0;
+    padding: 0 5px 0 20px;
 }
-#ttpUsersList .ttpUsersList {
-    background-color: #fff;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    width: 100%;
+#ttpUpvotes {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/uparrow.png) 25% 40% no-repeat;
+    float: right;
+    margin: 0 5px 0 0;
+    padding: 0 5px 0 20px;
 }
-#ttpUsersList .ttpUsersList .ttpUser {
-    color: #000;
-    font-size: 14px;
-    padding: 2px 5px;
-    cursor: pointer;
+#ttpDownvotes {
+    background: url(chrome-extension://__MSG_@@extension_id__/images/downarrow.png) 25% 40% no-repeat;
+    float: right;
+    padding: 0 0 0 20px;
 }
-#ttpUsersList .ttpUsersList .ttpUser .ttpUserBold {
+.bold {
     font-weight: bold;
 }
-#ttpUsersList .ttpUsersList .ttpUser:nth-of-type(odd) {
-    background-color: #f7f7f7;
-}
-#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected {
-    background-color: #2f98f1;
-    color: #fff;
-}
-#ttpUsersList .ttpUsersList .ttpUser.ttpUserUpVote {
-    background-color: #b6ffc0;
-}
-#ttpUsersList .ttpUsersList .ttpUser.ttpUserDownVote {
-    background-color: #ffa1a1;
-}
-#ttpUsersList .ttpUsersList .ttpUser.ttpUserUpVote.ttpUserSelected {
-    color: #000;
-    background: -webkit-linear-gradient(top, #b6ffc0 1%, #53efea 40%, #2f98f1 100%);
-}
-#ttpUsersList .ttpUsersList .ttpUser.ttpUserDownVote.ttpUserSelected {
-    background: -webkit-linear-gradient(top, #2f98f1 0%, #f78e56 90%, #f78e56 100%);
-}
-#ttpUsersList .ttpUsersList .ttpUser .ttpFanned {
-    background-position: 0 -375px;
-    width: 16px;
-    height: 16px;
-    float: right;
-    display: inline-block;
-    margin: 0 4px 0 0;
-}
-#ttpUsersList .ttpUsersList .ttpUser .ttpMod {
-    background-position: 0 -225px;
-    width: 16px;
-    height: 16px;
-    float: left;
-    display: inline-block;
-    margin: 0 4px 0 0;
-}
-#ttpUsersList .ttpUsersList .ttpUser .ttpSuper {
-    background-position: 0 -70px;
-    width: 16px;
-    height: 16px;
-    float: left;
-    display: inline-block;
-    margin: 0 4px 0 0;
-}
-#ttpUsersList .ttpUsersList .ttpUser .ttpIdleTime {
-    float: right;
-    margin: 0 3px 0 0;
-    font-weight: normal;
-}
-#ttpUserActions {
-    box-shadow: inset 0px 4px 6px #888;
-    display: none;
-}
-#ttpUserActions .icon {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin: 7px;
-    cursor: pointer;
+.italic {
+    font-style: italic;
 }
 
-#ttpUserActions .ttpFan {
-    background-position: 0 -431px; width: 20px; height: 20px;
+.guest-list-container .guests .guest {
+    z-index: 0;
 }
-#ttpUserActions .ttpFan:hover {
-    background-position: 0 -391px; width: 20px; height: 20px;
+.guest .guestName {
+    vertical-align: top;
+    max-width: 140px !important;
 }
-#ttpUserActions .ttpFan:active {
-    background-position: 0 -411px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpUnfan {
-    background-position: 0 -391px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpUnfan:hover {
-    background-position: 0 -431px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpUnfan:active {
-    background-position: 0 -411px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpAddMod {
-    background-position: 0 -281px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpAddMod:hover {
-    background-position: 0 -241px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpAddMod:active {
-    background-position: 0 -261px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpRemMod {
-    background-position: 0 -241px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpRemMod:hover {
-    background-position: 0 -281px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpRemMod:active {
-    background-position: 0 -261px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpIgnore {
-    background-position: 0 -341px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpIgnore:hover {
-    background-position: 0 -301px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpIgnore:active {
-    background-position: 0 -321px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpUnignore {
-    background-position: 0 -301px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpUnignore:hover {
-    background-position: 0 -341px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpUnignore:active {
-    background-position: 0 -321px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpProfile {
-    background-position: 0 -182px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpProfile:hover {
-    background-position: 0 -162px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpProfile:active {
-    background-position: 0 -182px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpBoot {
-    background-position: 0 -481px; width: 20px; height: 20px;
-    display:none;
-}
-#ttpUserActions .ttpBoot:hover {
-    background-position: 0 -461px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpBoot:active {
-    background-position: 0 -481px; width: 20px; height: 20px;
-    display:none;
-}
-#ttpUserActions .ttpRemoveDj {
-    background-position: 0 -142px; width: 20px; height: 20px;
-    display:none;
-}
-#ttpUserActions .ttpRemoveDj:hover {
-    background-position: 0 -122px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpRemoveDj:active {
-    background-position: 0 -142px; width: 20px; height: 20px;
-    display:none;
-}
-#ttpUserActions .ttpTtdash {
-    background-position: 0 -50px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpTtdash:hover {
-    background-position: 0 -10px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpTtdash:active {
-    background-position: 0 -10px; width: 20px; height: 20px;
-}
-#ttpUserActions .ttpUserActionsIdle {
-    margin: 10px 0 0 10px;
+.guest-list-container .guests .guest .icons {
     display: inline-block;
+    overflow: hidden;
 }
+.guest-list-container .guests .guest .icons .icon {
+    height: 28px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    display: inline-block;
+    margin-left: 5px;
+}
+.guest-list-container .guests .guest .icons .superuser {
+    background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/superuser_icon.png");
+    width: 15px;
+}
+.guest-list-container .guests .guest .icons .mod {
+    background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/mod_icon.png");
+    width: 14px;
+}
+.guest-list-container .guests .guest .icons .fanned {
+    background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/fan_icon.png");
+    width: 17px;
+}
+.guest-list-container .guests .guest .icons .snagged {
+    background-image: url(chrome-extension://__MSG_@@extension_id__/images/heart.png);
+    width: 16px;
+}
+.guest-list-container div.current-dj {
+    background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/current_dj_icon.png");
+    position: absolute;
+    left: 0; top: 6px;
+    width: 8px; height: 16px;
+    z-index: -1;
+}
+
+#guest-list .guests .guest.upvoted {
+    background-color: #b6ffc0;
+}
+#guest-list .guests .guest.downvoted {
+    background-color: #ffa1a1;
+}
+#guest-list .guests .guest.upvoted:hover {
+    color: #000;
+    background: -webkit-linear-gradient(top, #b6ffc0 1%, #efefef 70%, #e3e3e3 100%);
+}
+#guest-list .guests .guest.downvoted:hover {
+    background: -webkit-linear-gradient(top, #e3e3e3 0%, #efefef 50%, #f78e56 99%);
+}
+
+#guest-list .guests .idletime {
+    float: right;
+    margin: 0 27px 0 0;
+    color: #282828;
+    font-size: 12px;
+    line-height: 28px;
+}
+#guest-list .guests .guestOptionsContainer span {
+    display: block;
+    color: #444;
+    font-size: 11px;
+    line-height: 20px;
+    padding: 0 20px;
+}
+
 #ttpUserSearch {
     text-align: left;
     width: 100%;
@@ -315,4 +190,10 @@
     height: 9px;
     right: -5px;
     top: -5px;
+}
+#right-panel .selected #chat, #right-panel .selected #playlist, #right-panel .selected #room-info {
+    top: 61px;
+}
+#right-panel-tabs {
+    -webkit-mask-box-image: none !important;
 }

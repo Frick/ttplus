@@ -15,7 +15,7 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.2.21',
+    version: '0.3.0',
     minVersion: '0.2.1',
     prefs: {
         notifications: {
@@ -77,7 +77,7 @@ var ttp = {
             }
         },
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.2.21'
+        version: '0.3.0'
     },
     logging: {},
     enableLogging: function (type) {
@@ -283,6 +283,7 @@ var ttp = {
         }
     },
     setLayout: function (layout) {
+        return;
         ttp.prefs.alternateLayout = (layout) ? true : false;
         ttp.savePrefs();
         if (ttp.prefs.alternateLayout) {
@@ -298,6 +299,7 @@ var ttp = {
         }
     },
     changeLayout: function (alternateLayout, layout) {
+        return;
         ttp.send({
             changeLayout: alternateLayout,
             layout: layout
@@ -1257,12 +1259,12 @@ chrome.extension.onConnect.addListener(function (port) {
                         ttp.isSetup = false;
                         ttp.chatMessages = [];
                         ttp.notifications = [];
-                        if (ttp.prefs.alternateLayout) {
+                        /*if (ttp.prefs.alternateLayout) {
                             ttp.send({
                                 expandChat: true,
                                 layout: ttp.prefs.layout
                             });
-                        }
+                        }*/
                     }
                     ttp.setupRoom(msg);
                 } else if (typeof msg === "object" && typeof msg.email === "string" && typeof msg.name === "string" && typeof msg.userid === "string") {

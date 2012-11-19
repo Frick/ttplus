@@ -97,8 +97,6 @@ var ttplus = {
                 ttplus.injectScript(ttplus.setupRoom);
             } else if (request.setStartTime === true) {
                 ttplus.injectScript(ttplus.setStartTime);
-            } else if (typeof request.ignoredUsers === "object") {
-                ttplus.injectScript(ttplus.ignoreUsers, request.ignoredUsers);
             } else if (request.getUserInfo === true) {
                 ttplus.injectScript(ttplus.getUserInfo);
             } else if (typeof request.expandChat === "boolean") {
@@ -169,7 +167,7 @@ var ttplus = {
                 });
             } else if (msg === "TT Objects Ready") {
                 ttplus.TtObjectsReady = true;
-                ttplus.layoutChange();
+                //ttplus.layoutChange();
             } else if (msg.command === "log") {
                 console.log(eval(msg.data));
             } else if (typeof msg.get === "string") {
@@ -206,7 +204,9 @@ var ttplus = {
     getUserInfo: function () {
         ttp.request({api: "user.info"});
     },
+    /*
     addUsersList: function (expandedChat, layout, path) {
+        return;
         var attachTo = (expandedChat === true) ? ".chat-container" : "#outer",
             bodyWidth = $('body').width(),
             outerWidth = $('#outer').width(),
@@ -390,8 +390,7 @@ var ttplus = {
                 $('#ttpUserActions').slideUp(200, function () {
                     var moderators = (ttp.roominfo.moderators.length) ? new RegExp(ttp.roominfo.moderators.join("|"), "i") : false,
                         djs = (ttp.roominfo.djIds.length) ? new RegExp(ttp.roominfo.djIds.join("|"), "i") : false,
-                        fanOf = (turntable.user.fanOf.length) ? new RegExp(turntable.user.fanOf.join("|"),"i") : false,
-                        ignoredUsers = (ttp.roominfo.ignoredUsers.length) ? new RegExp(ttp.roominfo.ignoredUsers.join("|"), "i") : false;
+                        fanOf = (turntable.user.fanOf.length) ? new RegExp(turntable.user.fanOf.join("|"),"i") : false;
 
                     $(this).find('.ttpFan,.ttpUnfan').hide();
                     $(this).find('.ttpProfile').unbind('click').click(function (e) {
@@ -659,6 +658,7 @@ var ttplus = {
         return true;
     },
     expandChat: function (layout) {
+        return;
         var bodyWidth = $('body').width(),
             outerWidth = $('#outer').width(),
             outerHeight = $('#outer').height(),
@@ -750,6 +750,7 @@ var ttplus = {
         return true;
     },
     defaultChat: function () {
+        return;
         var bodyWidth = $('body').width(),
             outerWidth = $('#outer').width(),
             outerHeight = $('#outer').height(),
@@ -780,6 +781,7 @@ var ttplus = {
         }).unbind('DOMNodeInserted').find('.message').attr('style', '');
     },
     addDragNDrop: function (expandedChat) {
+        return;
         if (expandedChat) {
             $('#outer,.chat-container,#ttpUsersList').addClass('stackable');
         } else {
@@ -878,6 +880,7 @@ var ttplus = {
         ttp.loadSongQueueCount();
     },
     layoutChange:  function (expandedChat, layout, path) {
+        return;
         var usersListReady = false;
         if ($('#header').length) {
             return;
@@ -908,22 +911,24 @@ var ttplus = {
             ttplus.injectScript(ttplus.addDragNDrop, ttplus.layoutChange.expandedChat);
             ttplus.injectScript(ttplus.addSongQueueCount);
         }
-    },
+    },*/
     highlightChatMessage: function (message) {
         var name = window.unescape(message.name),
             rgx = new RegExp(window.unescape(message.rgx), 'i');
-        $($(".message").get().reverse()).each(function () {
-            if ($(this).find(".speaker").text() === name && rgx.test($(this).find(".text").text())) {
-                $(this).css("background-color", "#ff9");
-                return false;
+        $($("#chat .message").get().reverse()).each(function () {
+            if ($(this).find(".speaker").text() === name) {
+                var $msg = $(this);
+                $(this).find(".text").each(function () {
+                    if (rgx.test($(this).text())) {
+                        $msg.addClass("mention");
+                        return false;
+                    }
+                });
             }
         });
     },
     toggleMute: function () {
-        var volume = ttp.roommanager.volume_bars ? 0 : ttp.roommanager.last_volume_bars;
-        ttp.roommanager.set_volume(volume);
-        ttp.roommanager.callback("set_volume", ttp.roommanager.volume_bars);
-        $("#left_speaker").mouseenter().mouseleave();
+        $('#volume-button').click();
     },
     speak: function (text) {
         ttp.roominfo.nodes.chatText.value = text;
@@ -931,145 +936,18 @@ var ttplus = {
     },
     queueSong: function (song) {
         ttp.roominfo.addSong("queue", song);
-    },
+    },/*
     processUsersQueue: function () {
         var x = 0,
             length = ttplus.usersQueue.length;
 
         for (; x < length; x += 1) {
-            if (ttplus.usersQueue[x].updateUserList === "add") {
-                ttplus.injectScript(ttplus.addUsers, ttplus.usersQueue[x].users, ttplus.usersQueue[x].room);
-            } else if (ttplus.usersQueue[x].updateUserList === "update") {
-                ttplus.injectScript(ttplus.updateUser, ttplus.usersQueue[x].user, ttplus.usersQueue[x].vote);
-            } else if (ttplus.usersQueue[x].updateUserList === "remove") {
-                ttplus.injectScript(ttplus.removeUser, ttplus.usersQueue[x].userid);
-            }
+            ttplus.injectScript(ttplus.updateUser, ttplus.usersQueue[x].user, ttplus.usersQueue[x].vote);
         }
         ttplus.usersQueue = [];
     },
-    addUsers: function (users, room) {
-        var userActionsOpen = false,
-            now             = ttp.now(),
-            djs             = (ttp.roominfo.djIds.length) ? new RegExp(ttp.roominfo.djIds.join('|')) : false,
-            moderators      = (ttp.roominfo.moderators.length) ? new RegExp(ttp.roominfo.moderators.join('|')) : false,
-            fanof           = (turntable.user.fanOf.length) ? new RegExp(turntable.user.fanOf.join('|')) : false,
-            searchTerm      = ($('#ttpUserSearch input').val() !== '') ? new RegExp(searchTerm.replace(/\s/g,'.*'), 'i') : undefined,
-            count           = 0,
-            currentDj       = '',
-            user,
-            x,
-            lastActivity,
-            usertype,
-            displayName,
-            showIdleTime,
-            idleTimeSpan,
-            idDj,
-            display,
-            ttpBold,
-            ttpItalic;
-
-        if (ttp.roominfo.users === {}) {
-            window.addUsersTimeout = window.setTimeout(ttplus.addUsers, 100, users, room);
-        } else if (window.addUsersTimeout !== undefined) {
-            window.clearTimeout(window.addUsersTimeout);
-            delete window.addUsersTimeout;
-        }
-
-        if ($('#ttpUserActions').css('display') === 'block') {
-            userActionsOpen = true;
-            $('#ttpUserActions').hide();
-        }
-
-        if (room.current_dj !== undefined) {
-            currentDj = room.current_dj;
-        }
-
-        for (x in users) {
-            user = users[x];
-            if (!user.hasOwnProperty('userid')) {
-                continue;
-            } else if (ttp.roominfo.users[user.userid] === undefined) {
-                continue;
-            }
-            if ($('#user' + user.userid).length > 0) {
-                lastActivity = $('#user' + user.userid).attr('ttplastactivity');
-                $('#user' + user.userid).remove();
-            } else {
-                lastActivity = now;
-            }
-            if (user.userid !== turntable.user.id) {
-                ttp.roominfo.users[user.userid].lastActivity = lastActivity;
-            }
-            usertype = "60";
-            displayName = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            showIdleTime = false;
-            isDj = false;
-            if (moderators && moderators.test(user.userid)) {
-                usertype = "30";
-                displayName = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Moderator"></span>';
-                showIdleTime = true;
-            }
-            if (user.userid === ttp.roominfo.creatorId) {
-                usertype = "20";
-                displayName = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Room Creator"></span>';
-                showIdleTime = true;
-            }
-            if (user.acl > 0) {
-                usertype = "10";
-                displayName = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpSuper" title="Super User"></span>';
-                showIdleTime = true;
-            }
-            if (fanof && fanof.test(user.userid)) {
-                usertype = (usertype === "60") ? "50" : usertype;
-                displayName += '<span class="ttpFanned" title="You\'re a fan"></span>';
-            }
-            if (djs && djs.test(user.userid)) {
-                if (usertype == "50" || usertype == "60") {
-                    usertype = "40";
-                }
-                showIdleTime = true;
-                isDj = true;
-            }
-            if (searchTerm !== undefined) {
-                if (!searchTerm.test($(this).attr('ttpusername'))) {
-                    display = ' style="display:none;"';
-                }
-            } else {
-                display = '';
-            }
-            idleTimeSpan = (showIdleTime === true) ? '<span class="ttpIdleTime"></span>' : '';
-            ttpBold = (isDj === true) ? ' ttpBold' : '';
-            ttpItalic = (user.userid === currentDj) ? ' ttpItalic' : '';
-            $('#ttpUsersList .ttpUsersList').append('<div class="ttpUser ttpUserType' + usertype + ttpBold + ttpItalic + '" id="user' + user.userid + '" ttpUserType="' + usertype + '" ttpUserName="' + user.name.replace(/"/g, '\"') + '" ttpUserSort="' + usertype + user.name.replace(/"/g, '\"').toUpperCase() + '" ttpLastActivity="' + lastActivity + '"' + display + '>' + idleTimeSpan + displayName + '</div>');
-            count += 1;
-        }
-
-        if (typeof room === "object") {
-            if (typeof room.listeners === "number" && room.listeners > 0) {
-                ttp.room.listeners = room.listeners;
-                $("#ttpRoomListeners").text(ttp.room.listeners);
-            }
-            if (typeof room.upvotes === "number" && room.upvotes >= 0) {
-                ttp.room.upvotes = room.upvotes;
-                $("#ttpRoomUpvotes").text(ttp.room.upvotes);
-            }
-            if (typeof room.downvotes === "number" && room.downvotes >= 0) {
-                ttp.room.downvotes = room.downvotes;
-                $("#ttpRoomDownvotes").text(ttp.room.downvotes);
-            }
-        } else {
-            ttp.room.listeners += count;
-            $("#ttpRoomListeners").text(ttp.room.listeners);
-        }
-        $('#ttpUsersList .ttpUsersList .ttpUser').sortElements(function (a, b) {
-            return $(a).attr('ttpusersort') > $(b).attr('ttpusersort') ? 1 : -1;
-        });
-        if (userActionsOpen) {
-            $('#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected').after($('#ttpUserActions')).click();
-        }
-        return true;
-    },
     updateUser: function (user, vote) {
+        return;
         var $el             = $('#user' + user.userid),
             djs             = (ttp.roominfo.djIds.length) ? new RegExp(ttp.roominfo.djIds.join('|')) : false,
             moderators      = (ttp.roominfo.moderators.length) ? new RegExp(ttp.roominfo.moderators.join('|')) : false,
@@ -1140,17 +1018,7 @@ var ttplus = {
             $('#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected').after($('#ttpUserActions')).click();
         }
         return true;
-    },
-    removeUser: function (userid) {
-        if ($('#user' + userid).next().attr('id') == "ttpUserActions") {
-            $('#ttpUserActions').hide();
-        }
-        $('#user' + userid).remove();
-        $('#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected').after($('#ttpUserActions'));
-        ttp.room.listeners -= 1;
-        $("#ttpRoomListeners").text(ttp.room.listeners);
-        return true;
-    },
+    },*/
     updateRoomStats: function (room) {
         var hearts = 0;
         if (typeof room !== "object") {
@@ -1167,9 +1035,6 @@ var ttplus = {
     },
     getUsers: function () {
         return ttp.roominfo.users;
-    },
-    ignoreUsers: function (ignoredUsers) {
-        ttp.roominfo.ignoredUsers = ignoredUsers;
     },
     setStartTime: function () {
         ttp.startTime = ttp.now();
@@ -1234,7 +1099,5 @@ var ttplus = {
         } else return (elem);
     }
 }
-if ($('#header').length < 1) {
-    ttplus.event.initEvent("ttpEvent", true, true);
-    ttplus.init();
-}
+ttplus.event.initEvent("ttpEvent", true, true);
+ttplus.init();
