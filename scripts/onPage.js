@@ -258,7 +258,6 @@ var ttp = {
                     }, 500);
                 }
             } else if (msg.command === "snagged") {
-                ttp.room.hearts = 0;
                 ttp.room.hearts += 1;
                 $("#ttpHearts").text(ttp.room.hearts);
                 ttp.room.snaggers.push(msg.userid);
