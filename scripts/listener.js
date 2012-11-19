@@ -95,8 +95,6 @@ var ttplus = {
                 ttplus.injectScript(ttplus.queueSong, JSON.parse(request.song));
             } else if (request.setup === true) {
                 ttplus.injectScript(ttplus.setupRoom);
-            } else if (request.setStartTime === true) {
-                ttplus.injectScript(ttplus.setStartTime);
             } else if (request.getUserInfo === true) {
                 ttplus.injectScript(ttplus.getUserInfo);
             } else if (typeof request.expandChat === "boolean") {
@@ -1035,9 +1033,6 @@ var ttplus = {
     },
     getUsers: function () {
         return ttp.roominfo.users;
-    },
-    setStartTime: function () {
-        ttp.startTime = ttp.now();
     },
     injectScript: function (source) {
         //////////////////////////////////////////////////////////////////////////////////////////////
