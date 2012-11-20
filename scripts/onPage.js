@@ -314,6 +314,38 @@ var ttp = {
                     '</div>'
         $('#right-panel').prepend(header);
     },
+    breakoutChat: function () {
+        if ($('#right-panel-tabs .chat-container').length) {
+            window.clearTimeout(window.breakoutChatTimeout);
+            delete window.breakoutChatTimeout;
+            var bottom = '40px';
+            if ($('#pmWindows').position().top > 799) {
+                bottom = '15px';
+            }
+            $('#right-panel').css({left: '15px', right: 'auto', bottom: bottom});
+            $('#turntable .roomView').append('<div id="ttpChat"></div>');
+            $('#ttpChat').css({position: 'absolute', right: '15px', top: '15px', bottom: '15px', width: '256px', overflow: 'hidden', 'z-index': '4', 'border-radius': '5px'}).append($('#chat'));
+            $('#right-panel-tabs .chat-container, #playlist-container').removeClass('selected');
+            $('#room-info-container').addClass('selected');
+            $('#chat').addClass('chat-container').css({display: 'block', height: '100%', width: '100%', position: 'absolute', bottom: '0', left: '0'});
+            $('.chat-container .right-panel-tab').hide();
+            $('#room-info-container, #room-info-container .right-panel-tab, #playlist-container, #playlist-container .right-panel-tab').width(128);
+        } else {
+            window.breakoutChatTimeout = window.setTimeout(function () {
+                ttp.breakoutChat();
+            }, 100);
+        }
+    },
+    combineChat: function () {
+        $('#room-info-container, #room-info-container .right-panel-tab, #playlist-container, #playlist-container .right-panel-tab').attr('style', '');
+        $('#room-info-container, #playlist-container').removeClass('selected');
+        $('#right-panel-tabs .chat-container').addClass('selected');
+        $('#right-panel-tabs .chat-container .right-panel-tab').show();
+        $('#chat').removeClass('chat-container').attr('style', '');
+        $('#right-panel-tabs .chat-container').append($('#chat'));
+        $('#ttpChat').remove();
+        $('#right-panel').attr('style', '');
+    },
     saveSettings: function (settings) {
         var settingsDiv = document.getElementById("ttpSaveSettings");
         settingsDiv.innerText = escape(JSON.stringify(settings));

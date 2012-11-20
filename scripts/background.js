@@ -9,13 +9,12 @@ var ttp = {
     room: {},
     user: {},
     users: {},
-    isSetup: false,
     chatMessages: [],
     lastPopupTab: 'songtab',
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.3.0',
+    version: '0.3.2',
     minVersion: '0.2.1',
     prefs: {
         notifications: {
@@ -77,7 +76,7 @@ var ttp = {
             }
         },
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.3.0'
+        version: '0.3.2'
     },
     logging: {},
     enableLogging: function (type) {
@@ -219,47 +218,9 @@ var ttp = {
             if (ttp.prefs.notifications.chat.keywords.length > 0) {
                 ttp.chatNotification_re = new RegExp("(?:[^a-z0-9]|^)(?:" + ttp.prefs.notifications.chat.keywords.join("|") + ")(?:[^a-z0-9]|$)", "i");
             }
-            ttp.send({
-                updateUserList: "add",
-                users: roominfo.users,
-                clear: true,
-                room: {
-                    listeners: ttp.room.metadata.listeners,
-                    upvotes: ttp.room.metadata.upvotes,
-                    downvotes: ttp.room.metadata.downvotes,
-                    current_dj: ttp.room.metadata.current_dj
-                }
-            }, ttp.setupSuccess);
         } else {
             ttp.send({setup: true});
             window.setupTimeout = window.setTimeout(ttp.setupRoom, 5000);
-        }
-    },
-    setupSuccess: function (response) {
-        var x = 0,
-            length;
-
-        if (response.success) {
-            ttp.isSetup = true;
-            if (typeof ttp.room.metadata === "object" && typeof ttp.room.metadata.votelog === "object") {
-                for (length = ttp.room.metadata.votelog.length; x < length; x += 1) {
-                    if (ttp.users[ttp.room.metadata.votelog[x][0]] !== undefined) {
-                        ttp.send({
-                            updateUserList: "update",
-                            user: ttp.users[ttp.room.metadata.votelog[x][0]],
-                            vote: ttp.room.metadata.votelog[x][1],
-                            room: {
-                                listeners: ttp.room.metadata.listeners,
-                                upvotes: ttp.room.metadata.upvotes,
-                                downvotes: ttp.room.metadata.downvotes
-                            }
-                        });
-                    }
-                }
-            }
-            if (ttp.storage.ignoredUsers.length > 0) {
-                ttp.send({ignoredUsers: ttp.storage.ignoredUsers});
-            }
         }
     },
     setupUserInfo: function (user) {
@@ -283,23 +244,11 @@ var ttp = {
         }
     },
     setLayout: function (layout) {
-        return;
         ttp.prefs.alternateLayout = (layout) ? true : false;
         ttp.savePrefs();
-        if (ttp.prefs.alternateLayout) {
-            ttp.send({
-                changeLayout: true,
-                layout: ttp.prefs.layout
-            });
-        } else {
-            ttp.send({
-                changeLayout: false,
-                layout: ttp.prefs.layout
-            });
-        }
+        ttp.changeLayout(ttp.prefs.alternateLayout, ttp.prefs.layout);
     },
     changeLayout: function (alternateLayout, layout) {
-        return;
         ttp.send({
             changeLayout: alternateLayout,
             layout: layout
@@ -373,15 +322,6 @@ var ttp = {
         }
         if (this.users[message.userid] && this.users[message.userid].name !== message.name) {
             this.users[message.userid].name = message.name;
-            ttp.send({
-                updateUserList: "update",
-                user: ttp.users[message.userid],
-                room: {
-                    listeners: ttp.room.metadata.listeners,
-                    upvotes: ttp.room.metadata.upvotes,
-                    downvotes: ttp.room.metadata.downvotes
-                }
-            });
         }
     },
     addChatKeyword: function (keyword) {
@@ -540,33 +480,6 @@ var ttp = {
             if (typeof ttp.room.metadata === "object") {
                 ttp.room.metadata.listeners += 1;
             }
-            ttp.send({
-                updateUserList: "add",
-                users: [user],
-                clear: false,
-                room: {
-                    listeners: ttp.room.metadata.listeners,
-                    upvotes: ttp.room.metadata.upvotes,
-                    downvotes: ttp.room.metadata.downvotes
-                }
-            });
-            if (typeof ttp.room.metadata === "object" && typeof ttp.room.metadata.votelog === "object") {
-                for (length = ttp.room.metadata.votelog.length; x < length; x += 1) {
-                    if (ttp.room.metadata.votelog[x][0] === user.userid) {
-                        ttp.send({
-                            updateUserList: "update",
-                            user: user,
-                            vote: ttp.room.metadata.votelog[x][1],
-                            room: {
-                                listeners: ttp.room.metadata.listeners,
-                                upvotes: ttp.room.metadata.upvotes,
-                                downvotes: ttp.room.metadata.downvotes
-                            }
-                        });
-                        break;
-                    }
-                }
-            }
         },
         remUser: function (user) {
             var wasDj = false,
@@ -609,29 +522,9 @@ var ttp = {
             if (typeof ttp.room.metadata === "object") {
                 ttp.room.metadata.listeners -= 1;
             }
-            ttp.send({
-                updateUserList: "remove",
-                userid: user.userid,
-                room: {
-                    listeners: ttp.room.metadata.listeners,
-                    upvotes: ttp.room.metadata.upvotes,
-                    downvotes: ttp.room.metadata.downvotes
-                }
-            });
         },
         newMod: function (userid) {
             ttp.room.metadata.moderator_id.push(userid);
-            if (typeof ttp.users[userid] !== "undefined") {
-                ttp.send({
-                    updateUserList: "update",
-                    user: ttp.users[userid],
-                    room: {
-                        listeners: ttp.room.metadata.listeners,
-                        upvotes: ttp.room.metadata.upvotes,
-                        downvotes: ttp.room.metadata.downvotes
-                    }
-                });
-            }
         },
         remMod: function (userid) {
             var x = 0,
@@ -641,17 +534,6 @@ var ttp = {
                 if (ttp.room.metadata.moderator_id[x] === userid) {
                     ttp.room.metadata.moderator_id.splice(x, 1);
                 }
-            }
-            if (typeof ttp.users[userid] !== "undefined") {
-                ttp.send({
-                    updateUserList: "update",
-                    user: ttp.users[userid],
-                    room: {
-                        listeners: ttp.room.metadata.listeners,
-                        upvotes: ttp.room.metadata.upvotes,
-                        downvotes: ttp.room.metadata.downvotes
-                    }
-                });
             }
         },
         addDj: function (user) {
@@ -680,17 +562,6 @@ var ttp = {
                         notifyViews[x].window.close();
                     }
                 }
-            }
-            if (typeof ttp.users[user.userid] !== "undefined") {
-                ttp.send({
-                    updateUserList: "update",
-                    user: ttp.users[user.userid],
-                    room: {
-                        listeners: ttp.room.metadata.listeners,
-                        upvotes: ttp.room.metadata.upvotes,
-                        downvotes: ttp.room.metadata.downvotes
-                    }
-                });
             }
         },
         remDj: function (user) {
@@ -727,17 +598,6 @@ var ttp = {
                             avatarid: user.avatarid
                         });
                         webkitNotifications.createHTMLNotification('djNotification.html').show();
-                    }
-                });
-            }
-            if (typeof ttp.users[user.userid] !== "undefined") {
-                ttp.send({
-                    updateUserList: "update",
-                    user: ttp.users[user.userid],
-                    room: {
-                        listeners: ttp.room.metadata.listeners,
-                        upvotes: ttp.room.metadata.upvotes,
-                        downvotes: ttp.room.metadata.downvotes
                     }
                 });
             }
@@ -849,15 +709,6 @@ var ttp = {
             if (typeof ttp.room.metadata === "object") {
                 ttp.room.metadata.listeners -= 1;
             }
-            ttp.send({
-                updateUserList: "remove",
-                userid: userid,
-                room: {
-                    listeners: ttp.room.metadata.listeners,
-                    upvotes: ttp.room.metadata.upvotes,
-                    downvotes: ttp.room.metadata.downvotes
-                }
-            });
         }
     },
     performSearch: function (searchInfo) {
@@ -1130,7 +981,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
             ttp.tabId   = null;
             ttp.room    = null;
             ttp.users   = null;
-            ttp.isSetup = false;
         } else if (ttp.ttRoom_re.test(tab.url)) {
             if (ttp.tabId !== tabId || ttp.port === null) {
                 ttp.chatMessages = [];
@@ -1149,7 +999,6 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         ttp.tabId   = null;
         ttp.room    = null;
         ttp.users   = null;
-        ttp.isSetup = false;
     }
 });
 
@@ -1256,15 +1105,14 @@ chrome.extension.onConnect.addListener(function (port) {
                 } else if (typeof msg === "object" && typeof msg.room === "object" && typeof msg.users === "object") {
                     if (msg.roomChange) {
                         // room change (not just a refresh of room info)
-                        ttp.isSetup = false;
                         ttp.chatMessages = [];
                         ttp.notifications = [];
-                        /*if (ttp.prefs.alternateLayout) {
+                        if (ttp.prefs.alternateLayout) {
                             ttp.send({
                                 expandChat: true,
                                 layout: ttp.prefs.layout
                             });
-                        }*/
+                        }
                     }
                     ttp.setupRoom(msg);
                 } else if (typeof msg === "object" && typeof msg.email === "string" && typeof msg.name === "string" && typeof msg.userid === "string") {
@@ -1276,12 +1124,6 @@ chrome.extension.onConnect.addListener(function (port) {
                         msgId: request.msgId,
                         source: request.source,
                         response: ttp.prefs
-                    });
-                } else if (msg.get === "isSetup") {
-                    ttp.send({
-                        msgId: request.msgId,
-                        source: request.source,
-                        response: ttp.isSetup
                     });
                 }
             } else if (request.type === "save") {
