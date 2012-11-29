@@ -62,7 +62,7 @@ var ttplus = {
             } else if (typeof request.speak === "string") {
                 ttplus.injectScript(ttplus.speak, request.speak);
             } else if (request.toggleMute === true) {
-                ttplus.injectScript(ttplus.toggleMute);
+                ttplus.toggleMute();
             } else if (request.queue === true) {
                 ttplus.injectScript(ttplus.queueSong, JSON.parse(request.song));
             } else if (request.setup === true) {
@@ -70,16 +70,10 @@ var ttplus = {
             } else if (request.getUserInfo === true) {
                 ttplus.injectScript(ttplus.getUserInfo);
             } else if (typeof request.expandChat === "boolean") {
-                if (request.expandChat && typeof request.layout === "object") {
-                    ttplus.injectScript(ttplus.expandChat, request.layout);
-                } else {
-                    ttplus.injectScript(ttplus.defaultChat);
-                }
+                return;
             } else if (typeof request.changeLayout === "string" || typeof request.changeLayout === "boolean") {
-                if (request.changeLayout) {
-                    ttplus.injectScript(ttplus.expandChat, request.layout);
-                } else {
-                    ttplus.injectScript(ttplus.defaultChat);
+                if (request.layout !== undefined) {
+                    ttplus.injectScript(ttplus.changeLayout, request.layout);
                 }
             }
         } catch (e) {
@@ -131,7 +125,6 @@ var ttplus = {
                 });
             } else if (msg === "TT Objects Ready") {
                 ttplus.TtObjectsReady = true;
-                //ttplus.layoutChange();
             } else if (msg.command === "log") {
                 console.log(eval(msg.data));
             } else if (typeof msg.get === "string") {
@@ -168,147 +161,13 @@ var ttplus = {
     getUserInfo: function () {
         ttp.request({api: "user.info"});
     },
-    expandChat: function (layout) {
-        ttp.breakoutChat();
-
-        return true;
-    },
-    defaultChat: function () {
-        ttp.combineChat();
-
-        return true;
-    },/*
-    addDragNDrop: function (expandedChat) {
-        return;
-        if (expandedChat) {
-            $('#outer,.chat-container,#ttpUsersList').addClass('stackable');
-        } else {
-            $('#ttpUsersList').addClass('stackable');
-        }
-        if (expandedChat) {
-            $('#outer').draggable({
-                handle: '#top-panel .header',
-                cancel: '.logo,.userauthContainer,.room-buttons,.search',
-                stack: '.stackable',
-                start: function() {
-                    $('#room-info-tab .content').hide();
-                },
-                stop: function(event, ui) {
-                    $('#room-info-tab .content').show();
-                    ttp.saveSettings({
-                        main: ui.offset
-                    });
-                },
-                snap: 'body,.chat-container,#ttpUsersList',
-                snapTolerance: 10
-            });
-            $('.chat-container').resizable({
-                minWidth: 200,
-                minHeight: 115,
-                handles: 'n,ne,e,se,s,sw,w,nw',
-                resize: function (event, ui) {
-                    $('.chat-container .messages').height(ui.size.height - 60).unbind('DOMNodeInserted').bind('DOMNodeInserted', function () {
-                        $(this).find('.message').last().width(ui.size.width - 29)
-                    }).find('.message').width(ui.size.width - 29);
-                    $('.chat-container .input-box').width(ui.size.width - 36);
-                    $('.chat-container .input-box input').width(ui.size.width - 61);
-                },
-                stop: function (event, ui) {
-                    ttp.saveSettings({
-                        chat: {
-                            top: ui.position.top,
-                            left: ui.position.left,
-                            width: ui.size.width,
-                            height: ui.size.height
-                        }
-                    });
-                }
-            }).draggable({
-                handle: '.chatHeader',
-                stack: '.stackable',
-                stop: function (event, ui) {
-                    ttp.saveSettings({
-                        chat: {
-                            top: ui.offset.top,
-                            left: ui.offset.left,
-                            width: $('.chat-container').width(),
-                            height: $('.chat-container').height()
-                        }
-                    });
-                },
-                snap: 'body,#outer,#ttpUsersList',
-                snapTolerance: 10
-            });
-        }
-        $('#ttpUsersList').resizable({
-            minWidth: 200,
-            minHeight: 155,
-            handles: 'n,ne,e,se,s,sw,w,nw',
-            resize: function (event, ui) {
-                $('#ttpUsersList .ttpUsersList').height(ui.size.height - 99);
-            },
-            stop: function(event, ui) {
-                ttp.saveSettings({
-                    users: {
-                        top: ui.position.top,
-                        left: ui.position.left,
-                        width: ui.size.width,
-                        height: ui.size.height
-                    }
-                });
-            }
-        }).draggable({
-            handle: '.ttpUsersListHeader',
-            stack: '.stackable',
-            stop: function (event, ui) {
-                ttp.saveSettings({
-                    users: {
-                        top: ui.offset.top,
-                        left: ui.offset.left,
-                        width: $('#ttpUsersList').width(),
-                        height: $('#ttpUsersList').height()
-                    }
-                });
-            },
-            snap: 'body,#outer,.chat-container',
-            snapTolerance: 10
+    changeLayout: function (layout) {
+        ttp.ready(function () {
+            ttp.changeLayout(layout);
         });
-    },
+    },/*
     addSongQueueCount: function() {
         ttp.loadSongQueueCount();
-    },
-    layoutChange:  function (expandedChat, layout, path) {
-        return;
-        var usersListReady = false;
-        if ($('#header').length) {
-            return;
-        }
-        if (expandedChat !== undefined) {
-            ttplus.layoutChange.expandedChat = expandedChat;
-        }
-        if (layout !== undefined) {
-            ttplus.layoutChange.layout = layout;
-        }
-        if (path !== undefined) {
-            ttplus.layoutChange.path = path;
-        }
-        if (ttplus.TtObjectsReady && ttplus.layoutChange.expandedChat !== undefined && ttplus.layoutChange.layout !== undefined && ttplus.layoutChange.path !== undefined) {
-            if (ttplus.layoutChange.expandedChat) {
-                ttplus.injectScript(ttplus.expandChat, ttplus.layoutChange.layout);
-                usersListReady = ttplus.injectScript(ttplus.addUsersList, true, ttplus.layoutChange.layout, ttplus.layoutChange.path);
-            } else {
-                if ($('#outer .chat-container').length === 0) {
-                    ttplus.injectScript(ttplus.defaultChat);
-                }
-                usersListReady = ttplus.injectScript(ttplus.addUsersList, false, ttplus.layoutChange.layout, ttplus.layoutChange.path);
-            }
-            if (usersListReady) {
-                ttplus.usersListReady = true;
-                ttplus.processUsersQueue();
-            }
-            ttplus.injectScript(ttplus.addDragNDrop, ttplus.layoutChange.expandedChat);
-            ttplus.injectScript(ttplus.addSongQueueCount);
-        }
     },*/
     highlightChatMessage: function (message) {
         var name = window.unescape(message.name),
@@ -343,79 +202,6 @@ var ttplus = {
             ttplus.injectScript(ttplus.updateUser, ttplus.usersQueue[x].user, ttplus.usersQueue[x].vote);
         }
         ttplus.usersQueue = [];
-    },
-    updateUser: function (user, vote) {
-        return;
-        var $el             = $('#user' + user.userid),
-            djs             = (ttp.roominfo.djIds.length) ? new RegExp(ttp.roominfo.djIds.join('|')) : false,
-            moderators      = (ttp.roominfo.moderators.length) ? new RegExp(ttp.roominfo.moderators.join('|')) : false,
-            fanof           = (turntable.user.fanOf.length) ? new RegExp(turntable.user.fanOf.join('|')) : false,
-            now             = ttp.now(),
-            idleTime        = ($el.attr('ttplastactivity') !== "") ? ttp.formatTime(now - (+$el.attr('ttplastactivity'))) : ttp.formatTime(now - ttp.startTime),
-            oldUsertype     = $el.attr('ttpusertype'),
-            usertype        = "60",
-            oldDisplayName  = $el.attr('ttpusername'),
-            displayName     = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;"),
-            showIdleTime    = false,
-            userActionsOpen = false,
-            isDj            = false;
-
-        if ($el.length < 1) {
-            return false;
-        }
-        if (typeof vote  === "string" && vote === "up") {
-            $el.removeClass("ttpUserDownVote").addClass("ttpUserUpVote");
-        } else if (typeof vote === "string" && vote === "down") {
-            $el.removeClass("ttpUserUpVote").addClass("ttpUserDownVote");
-        }
-        if (moderators && moderators.test(user.userid)) {
-            usertype     = "30";
-            displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Moderator"></span>';
-            showIdleTime = true;
-        }
-        if (user.userid === ttp.roominfo.creatorId) {
-            usertype     = "20";
-            displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpMod" title="Room Creator"></span>';
-            showIdleTime = true;
-        }
-        if (user.acl > 0) {
-            usertype     = "10";
-            displayName  = user.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") + '<span class="ttpSuper" title="Super User"></span>';
-            showIdleTime = true;
-        }
-        if (fanof && fanof.test(user.userid)) {
-            usertype     = (usertype === "60") ? "50" : usertype;
-            displayName += '<span class="ttpFanned" title="You\'re a fan"></span>';
-        }
-        if (djs && djs.test(user.userid)) {
-            if (usertype === "50" || usertype === "60") {
-                usertype = "40";
-            }
-            showIdleTime = true;
-            isDj = true;
-        }
-        $el.removeClass('ttpUserType10 ttpUserType20 ttpUserType30 ttpUserType40 ttpUserType50 ttpUserType60').addClass('ttpUserType' + usertype).attr('ttpusertype', usertype).attr('ttpusername', user.name.replace(/"/g, '\"')).attr('ttpusersort', usertype + user.name.replace(/"/g, '\"').toUpperCase()).html(displayName);
-        if (isDj) {
-            $el.addClass('ttpBold')
-        } else {
-            $el.removeClass('ttpBold');
-        }
-        if (showIdleTime) {
-            $el.prepend('<span class="ttpIdleTime">' + idleTime + '</span>');
-        }
-        if (oldDisplayName !== displayName || oldUsertype !== usertype) {
-            $('#ttpUsersList .ttpUsersList .ttpUser').sortElements(function (a, b) {
-                return $(a).attr('ttpusersort') > $(b).attr('ttpusersort') ? 1 : -1;
-            });
-        }
-        if ($('#ttpUserActions').css('display') === 'block') {
-            userActionsOpen = true;
-            $('#ttpUserActions').hide();
-        }
-        if (userActionsOpen) {
-            $('#ttpUsersList .ttpUsersList .ttpUser.ttpUserSelected').after($('#ttpUserActions')).click();
-        }
-        return true;
     },*/
     getUsers: function () {
         return ttp.roominfo.users;

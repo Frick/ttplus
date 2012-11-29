@@ -102,7 +102,7 @@ $(document).ready(function(){
     });
 
 
-    // General Settings
+    // Misc Settings
     $('#search').val(bgPage.ttp.prefs.defaultSearchProvider).change(function(){
         bgPage.ttp.prefs.defaultSearchProvider = $(this).val();
         bgPage.ttp.savePrefs();
@@ -110,6 +110,7 @@ $(document).ready(function(){
 
     // Site Layout
     // on/off toggle
+    /*
     $('#toggle_chat_pane').prop('checked', bgPage.ttp.prefs.alternateLayout);
     if (bgPage.ttp.prefs.alternateLayout) {
         $('label[for="toggle_chat_pane"]').removeClass('false').addClass('true').text('Yes');
@@ -148,6 +149,7 @@ $(document).ready(function(){
             bgPage.ttp.setLayout(true);
         } else bgPage.ttp.setLayout(false);
     });
+    */
 
     // Notifications
 

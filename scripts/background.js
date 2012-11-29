@@ -1,6 +1,6 @@
 var ttp = {
-    tt_re: /https?:\/\/turntable\.fm\/.*/i,
-    ttRoom_re: /https?:\/\/turntable\.fm\/(?!lobby\/?|static\/?|settings\/?|getfile\/?|down\/?|about\/?|terms\/?|privacy\/?|copyright\/?|jobs\/?|admin\/?).+/i,
+    tt_re: /https?:\/\/.*turntable\.fm\/.*/i,
+    ttRoom_re: /https?:\/\/.*turntable\.fm\/(?!lobby\/?|static\/?|settings\/?|getfile\/?|down\/?|about\/?|terms\/?|privacy\/?|copyright\/?|jobs\/?|admin\/?).+/i,
     chatNotification_re: /$^/,
     tabId: null,
     port: null,
@@ -15,7 +15,7 @@ var ttp = {
     missedNotifications: 0,
     powerup: 0,
     version: '0.3.2',
-    minVersion: '0.2.1',
+    minVersion: '0.3.2',
     prefs: {
         notifications: {
             on: true,
@@ -56,25 +56,7 @@ var ttp = {
         },
         searchProviders: [],
         defaultSearchProvider: 'hulkshare',
-        alternateLayout: false,
-        layout: {
-            main: {
-                top: 0,
-                left: 0
-            },
-            chat: {
-                top: 0,
-                left: 0,
-                width: 0,
-                height: 0
-            },
-            users: {
-                top: 0,
-                left: 0,
-                width: 0,
-                height: 0
-            }
-        },
+        layout: {},
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
         version: '0.3.2'
     },
@@ -244,13 +226,19 @@ var ttp = {
         }
     },
     setLayout: function (layout) {
-        ttp.prefs.alternateLayout = (layout) ? true : false;
+        if (layout === undefined || layout.res === undefined || layout.left === undefined || layout.right === undefined) {
+            return;
+        }
+        ttp.prefs.layout[layout.res] = {
+            left: layout.left,
+            right: layout.right
+        };
         ttp.savePrefs();
-        ttp.changeLayout(ttp.prefs.alternateLayout, ttp.prefs.layout);
     },
-    changeLayout: function (alternateLayout, layout) {
+    changeLayout: function (resolution) {
+        var layout = (ttp.prefs.layout[resolution] !== undefined) ? ttp.prefs.layout[resolution] : {};
         ttp.send({
-            changeLayout: alternateLayout,
+            changeLayout: true,
             layout: layout
         });
     },
@@ -801,27 +789,6 @@ var ttp = {
     },
     upgradePrefs: function (prefs) {
         var prefsVersion = prefs.version.split('.');
-        if (+prefsVersion[2] < 29) {
-            prefs.layout = {
-                main: {
-                    top: 0,
-                    left: 0
-                },
-                chat: {
-                    top: 0,
-                    left: 0,
-                    width: 0,
-                    height: 0
-                },
-                users: {
-                    top: 0,
-                    left: 0,
-                    width: 0,
-                    height: 0
-                }
-            };
-            prefs.version = "0.0.29";
-        }
         if (+prefsVersion[2] < 34) {
             prefs.notifications.textOnly = false;
             prefs.version = "0.0.34";
@@ -830,9 +797,14 @@ var ttp = {
             this.storage.voteHistory = [];
             prefs.version = "0.0.40";
         }
-        if (+prefsVersion[1] < 2 || (+prefsVersion[1] && +prefsVersion[2] < 12)) {
+        if (+prefsVersion[1] < 2 || (+prefsVersion[1] === 2 && +prefsVersion[2] < 12)) {
             prefs.roomCustomizationsAllowed = ['4e091b2214169c018f008ea5'];
-            prefs.version = "0.2.1";
+            prefs.version = "0.2.12";
+        }
+        if (+prefsVersion[1] < 3 || (+prefsVersion[1] === 3 && +prefsVersion[2] < 2)) {
+            prefs.layout = {};
+            delete prefs.alternateLayout;
+            prefs.version = "0.3.2";
         }
         return prefs;
     },
@@ -1107,12 +1079,6 @@ chrome.extension.onConnect.addListener(function (port) {
                         // room change (not just a refresh of room info)
                         ttp.chatMessages = [];
                         ttp.notifications = [];
-                        if (ttp.prefs.alternateLayout) {
-                            ttp.send({
-                                expandChat: true,
-                                layout: ttp.prefs.layout
-                            });
-                        }
                     }
                     ttp.setupRoom(msg);
                 } else if (typeof msg === "object" && typeof msg.email === "string" && typeof msg.name === "string" && typeof msg.userid === "string") {
@@ -1125,21 +1091,12 @@ chrome.extension.onConnect.addListener(function (port) {
                         source: request.source,
                         response: ttp.prefs
                     });
+                } else if (msg.get === "layout" && msg.res !== undefined) {
+                    ttp.changeLayout(msg.res);
                 }
             } else if (request.type === "save") {
-                if (typeof msg.main === "object") {
-                    ttp.prefs.layout.main = msg.main;
-                    ttp.savePrefs();
-                } else if (typeof msg.chat === "object") {
-                    ttp.prefs.layout.chat = msg.chat;
-                    ttp.savePrefs();
-                } else if (typeof msg.users === "object") {
-                    ttp.prefs.layout.users = msg.users;
-                    ttp.savePrefs();
-                } else if (typeof msg.ignoreUser === "object") {
-                    ttp.storage.ignoreUser(msg.ignoreUser.userid);
-                } else if (typeof msg.unignoreUser === "object") {
-                    ttp.storage.unignoreUser(msg.unignoreUser.userid);
+                if (typeof msg.layout === "object") {
+                    ttp.setLayout(msg.layout);
                 } else if (typeof msg.allowRoomCustomization === "string") {
                     x = ttp.prefs.roomCustomizationsAllowed.length;
                     while (x--) {
@@ -1165,7 +1122,7 @@ chrome.extension.onConnect.addListener(function (port) {
                 }
             } else if (request.type === "ttpMessage") {
                 if (msg === "Listener Ready") {
-                    ttp.changeLayout(ttp.prefs.alternateLayout, ttp.prefs.layout);
+                    // do something
                 }
             }
         }

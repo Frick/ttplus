@@ -12,35 +12,12 @@
     <section class="inner">
         <a href="http://turntableplus.fm/beta"><img src="images/ttpLogo.png" class="logo" /></a>
         <nav>
+            <h2><a href="#" id="misc_select">Misc. Settings</a></h2>
             <h2><a href="#" id="notifications_select">Notification Settings</a></h2>
-            <h2><a href="#" id="general_select">General Settings</a></h2>
         </nav>
     </section>
 </header>
 <section class="clear panes">
-    <section class="container" id="general_pane">
-        <h3 class="music_title">General Settings</h3>
-        <form id="music_form" class="settings_form">
-            <label>Default Search Engine
-                <select id="search">
-                    <option value="hulkshare">HulkShare</option>
-                    <option value="google">Google</option>
-                    <option value="youtube">Youtube</option>
-                    <option value="hotfile">HotFile</option>
-                    <option value="soundcloud">Soundcloud</option>
-                </select>
-            </label>
-        </form>
-        <h3 class="messaging_title">Site Layout</h3>
-        <form id="messaging_form" class="settings_form">
-            <label>Separate chat from rest of tabbed interface</label>&nbsp;&nbsp;&nbsp;
-            <label for="toggle_chat_pane" class="cbButton false">No</label>
-            <input type="checkbox" name="toggle_chat_pane" id="toggle_chat_pane" />
-            <label id="reset_location" class="cbButton" style="margin-left: 15px;">Reset</label>
-            <p class="fine_print">* leaves Queue and Room tabs together, but moves them to the left<br />* may require refresh of turntable window after changing</p>
-            <br />
-        </form>
-    </section>
     <section class="container" id="notifications_pane">
         <h3 class="notifications_title">Notifications</h3>
         <form id="notifications_form" class="settings_form">
@@ -180,6 +157,20 @@
             <p><strong>Your Keywords</strong></p>
             <ul id="keyword_list">
             </ul>
+        </form>
+    </section>
+    <section class="container" id="misc_pane">
+        <h3 class="music_title">Miscellaneous Settings</h3>
+        <form id="music_form" class="settings_form">
+            <label>Default Search Engine
+                <select id="search">
+                    <option value="hulkshare">HulkShare</option>
+                    <option value="google">Google</option>
+                    <option value="youtube">Youtube</option>
+                    <option value="hotfile">HotFile</option>
+                    <option value="soundcloud">Soundcloud</option>
+                </select>
+            </label>
         </form>
     </section>
 <!--

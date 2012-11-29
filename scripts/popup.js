@@ -61,7 +61,7 @@ var bgPage = chrome.extension.getBackgroundPage(),
                 $(this).addClass('mute').attr('title', 'Enable Notifications');
             }
         });
-        exec("ttp.roominfo.muted", function (muted) {
+        exec("ttp.roominfo.muted ? true : false;", function (muted) {
             if (muted) {
                 $('.controls').append('<div class="music mute" title="Unmute"></div>');
             } else {

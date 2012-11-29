@@ -19,7 +19,8 @@
     "unlimitedStorage",
     "idle",
     "notifications",
-    "*://turntable.fm/"
+    "*://turntable.fm/",
+    "*://*.turntable.fm/"
   ],
   "web_accessible_resources": [
     "scripts/onPage.js",
