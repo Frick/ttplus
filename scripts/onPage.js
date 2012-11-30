@@ -335,7 +335,7 @@ var ttp = {
             rightPanels = 0;
 
         // stop mousedown events from getting (magically) to the drag handler
-        $('#playlist,#guest-list').on('mousedown', function (e) {e.stopPropagation();});
+        $('#playlist,#guest-list,#song-log').on('mousedown', function (e) {e.stopPropagation();});
 
         // add note to those using the TT layout switch
         if (layoutText.indexOf('TT+') < 0) {

@@ -213,7 +213,7 @@
 .floating-panel-tabs {
     -webkit-mask-box-image: none !important;
 }
-.floating-panel,#typeahead {
+.floating-panel,#typeahead,#ding-menu {
     z-index: 26000 !important;
 }
 #privateChatIcon {
