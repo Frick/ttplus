@@ -1,20 +1,20 @@
 var ttp = {
-    tt_re: /https?:\/\/.*turntable\.fm\/.*/i,
-    ttRoom_re: /https?:\/\/.*turntable\.fm\/(?!lobby\/?|static\/?|settings\/?|getfile\/?|down\/?|about\/?|terms\/?|privacy\/?|copyright\/?|jobs\/?|admin\/?).+/i,
+    tt_re: /https?:\/\/turntable\.fm\/.*/i,
+    ttRoom_re: /https?:\/\/turntable\.fm\/(?!lobby\/?|favicon.ico|static\/?|settings\/?|getfile\/?|down\/?|about\/?|terms\/?|privacy\/?|copyright\/?|jobs\/?|admin\/?).+/i,
     chatNotification_re: /$^/,
     tabId: null,
     port: null,
     msgId: 0,
     msgCallbacks: [],
-    room: {},
-    user: {},
-    users: {},
+    room: null,
+    user: null,
+    users: null,
     chatMessages: [],
     lastPopupTab: 'songtab',
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.3.3',
+    version: '0.3.4',
     minVersion: '0.3.2',
     prefs: {
         notifications: {
@@ -58,7 +58,7 @@ var ttp = {
         defaultSearchProvider: 'hulkshare',
         layout: {},
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.3.3'
+        version: '0.3.4'
     },
     logging: {},
     enableLogging: function (type) {
@@ -166,6 +166,9 @@ var ttp = {
             ]);
         }
         this.port.postMessage(data);
+        if (ttp.logging.send || ttp.logging.all) {
+            ttp.log('sending:', JSON.stringify(data));
+        }
         return this.msgId;
     },
     exec: function (command, callback) {
@@ -200,7 +203,7 @@ var ttp = {
             if (ttp.prefs.notifications.chat.keywords.length > 0) {
                 ttp.chatNotification_re = new RegExp("(?:[^a-z0-9]|^)(?:" + ttp.prefs.notifications.chat.keywords.join("|") + ")(?:[^a-z0-9]|$)", "i");
             }
-        } else {
+        } else if (ttp.room === null) {
             ttp.send({setup: true});
             window.setupTimeout = window.setTimeout(ttp.setupRoom, 5000);
         }
@@ -937,6 +940,9 @@ chrome.idle.onStateChanged.addListener(function (state) {
 
 // monitor tabs to inject listener
 chrome.tabs.onCreated.addListener(function (tab) {
+    if (ttp.logging.tabs || ttp.logging.all) {
+        ttp.log('Chrome tab created:', tab);
+    }
     if (tab.url !== "undefined" && ttp.ttRoom_re.test(tab.url)) {
         ttp.chatMessages = [];
         ttp.notifications = [];
@@ -948,6 +954,9 @@ chrome.tabs.onCreated.addListener(function (tab) {
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+    if (ttp.logging.tabs || ttp.logging.all) {
+        ttp.log('Chrome tabs updated:', changeInfo, tab);
+    }
     if (tab.url !== "undefined" && changeInfo.status === "complete") {
         if (ttp.tabId === tabId && !ttp.ttRoom_re.test(tab.url)) {
             ttp.tabId   = null;
@@ -967,6 +976,9 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 });
 
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
+    if (ttp.logging.tabs || ttp.logging.all) {
+        ttp.log('Chrome tab removed:', tabId, removeInfo);
+    }
     if (tabId === ttp.tabId) {
         ttp.tabId   = null;
         ttp.room    = null;
@@ -977,6 +989,9 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 // handle requests
 chrome.extension.onConnect.addListener(function (port) {
     ttp.port = port;
+    if (ttp.logging.port || ttp.logging.all) {
+        ttp.log('port connection established:', port);
+    }
 
     port.onMessage.addListener(function (request) {
         var id,
@@ -1009,8 +1024,8 @@ chrome.extension.onConnect.addListener(function (port) {
         } else if (typeof request.data === "string") {
             // else process data pushed by turntable
             msg = JSON.parse(window.unescape(request.data));
-            if (ttp.logging.all) {
-                ttp.log(msg);
+            if (ttp.logging.receive || ttp.logging.all) {
+                ttp.log('received:', msg);
             }
             if (request.type === "ttMessage") {
                 if (typeof msg === "object" && typeof msg.command === "string") {

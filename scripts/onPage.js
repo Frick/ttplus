@@ -282,13 +282,12 @@ var ttp = {
                 ttp.room.hearts = 0;
                 $("#ttpHearts").text("0");
                 ttp.animations = true;
+                $("#ttp-stop-animation").text("Stop Animations");
 
                 ttp.send({
                     get: 'layout',
                     res: $(window).width() + 'x' + $(window).height()
                 });
-
-                //$("#ttpAnimation").attr("src", $("#ttpAnimation").attr("src").replace('animationOn', 'noAnimation'));
 
                 // try to clear room customizations
                 /*if (window.ttpapi instanceof TTPAPI) {
@@ -317,7 +316,7 @@ var ttp = {
                         '<span id="ttpUpvotes" title="Awesomes">' + ttp.room.upvotes + '</span>' +
                         '<span id="ttpDownvotes" title="Lames">' + ttp.room.downvotes + '</span>' +
                     '</div>';
-        if (ttp.roominfo.layout === 'dual' && $(window).width() >= 1262 && $('#left-panel .ttpHeader').length === 0) {
+        if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible') && $('#left-panel .ttpHeader').length === 0) {
             $('#ttpHeader').remove();
             $('#left-panel').prepend(header);
         } else if (ttp.roominfo.layout !== 'dual' && $('#right-panel .ttpHeader').length === 0) {
@@ -333,6 +332,10 @@ var ttp = {
             layoutText  = $('#layout-option').attr('original-title'),
             leftPanels  = 0,
             rightPanels = 0;
+
+        // save layout locally
+        ttp.layout = layout;
+        ttp.layout.res = $(window).width() + 'x' + $(window).height();
 
         // stop mousedown events from getting (magically) to the drag handler
         $('#playlist,#guest-list,#song-log').on('mousedown', function (e) {e.stopPropagation();});
@@ -378,7 +381,7 @@ var ttp = {
         } else { // else return position of windows to wherever the user last placed them
             $('#left-panel').css({top: layout.left.top + 'px', left: layout.left.left + 'px', width: layout.left.width + 'px', height: layout.left.height + 'px'});
             $('#right-panel').css({top: layout.right.top + 'px', left: layout.right.left + 'px', right: 'auto', width: layout.right.width + 'px', height: layout.right.height + 'px'});
-            if (ttp.roominfo.layout === 'dual' && $(window).width() >= 1262) {
+            if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
                 $('#playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.left.width / 2));
                 $('#song-search-input').width(layout.left.width - 89);
                 $('.chat-container .floating-panel-tab').width(layout.right.width);
@@ -406,7 +409,7 @@ var ttp = {
         }
 
         // if 'dual' layout is set...
-        if (ttp.roominfo.layout === 'dual' && $(window).width() >= 1262) {
+        if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
             rightHandle = '.chat-container .floating-panel-tab';
             rightSnap += ',#left-panel';
             $(rightHandle).css('cursor', 'move');
@@ -427,44 +430,42 @@ var ttp = {
                         '#left-panel .guest .guestName { max-width: ' + (ui.size.width - 160) + 'px !important; }\n' +
                         '#left-panel .search-focused #song-search-input { width: ' + (ui.size.width - 45) + 'px !important; }\n' +
                         '</style>');
-                    ttp.saveSettings({
-                        layout: {
-                            res: $(window).width() + 'x' + $(window).height(),
-                            left: {
-                                top: ui.position.top,
-                                left: ui.position.left,
-                                width: ui.size.width,
-                                height: ui.size.height
-                            },
-                            right: {
-                                top: +$('#right-panel').css('top').replace('px', ''),
-                                left: +$('#right-panel').css('left').replace('px', ''),
-                                width: $('#right-panel').width(),
-                                height: $('#right-panel').height()
-                            }
+                    ttp.layout = {
+                        res: $(window).width() + 'x' + $(window).height(),
+                        left: {
+                            top: ui.position.top,
+                            left: ui.position.left,
+                            width: ui.size.width,
+                            height: ui.size.height
+                        },
+                        right: {
+                            top: +$('#right-panel').css('top').replace('px', ''),
+                            left: +$('#right-panel').css('left').replace('px', ''),
+                            width: $('#right-panel').width(),
+                            height: $('#right-panel').height()
                         }
-                    });
+                    }
+                    ttp.saveSettings({ layout: ttp.layout });
                 }
             }).draggable({
                 handle: '#ttpHeader',
                 stop: function (event, ui) {
-                    ttp.saveSettings({
-                        layout: {
-                            res: $(window).width() + 'x' + $(window).height(),
-                            left: {
-                                top: ui.position.top,
-                                left: ui.position.left,
-                                width: $('#left-panel').width(),
-                                height: $('#left-panel').height()
-                            },
-                            right: {
-                                top: +$('#right-panel').css('top').replace('px', ''),
-                                left: +$('#right-panel').css('left').replace('px', ''),
-                                width: $('#right-panel').width(),
-                                height: $('#right-panel').height()
-                            }
+                    ttp.layout = {
+                        res: $(window).width() + 'x' + $(window).height(),
+                        left: {
+                            top: ui.position.top,
+                            left: ui.position.left,
+                            width: $('#left-panel').width(),
+                            height: $('#left-panel').height()
+                        },
+                        right: {
+                            top: +$('#right-panel').css('top').replace('px', ''),
+                            left: +$('#right-panel').css('left').replace('px', ''),
+                            width: $('#right-panel').width(),
+                            height: $('#right-panel').height()
                         }
-                    });
+                    }
+                    ttp.saveSettings({ layout: ttp.layout });
                 },
                 snap: 'body,#header,#right-panel,#board',
                 snapTolerance: 10
@@ -475,7 +476,7 @@ var ttp = {
             minHeight: 25,
             handles: 'n,ne,e,se,s,sw,w,nw',
             resize: function (event, ui) {
-                if (ttp.roominfo.layout === 'dual' && $(window).width() >= 1262) {
+                if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
                     $('.chat-container .floating-panel-tab').width(ui.size.width);
                 } else {
                     $('.chat-container .floating-panel-tab, #playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(ui.size.width / 3));
@@ -485,7 +486,7 @@ var ttp = {
             },
             stop: function (event, ui) {
                 $('#ttpRightStyle').remove();
-                if (ttp.roominfo.layout === 'dual' && $(window).width() >= 1262) {
+                if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
                     $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
                         '.chat-focused #chat-input { width: ' + (ui.size.width - 30) + 'px !important; }\n' +
                         '</style>');
@@ -496,44 +497,42 @@ var ttp = {
                         '.chat-focused #chat-input { width: ' + (ui.size.width - 30) + 'px !important; }\n' +
                         '</style>');
                 }
-                ttp.saveSettings({
-                    layout: {
-                        res: $(window).width() + 'x' + $(window).height(),
-                        left: {
-                            top: +$('#left-panel').css('top').replace('px', ''),
-                            left: +$('#left-panel').css('left').replace('px', ''),
-                            width: $('#left-panel').width(),
-                            height: $('#left-panel').height()
-                        },
-                        right: {
-                            top: ui.position.top,
-                            left: ui.position.left,
-                            width: ui.size.width,
-                            height: ui.size.height
-                        }
+                ttp.layout = {
+                    res: $(window).width() + 'x' + $(window).height(),
+                    left: {
+                        top: +$('#left-panel').css('top').replace('px', ''),
+                        left: +$('#left-panel').css('left').replace('px', ''),
+                        width: $('#left-panel').width(),
+                        height: $('#left-panel').height()
+                    },
+                    right: {
+                        top: ui.position.top,
+                        left: ui.position.left,
+                        width: ui.size.width,
+                        height: ui.size.height
                     }
-                });
+                }
+                ttp.saveSettings({ layout: ttp.layout });
             }
         }).draggable({
             handle: rightHandle,
             stop: function (event, ui) {
-                ttp.saveSettings({
-                    layout: {
-                        res: $(window).width() + 'x' + $(window).height(),
-                        left: {
-                            top: +$('#left-panel').css('top').replace('px', ''),
-                            left: +$('#left-panel').css('left').replace('px', ''),
-                            width: $('#left-panel').width(),
-                            height: $('#left-panel').height()
-                        },
-                        right: {
-                            top: ui.position.top,
-                            left: ui.position.left,
-                            width: $('#right-panel').width(),
-                            height: $('#right-panel').height()
-                        }
+                ttp.layout = {
+                    res: $(window).width() + 'x' + $(window).height(),
+                    left: {
+                        top: +$('#left-panel').css('top').replace('px', ''),
+                        left: +$('#left-panel').css('left').replace('px', ''),
+                        width: $('#left-panel').width(),
+                        height: $('#left-panel').height()
+                    },
+                    right: {
+                        top: ui.position.top,
+                        left: ui.position.left,
+                        width: $('#right-panel').width(),
+                        height: $('#right-panel').height()
                     }
-                });
+                }
+                ttp.saveSettings({ layout: ttp.layout });
             },
             snap: rightSnap,
             snapTolerance: 10
@@ -890,6 +889,52 @@ var ttp = {
             }
         }
         ttp.roominfo.updateGuestList();
+    },
+    addAnimationToggle: function () {
+        $('#settings-dropdown').prepend('<li id="ttp-stop-animation" class="option">Stop Animations</li>');
+        $('#ttp-stop-animation').on("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            ttp.animations = !ttp.animations;
+
+            // disable animations
+             if (ttp.animations === false) {
+                ttp.roommanager.crowds.forEach(function (crowds) {
+                    crowds.forEach(function (crowd) {
+                        crowd.stop();
+                    });
+                });
+                ttp.roommanager.djBooth.stop();
+
+                // stop speech bubbles
+                ttp.speakAnim = ttp.roommanager.speak;
+                ttp.roommanager.speak = $.noop;
+
+                // stop fanned/snagged animations
+                ttp.floaterAnim = ttp.roommanager.showFloater;
+                ttp.roommanager.showFloater = $.noop;
+
+                // replace animation option
+                $("#ttp-stop-animation").text("Start Animations");
+            } else {
+                // re-enable animations
+                ttp.roommanager.crowds.forEach(function (crowds) {
+                    crowds.forEach(function (crowd) {
+                        crowd.start();
+                    });
+                });
+                ttp.roommanager.djBooth.start();
+
+                // replace speech bubbles
+                ttp.roommanager.speak = ttp.speakAnim;
+
+                // show meter needle (animated movement)
+                ttp.roommanager.showFloater = ttp.floaterAnim;
+
+                // replace animation option
+                $("#ttp-stop-animation").text("Stop Animations");
+            }
+        });
     }
 }
 ttp.event.initEvent("ttpEvent", true, true);
@@ -918,13 +963,102 @@ $('#ttpResponse').bind('ttpEvent', function () {
     }
 });
 
+$(window).resize(function (e) {
+    var win = {
+            width: $(this).width(),
+            height: $(this).height()
+        },
+        $rightPanel = $('#right-panel'),
+        right = {
+            width: $rightPanel.width(),
+            height: $rightPanel.height(),
+            top: +$rightPanel.css('top').replace('px', ''),
+            left: +$rightPanel.css('left').replace('px', '')
+        },
+        $leftPanel = $('#left-panel'),
+        left = {
+            width: $leftPanel.width(),
+            height: $leftPanel.height(),
+            top: +$leftPanel.css('top').replace('px', ''),
+            left: +$leftPanel.css('left').replace('px', '')
+        };
+
+    if (right.left + right.width > win.width) {
+        if (win.width > right.width) {
+            $rightPanel.css('left', win.width - right.width + 'px');
+        } else {
+            $rightPanel.css({ left: '0', width: win.width + 'px' });
+            $('#chat-input').width(win.width - 74);
+            $('#ttpRightStyle').remove();
+            if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
+                $('.chat-container .floating-panel-tab').width(win.width);
+                $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
+                    '.chat-focused #chat-input { width: ' + (win.width - 30) + 'px !important; }\n' +
+                    '</style>');
+            } else {
+                $('.chat-container .floating-panel-tab, #playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(win.width / 3));
+                $('.guest .guestName').attr('style', 'max-width: ' + (win.width - 160) + 'px !important;');
+                $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
+                    '.guest .guestName { max-width: ' + (win.width - 160) + 'px !important; }\n' +
+                    '.search-focused #song-search-input { width: ' + (win.width - 45) + 'px !important; }\n' +
+                    '.chat-focused #chat-input { width: ' + (win.width - 30) + 'px !important; }\n' +
+                    '</style>');
+            }
+        }
+    }
+
+    if (right.top + right.height > win.height) {
+        if (win.height > right.height) {
+            $rightPanel.css('top', win.height - right.height + 'px');
+        } else {
+            $rightPanel.css({ top: '0', height: win.height + 'px' });
+        }
+    }
+
+    if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
+        if (left.left + left.width > win.width) {
+            if (win.width > left.width) {
+                $leftPanel.css('left', win.width - left.width + 'px');
+            } else {
+                $leftPanel.css({ left: '0', width: win.width + 'px' });
+                $('#playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(win.width / 2));
+                $('#song-search-input').width(win.width - 89);
+                $('#left-panel .guest .guestName').attr('style', 'max-width: ' + (win.width - 160) + 'px !important;');
+                $('#ttpLeftStyle').remove();
+                $('head').append('<style type="text/css" id="ttpLeftStyle">\n' +
+                    '#left-panel .guest .guestName { max-width: ' + (win.width - 160) + 'px !important; }\n' +
+                    '#left-panel .search-focused #song-search-input { width: ' + (win.width - 45) + 'px !important; }\n' +
+                    '</style>');
+            }
+        }
+
+        if (left.top + left.height > win.height) {
+            if (win.height > left.height) {
+                $leftPanel.css('top', win.height - left.height + 'px');
+            } else {
+                $leftPanel.css({ top: '0', height: win.height + 'px' });
+            }
+        }
+    }
+
+    if (this === e.target) {
+        ttp.send({
+            get: 'layout',
+            res: win.width + 'x' + win.height
+        });
+    }
+});
+
 turntable.addEventListener('message', ttp.newMessage);
 ttp.ttpMessage('Listener Ready');
 ttp.send({
     get: 'layout',
     res: $(window).width() + 'x' + $(window).height()
 });
-ttp.ready(ttp.replaceFunctions);
+ttp.ready(function () {
+    ttp.replaceFunctions();
+    ttp.addAnimationToggle();
+});
 $(document).ready(ttp.getRoomObjects);
 
 // add API for custom scripts

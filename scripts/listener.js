@@ -2,7 +2,7 @@ var ttplus = {
     TtObjectsReady: false,
     usersListReady: false,
     event: document.createEvent("Event"),
-    usersQueue: [],
+    logging: false,
     port: null,
     msgId: 0,
     msgCallbacks: [],
@@ -23,6 +23,9 @@ var ttplus = {
                 ]);
             }
             this.port.postMessage(data);
+            if (this.logging === true) {
+                console.log('listener sending (bg page):', data);
+            }
             return this.msgId;
         } catch (e) {
             if (ttplus.port === null || e.message === "Attempting to use a disconnected port object") {
@@ -38,10 +41,13 @@ var ttplus = {
     handleRequest: function (request) {
         var response, path, room, vote, div;
         try {
+            if (ttplus.logging === true) {
+                console.log('listener received (bg page):', request);
+            }
             if (request.source === "listener" && typeof request.msgId === "number" && typeof request.response !== "undefined") {
                 for (x = 0, length = ttplus.msgCallbacks.length; x < length; x += 1) {
                     if (ttplus.msgCallbacks[x] !== undefined && ttplus.msgCallbacks[x][0] === request.msgId) {
-                        callback = ttp.msgCallbacks.splice(x, 1);
+                        callback = ttplus.msgCallbacks.splice(x, 1);
                         callback[0][1](request.response, request.msgId);
                     }
                 }
@@ -111,6 +117,9 @@ var ttplus = {
             });
         });
         $('#ttpSaveSettings').bind('ttpEvent', function () {
+            if (ttplus.logging === true) {
+                console.log('listener received (save):', $(this).text());
+            }
             ttplus.send({
                 type: 'save',
                 data: $(this).text()
@@ -118,6 +127,9 @@ var ttplus = {
         });
         $('#ttpMessage').bind('ttpEvent', function () {
             var msg = JSON.parse(unescape($(this).text()));
+            if (ttplus.logging === true) {
+                console.log('listener received (page):', msg);
+            }
             if (msg === "Listener Ready") {
                 ttplus.send({
                     type: 'ttpMessage',
@@ -127,6 +139,10 @@ var ttplus = {
                 ttplus.TtObjectsReady = true;
             } else if (msg.command === "log") {
                 console.log(eval(msg.data));
+            } else if (msg.command === "enableLogging") {
+                ttplus.logging = true;
+            } else if (msg.command === "disableLogging") {
+                ttplus.logging = false;
             } else if (typeof msg.get === "string") {
                 ttplus.send({
                     msgId:  msg.msgId,
@@ -193,16 +209,7 @@ var ttplus = {
     },
     queueSong: function (song) {
         ttp.roominfo.addSong("queue", song);
-    },/*
-    processUsersQueue: function () {
-        var x = 0,
-            length = ttplus.usersQueue.length;
-
-        for (; x < length; x += 1) {
-            ttplus.injectScript(ttplus.updateUser, ttplus.usersQueue[x].user, ttplus.usersQueue[x].vote);
-        }
-        ttplus.usersQueue = [];
-    },*/
+    },
     getUsers: function () {
         return ttp.roominfo.users;
     },
