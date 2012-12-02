@@ -25,14 +25,12 @@
   "web_accessible_resources": [
     "scripts/onPage.js",
     "styles/ttp.css",
-    "images/animationOn.png",
     "images/bannerBg.png",
     "images/bannerListeners.png",
     "images/bannerLogo.png",
     "images/fanned.png",
     "images/downarrow.png",
     "images/heart.png",
-    "images/noAnimation.png",
     "images/scriptAdd.png",
     "images/scriptRemove.png",
     "images/uparrow.png"
