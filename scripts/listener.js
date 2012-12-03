@@ -211,7 +211,7 @@ var ttplus = {
         ttp.roominfo.addSong("queue", song);
     },
     getUsers: function () {
-        return ttp.roominfo.users;
+        return ttp.roominfo.userMap;
     },
     injectScript: function (source) {
         //////////////////////////////////////////////////////////////////////////////////////////////

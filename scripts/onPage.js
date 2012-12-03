@@ -186,7 +186,7 @@ var ttp = {
             //$(TTPAPI_Events).triggerHandler(msg.command, msg);
             if (msg.command === "update_votes") {
                 for (x = 0, length = msg.room.metadata.votelog.length; x < length; x += 1) {
-                    user = ttp.roominfo.users[msg.room.metadata.votelog[x][0]];
+                    user = ttp.roominfo.userMap[msg.room.metadata.votelog[x][0]];
                     if (user) {
                         user.lastActivity = now;
                         user.lastVote = now;
@@ -217,9 +217,10 @@ var ttp = {
                 $("#ttpUpvotes").text(ttp.room.upvotes);
                 $("#ttpDownvotes").text(ttp.room.downvotes);
             } else if (msg.command === "speak") {
-                if (ttp.roominfo.users[msg.userid]) {
-                    ttp.roominfo.users[msg.userid].lastActivity = now;
-                    ttp.roominfo.users[msg.userid].lastChat = now;
+                var users = ttp.roominfo.userMap;
+                if (users[msg.userid]) {
+                    users[msg.userid].lastActivity = now;
+                    users[msg.userid].lastChat = now;
                 }
                 $user = ttp.getListElById(msg.userid);
                 if ($user !== null) {
@@ -246,6 +247,7 @@ var ttp = {
                     $user.prepend('<div class="current-dj"></div>');
                 }
             } else if (msg.command === "registered") {
+                /*
                 for (x = 0, length = msg.user.length; x < length; x += 1) {
                     userid = msg.user[x].userid;
                     window.setTimeout(function () {
@@ -257,11 +259,12 @@ var ttp = {
                         }
                     }, 500);
                 }
+                */
             } else if (msg.command === "snagged") {
                 ttp.room.hearts += 1;
                 $("#ttpHearts").text(ttp.room.hearts);
                 ttp.room.snaggers.push(msg.userid);
-                user = ttp.roominfo.users[msg.userid];
+                user = ttp.roominfo.userMap[msg.userid];
                 if (user !== undefined) {
                     user.lastActivity = now;
                 }
@@ -638,7 +641,7 @@ var ttp = {
                                     bot;
                                 ttpio.transports = ['websocket', 'xhr-polling'];
                                 for (; x < length; x += 1) {
-                                    if (room.bots[x].url !== undefined && room.bots[x].uid !== undefined && ttp.roominfo.users[room.bots[x].uid] !== undefined) {
+                                    if (room.bots[x].url !== undefined && room.bots[x].uid !== undefined && ttp.roominfo.userMap[room.bots[x].uid] !== undefined) {
                                         bot = room.bots[x];
                                         url = (typeof bot.port === 'number') ? bot.url + ':' + bot.port : bot.url;
                                         bots[bot.uid] = ttpio.connect(url);
@@ -752,8 +755,9 @@ var ttp = {
         songCount = turntable.playlist.fileids.length;
         $("#ttpSongQueueCount").html(songCount.commafy() + " songs");
     },
+    replaced: {},
     replaceFunctions: function () {
-        ttp.oldGuestListName = Room.layouts.guestListName;
+        ttp.replaced.guestListName = Room.layouts.guestListName;
         Room.layouts.guestListName = function(user, room, selected, now) {
             try {
                 var a = "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/" + user.avatarid + "/scaled/55/headfront.png";
@@ -821,12 +825,12 @@ var ttp = {
                 }
                 return spec;
             } catch (e) {
-                console.warn("Error in guestListName: ", e);
-                ttp.oldGuestListName(user, room, selected);
+                console.warn("Error in guestListName:", e);
+                ttp.replaced.guestListName(user, room, selected);
             }
-        }
+        };
 
-        ttp.oldGuestListUpdate = ttp.roominfo.updateGuestList;
+        ttp.replaced.guestListUpdate = ttp.roominfo.updateGuestList;
         ttp.roominfo.updateGuestList = function() {
             try {
                 var supers = [],
@@ -835,7 +839,7 @@ var ttp = {
                     fanof = [],
                     audience = [],
                     $list = $(".guest-list-container .guests"),
-                    users = ttp.roominfo.users;
+                    users = ttp.roominfo.userMap;
 
                 for (var o = 0, s = ttp.roominfo.djids, q = s.length; o < q; o++) {
                     djs.push(users[s[o]]);
@@ -884,11 +888,40 @@ var ttp = {
                 $("span#totalUsers").text(r);
                 ttp.roominfo.updateGuestListMenu();
             } catch (e) {
-                console.warn("Error in updateGuestList: ", e);
-                ttp.oldGuestListUpdate.call(ttp.roominfo);
+                console.warn("Error in updateGuestList:", e);
+                ttp.replaced.guestListUpdate.call(ttp.roominfo);
             }
-        }
+        };
         ttp.roominfo.updateGuestList();
+
+        ttp.replaced.addUserToMap = ttp.roominfo.addUserToMap;
+        ttp.roominfo.addUserToMap = function (user) {
+            try {
+                var users        = ttp.roominfo.userMap,
+                    now          = ttp.now(),
+                    lastActivity = now,
+                    lastChat     = now,
+                    lastVote     = now;
+                if (users[user.userid]) {
+                    if (users[user.userid].lastActivity) {
+                        lastActivity = users[user.userid].lastActivity;
+                    }
+                    if (users[user.userid].lastChat) {
+                        lastChat = users[user.userid].lastChat;
+                    }
+                    if (users[user.userid].lastVote) {
+                        lastVote = users[user.userid].lastVote;
+                    }
+                }
+                ttp.replaced.addUserToMap.call(ttp.roominfo, user);
+                users[user.userid].lastActivity = lastActivity;
+                users[user.userid].lastChat = lastChat;
+                users[user.userid].lastVote = lastVote;
+            } catch (e) {
+                console.warn("Error in addUserToMap:", e);
+                ttp.replaced.addUserToMap.call(ttp.roominfo, user);
+            }
+        };
     },
     addAnimationToggle: function () {
         $('#settings-dropdown').prepend('<li id="ttp-stop-animation" class="option">Stop Animations</li>');
@@ -944,8 +977,8 @@ ttp.startTime = ttp.now();
 ttp.guestOptions = Room.layouts.guestOptions;
 Room.layouts.guestOptions = function (a, b) {
     var c = ttp.guestOptions(a, b), now = ttp.now();
-    c[2].splice(2, 0, ['span.lastChat', {}, 'Last Chat: ' + ttp.formatTime(now - ttp.roominfo.users[a.userid].lastChat)]);
-    c[2].splice(3, 0, ['span.lastVote', {}, 'Last Vote: ' + ttp.formatTime(now - ttp.roominfo.users[a.userid].lastVote)]);
+    c[2].splice(2, 0, ['span.lastChat', {}, 'Last Chat: ' + ttp.formatTime(now - ttp.roominfo.userMap[a.userid].lastChat)]);
+    c[2].splice(3, 0, ['span.lastVote', {}, 'Last Vote: ' + ttp.formatTime(now - ttp.roominfo.userMap[a.userid].lastVote)]);
     return c;
 };
 ttp.idleInterval = window.setInterval(ttp.updateIdleTimes, 1000);
@@ -1065,7 +1098,7 @@ $(document).ready(ttp.getRoomObjects);
 var TTPAPI = function () {
     this.bindings = [];
     this.roomid   = ttp.roominfo.roomId;
-    this.users    = ttp.roominfo.users;
+    this.users    = ttp.roominfo.userMap;
 };
 TTPAPI.prototype.on = function (eventType, handler) {
     if (typeof handler !== 'function') {

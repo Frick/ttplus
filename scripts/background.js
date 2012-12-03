@@ -14,7 +14,7 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.3.4',
+    version: '0.3.5',
     minVersion: '0.3.2',
     prefs: {
         notifications: {
@@ -58,7 +58,7 @@ var ttp = {
         defaultSearchProvider: 'hulkshare',
         layout: {},
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.3.4'
+        version: '0.3.5'
     },
     logging: {},
     enableLogging: function (type) {
