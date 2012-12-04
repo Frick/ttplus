@@ -15,7 +15,7 @@ var ttp = {
     missedNotifications: 0,
     powerup: 0,
     version: '0.3.5',
-    minVersion: '0.3.2',
+    minVersion: '0.3.5',
     prefs: {
         notifications: {
             on: true,
@@ -57,6 +57,7 @@ var ttp = {
         searchProviders: [],
         defaultSearchProvider: 'hulkshare',
         layout: {},
+        changeLayout: true,
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
         version: '0.3.5'
     },
@@ -183,7 +184,7 @@ var ttp = {
             window.clearTimeout(window.setupTimeout);
             delete window.setupTimeout;
         }
-        if (typeof ttp.user.userid !== "string") {
+        if (ttp.user === null || typeof ttp.user.userid !== "string") {
             ttp.setupUserInfo();
         }
         if (typeof roominfo === "object" && typeof roominfo.room !== "undefined" && typeof roominfo.users !== "undefined") {
@@ -241,7 +242,7 @@ var ttp = {
     changeLayout: function (resolution) {
         var layout = (ttp.prefs.layout[resolution] !== undefined) ? ttp.prefs.layout[resolution] : {};
         ttp.send({
-            changeLayout: true,
+            changeLayout: ttp.prefs.changeLayout,
             layout: layout
         });
     },
@@ -808,6 +809,10 @@ var ttp = {
             prefs.layout = {};
             delete prefs.alternateLayout;
             prefs.version = "0.3.2";
+        }
+        if (+prefsVersion[1] < 3 || (+prefsVersion[1] === 3 && +prefsVersion[2] < 5)) {
+            prefs.changeLayout = true;
+            prefs.version = "0.3.5";
         }
         return prefs;
     },

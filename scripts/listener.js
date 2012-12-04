@@ -77,8 +77,8 @@ var ttplus = {
                 ttplus.injectScript(ttplus.getUserInfo);
             } else if (typeof request.expandChat === "boolean") {
                 return;
-            } else if (typeof request.changeLayout === "string" || typeof request.changeLayout === "boolean") {
-                if (request.layout !== undefined) {
+            } else if (typeof request.changeLayout === "boolean") {
+                if (request.changeLayout === true && request.layout !== undefined) {
                     ttplus.injectScript(ttplus.changeLayout, request.layout);
                 }
             }

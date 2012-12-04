@@ -24,6 +24,7 @@ var ttp = {
     roominfo: null,
     roommanager: null,
     isReady: false,
+    resizeHandlerAdded: false,
     room: {
         listeners: 0,
         upvotes: 0,
@@ -69,7 +70,7 @@ var ttp = {
         if (ttp.roominfo !== null) {
             for (x in ttp.roominfo) {
                 prop = ttp.roominfo[x];
-                if (typeof prop === "object" && prop !== null && prop.hasOwnProperty("prefix") && prop.prefix === 'room') {
+                if (typeof prop === "object" && prop !== null && prop.hasOwnProperty("prefix") && (prop.prefix === 'room' || prop.prefix === 'concert')) {
                     ttp.roommanager = prop;
                     break;
                 }
@@ -241,10 +242,18 @@ var ttp = {
                 $('#ttpDownvotes').text('0');
                 $('#ttpHearts').text('0');
                 $('.guest-list-container .guests .guest .icons .snagged.icon').remove();
-                $('.guest-list-container .guests .guest .current-dj').remove();
-                $user = ttp.getListElById(ttp.room.current_dj);
-                if ($user !== null) {
-                    $user.prepend('<div class="current-dj"></div>');
+                if (ttp.animations === false) {
+                    ttp.startAnimations();
+                    window.setTimeout(function () {
+                        ttp.stopAnimations();
+                    }, 100);
+                }
+            } else if (msg.command === "add_dj" || msg.command === "rem_dj") {
+                if (ttp.animations === false) {
+                    ttp.startAnimations();
+                    window.setTimeout(function () {
+                        ttp.stopAnimations();
+                    }, 100);
                 }
             } else if (msg.command === "registered") {
                 /*
@@ -313,17 +322,23 @@ var ttp = {
         messageDiv.dispatchEvent(ttp.event);
     },
     addHeader: function () {
-        var header = '<div class="ttpHeader">' +
-                        '<span style="padding: 0 0 0 5px;">Votes: </span>' +
-                        '<span id="ttpHearts" title="Number of Times Queued">' + ttp.room.hearts + '</span>' +
-                        '<span id="ttpUpvotes" title="Awesomes">' + ttp.room.upvotes + '</span>' +
-                        '<span id="ttpDownvotes" title="Lames">' + ttp.room.downvotes + '</span>' +
-                    '</div>';
-        if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible') && $('#left-panel .ttpHeader').length === 0) {
-            $('#ttpHeader').remove();
+        var header = '';
+        if ((ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible') && $('#left-panel .ttpHeader').length > 0) || (ttp.roominfo.layout === 'single' && $('#right-panel .ttpHeader').length > 0)) {
+            return;
+        }
+        header = '<div class="ttpHeader">' +
+                    '<span style="padding: 0 0 0 5px;">Votes: </span>' +
+                    '<span id="ttpHearts" title="Number of Times Queued">' + ttp.room.hearts + '</span>' +
+                    '<span id="ttpUpvotes" title="Awesomes">' + ttp.room.upvotes + '</span>' +
+                    '<span id="ttpDownvotes" title="Lames">' + ttp.room.downvotes + '</span>' +
+                '</div>';
+        if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
+            $('.selected #chat').attr('style', 'top: 36px !important;');
+            $('.ttpHeader').remove();
             $('#left-panel').prepend(header);
-        } else if (ttp.roominfo.layout !== 'dual' && $('#right-panel .ttpHeader').length === 0) {
-            $('#ttpHeader').remove();
+        } else if (ttp.roominfo.layout === 'single') {
+            $('.selected #chat').attr('style', '');
+            $('.ttpHeader').remove();
             $('#right-panel').prepend(header);
         }
     },
@@ -416,7 +431,6 @@ var ttp = {
             rightHandle = '.chat-container .floating-panel-tab';
             rightSnap += ',#left-panel';
             $(rightHandle).css('cursor', 'move');
-            $('#right-panel .selected #chat').attr('style', 'top: 36px !important;');
 
             $('#left-panel').resizable({
                 minWidth: 256,
@@ -474,6 +488,7 @@ var ttp = {
                 snapTolerance: 10
             });
         }
+
         $('#right-panel').resizable({
             minWidth: 256,
             minHeight: 25,
@@ -540,6 +555,98 @@ var ttp = {
             snap: rightSnap,
             snapTolerance: 10
         });
+
+        if (ttp.resizeHandlerAdded !== true) {
+            ttp.addResizeHandler();
+        }
+    },
+    addResizeHandler: function () {
+        $(window).resize(function (e) {
+            var win = {
+                    width: $(this).width(),
+                    height: $(this).height()
+                },
+                $rightPanel = $('#right-panel'),
+                right = {
+                    width: $rightPanel.width(),
+                    height: $rightPanel.height(),
+                    top: +$rightPanel.css('top').replace('px', ''),
+                    left: +$rightPanel.css('left').replace('px', '')
+                },
+                $leftPanel = $('#left-panel'),
+                left = {
+                    width: $leftPanel.width(),
+                    height: $leftPanel.height(),
+                    top: +$leftPanel.css('top').replace('px', ''),
+                    left: +$leftPanel.css('left').replace('px', '')
+                };
+
+            if (right.left + right.width > win.width) {
+                if (win.width > right.width) {
+                    $rightPanel.css('left', win.width - right.width + 'px');
+                } else {
+                    $rightPanel.css({ left: '0', width: win.width + 'px' });
+                    $('#chat-input').width(win.width - 74);
+                    $('#ttpRightStyle').remove();
+                    if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
+                        $('.chat-container .floating-panel-tab').width(win.width);
+                        $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
+                            '.chat-focused #chat-input { width: ' + (win.width - 30) + 'px !important; }\n' +
+                            '</style>');
+                    } else {
+                        $('.chat-container .floating-panel-tab, #playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(win.width / 3));
+                        $('.guest .guestName').attr('style', 'max-width: ' + (win.width - 160) + 'px !important;');
+                        $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
+                            '.guest .guestName { max-width: ' + (win.width - 160) + 'px !important; }\n' +
+                            '.search-focused #song-search-input { width: ' + (win.width - 45) + 'px !important; }\n' +
+                            '.chat-focused #chat-input { width: ' + (win.width - 30) + 'px !important; }\n' +
+                            '</style>');
+                    }
+                }
+            }
+
+            if (right.top + right.height > win.height) {
+                if (win.height > right.height) {
+                    $rightPanel.css('top', win.height - right.height + 'px');
+                } else {
+                    $rightPanel.css({ top: '0', height: win.height + 'px' });
+                }
+            }
+
+            if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
+                if (left.left + left.width > win.width) {
+                    if (win.width > left.width) {
+                        $leftPanel.css('left', win.width - left.width + 'px');
+                    } else {
+                        $leftPanel.css({ left: '0', width: win.width + 'px' });
+                        $('#playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(win.width / 2));
+                        $('#song-search-input').width(win.width - 89);
+                        $('#left-panel .guest .guestName').attr('style', 'max-width: ' + (win.width - 160) + 'px !important;');
+                        $('#ttpLeftStyle').remove();
+                        $('head').append('<style type="text/css" id="ttpLeftStyle">\n' +
+                            '#left-panel .guest .guestName { max-width: ' + (win.width - 160) + 'px !important; }\n' +
+                            '#left-panel .search-focused #song-search-input { width: ' + (win.width - 45) + 'px !important; }\n' +
+                            '</style>');
+                    }
+                }
+
+                if (left.top + left.height > win.height) {
+                    if (win.height > left.height) {
+                        $leftPanel.css('top', win.height - left.height + 'px');
+                    } else {
+                        $leftPanel.css({ top: '0', height: win.height + 'px' });
+                    }
+                }
+            }
+
+            if (this === e.target) {
+                ttp.send({
+                    get: 'layout',
+                    res: win.width + 'x' + win.height
+                });
+            }
+        });
+        ttp.resizeHandlerAdded = true;
     },
     saveSettings: function (settings) {
         var settingsDiv = document.getElementById("ttpSaveSettings");
@@ -922,6 +1029,53 @@ var ttp = {
                 ttp.replaced.addUserToMap.call(ttp.roominfo, user);
             }
         };
+
+        ttp.replaced.setPanelLayout = ttp.roominfo.setPanelLayout;
+        ttp.roominfo.setPanelLayout = function (layout) {
+            try {
+                ttp.replaced.setPanelLayout.call(ttp.roominfo, layout);
+                ttp.addHeader();
+            } catch (e) {
+                console.warn("Error in setPanelLayout:", e);
+                ttp.replaced.setPanelLayout.call(ttp.roominfo, layout);
+            }
+        };
+    },
+    startAnimations: function () {
+        ttp.roommanager.crowds.forEach(function (crowds) {
+            crowds.forEach(function (crowd) {
+                crowd.start();
+            });
+        });
+        ttp.roommanager.djBooth.start();
+
+        // replace speech bubbles
+        ttp.roommanager.speak = ttp.speakAnim;
+
+        // show meter needle (animated movement)
+        ttp.roommanager.showFloater = ttp.floaterAnim;
+
+        // replace animation option
+        $("#ttp-stop-animation").text("Stop Animations");
+    },
+    stopAnimations: function () {
+        ttp.roommanager.crowds.forEach(function (crowds) {
+            crowds.forEach(function (crowd) {
+                crowd.stop();
+            });
+        });
+        ttp.roommanager.djBooth.stop();
+
+        // stop speech bubbles
+        ttp.speakAnim = ttp.roommanager.speak;
+        ttp.roommanager.speak = $.noop;
+
+        // stop fanned/snagged animations
+        ttp.floaterAnim = ttp.roommanager.showFloater;
+        ttp.roommanager.showFloater = $.noop;
+
+        // replace animation option
+        $("#ttp-stop-animation").text("Start Animations");
     },
     addAnimationToggle: function () {
         $('#settings-dropdown').prepend('<li id="ttp-stop-animation" class="option">Stop Animations</li>');
@@ -932,40 +1086,10 @@ var ttp = {
 
             // disable animations
              if (ttp.animations === false) {
-                ttp.roommanager.crowds.forEach(function (crowds) {
-                    crowds.forEach(function (crowd) {
-                        crowd.stop();
-                    });
-                });
-                ttp.roommanager.djBooth.stop();
-
-                // stop speech bubbles
-                ttp.speakAnim = ttp.roommanager.speak;
-                ttp.roommanager.speak = $.noop;
-
-                // stop fanned/snagged animations
-                ttp.floaterAnim = ttp.roommanager.showFloater;
-                ttp.roommanager.showFloater = $.noop;
-
-                // replace animation option
-                $("#ttp-stop-animation").text("Start Animations");
+                ttp.stopAnimations();
             } else {
                 // re-enable animations
-                ttp.roommanager.crowds.forEach(function (crowds) {
-                    crowds.forEach(function (crowd) {
-                        crowd.start();
-                    });
-                });
-                ttp.roommanager.djBooth.start();
-
-                // replace speech bubbles
-                ttp.roommanager.speak = ttp.speakAnim;
-
-                // show meter needle (animated movement)
-                ttp.roommanager.showFloater = ttp.floaterAnim;
-
-                // replace animation option
-                $("#ttp-stop-animation").text("Stop Animations");
+                ttp.startAnimations();
             }
         });
     }
@@ -996,92 +1120,6 @@ $('#ttpResponse').bind('ttpEvent', function () {
     }
 });
 
-$(window).resize(function (e) {
-    var win = {
-            width: $(this).width(),
-            height: $(this).height()
-        },
-        $rightPanel = $('#right-panel'),
-        right = {
-            width: $rightPanel.width(),
-            height: $rightPanel.height(),
-            top: +$rightPanel.css('top').replace('px', ''),
-            left: +$rightPanel.css('left').replace('px', '')
-        },
-        $leftPanel = $('#left-panel'),
-        left = {
-            width: $leftPanel.width(),
-            height: $leftPanel.height(),
-            top: +$leftPanel.css('top').replace('px', ''),
-            left: +$leftPanel.css('left').replace('px', '')
-        };
-
-    if (right.left + right.width > win.width) {
-        if (win.width > right.width) {
-            $rightPanel.css('left', win.width - right.width + 'px');
-        } else {
-            $rightPanel.css({ left: '0', width: win.width + 'px' });
-            $('#chat-input').width(win.width - 74);
-            $('#ttpRightStyle').remove();
-            if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
-                $('.chat-container .floating-panel-tab').width(win.width);
-                $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
-                    '.chat-focused #chat-input { width: ' + (win.width - 30) + 'px !important; }\n' +
-                    '</style>');
-            } else {
-                $('.chat-container .floating-panel-tab, #playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(win.width / 3));
-                $('.guest .guestName').attr('style', 'max-width: ' + (win.width - 160) + 'px !important;');
-                $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
-                    '.guest .guestName { max-width: ' + (win.width - 160) + 'px !important; }\n' +
-                    '.search-focused #song-search-input { width: ' + (win.width - 45) + 'px !important; }\n' +
-                    '.chat-focused #chat-input { width: ' + (win.width - 30) + 'px !important; }\n' +
-                    '</style>');
-            }
-        }
-    }
-
-    if (right.top + right.height > win.height) {
-        if (win.height > right.height) {
-            $rightPanel.css('top', win.height - right.height + 'px');
-        } else {
-            $rightPanel.css({ top: '0', height: win.height + 'px' });
-        }
-    }
-
-    if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
-        if (left.left + left.width > win.width) {
-            if (win.width > left.width) {
-                $leftPanel.css('left', win.width - left.width + 'px');
-            } else {
-                $leftPanel.css({ left: '0', width: win.width + 'px' });
-                $('#playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(win.width / 2));
-                $('#song-search-input').width(win.width - 89);
-                $('#left-panel .guest .guestName').attr('style', 'max-width: ' + (win.width - 160) + 'px !important;');
-                $('#ttpLeftStyle').remove();
-                $('head').append('<style type="text/css" id="ttpLeftStyle">\n' +
-                    '#left-panel .guest .guestName { max-width: ' + (win.width - 160) + 'px !important; }\n' +
-                    '#left-panel .search-focused #song-search-input { width: ' + (win.width - 45) + 'px !important; }\n' +
-                    '</style>');
-            }
-        }
-
-        if (left.top + left.height > win.height) {
-            if (win.height > left.height) {
-                $leftPanel.css('top', win.height - left.height + 'px');
-            } else {
-                $leftPanel.css({ top: '0', height: win.height + 'px' });
-            }
-        }
-    }
-
-    if (this === e.target) {
-        ttp.send({
-            get: 'layout',
-            res: win.width + 'x' + win.height
-        });
-    }
-});
-
 turntable.addEventListener('message', ttp.newMessage);
 ttp.ttpMessage('Listener Ready');
 ttp.send({
@@ -1093,6 +1131,7 @@ ttp.ready(function () {
     ttp.addAnimationToggle();
 });
 $(document).ready(ttp.getRoomObjects);
+
 
 // add API for custom scripts
 var TTPAPI = function () {
