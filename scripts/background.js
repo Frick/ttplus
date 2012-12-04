@@ -14,8 +14,8 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.3.5',
-    minVersion: '0.3.5',
+    version: '0.3.6',
+    minVersion: '0.3.6',
     prefs: {
         notifications: {
             on: true,
@@ -59,7 +59,7 @@ var ttp = {
         layout: {},
         changeLayout: true,
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.3.5'
+        version: '0.3.6'
     },
     logging: {},
     enableLogging: function (type) {
@@ -232,6 +232,18 @@ var ttp = {
     setLayout: function (layout) {
         if (layout === undefined || layout.res === undefined || layout.left === undefined || layout.right === undefined) {
             return;
+        }
+        if (layout.left.top < 0) {
+            layout.left.top = 0;
+        }
+        if (layout.left.left < 0) {
+            layout.left.left = 0;
+        }
+        if (layout.right.top < 0) {
+            layout.right.top = 0;
+        }
+        if (layout.right.left < 0) {
+            layout.right.left = 0;
         }
         ttp.prefs.layout[layout.res] = {
             left: layout.left,
@@ -813,6 +825,21 @@ var ttp = {
         if (+prefsVersion[1] < 3 || (+prefsVersion[1] === 3 && +prefsVersion[2] < 5)) {
             prefs.changeLayout = true;
             prefs.version = "0.3.5";
+        }
+        if (+prefsVersion[1] < 3 || (+prefsVersion[1] === 3 && +prefsVersion[2] < 6)) {
+            if (prefs.layout.left.top < 0) {
+                prefs.layout.left.top = 0;
+            }
+            if (prefs.layout.left.left < 0) {
+                prefs.layout.left.left = 0;
+            }
+            if (prefs.layout.right.top < 0) {
+                prefs.layout.right.top = 0;
+            }
+            if (prefs.layout.right.left < 0) {
+                prefs.layout.right.left = 0;
+            }
+            prefs.version = "0.3.6";
         }
         return prefs;
     },

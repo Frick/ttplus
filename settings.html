@@ -136,17 +136,6 @@
                     <td><input type="text" name="favorite_display_time" id="favorite_display_time"  size="5" value="2" /> Second(s)</td>
                     <td><input type="text" name="favorite_fade_time" id="favorite_fade_time" size="5" value="2" /> Millisecond(s)</td>
                 </tr>
-                <tr>
-                    <td>Private Message</td>
-                    <td><label for="pm_notification" class="cbButton true">On</label><input type="checkbox" name="pm_notification" id="pm_notification" /></td>
-                    <td><input type="checkbox" name="pm_sound" id="pm_sound" /></td>
-                    <td><select id="pm_play_sound">
-                        <option value="">Mario Coin</option>
-                    </select>
-                    </td>
-                    <td><input type="text" name="pm_display_time" id="pm_display_time"  size="5" value="2" /> Second(s)</td>
-                    <td><input type="text" name="pm_fade_time" id="pm_fade_time"  size="5" value="2" /> Millisecond(s)</td>
-                </tr>
                         -->
                 </tbody>
             </table>
@@ -171,6 +160,14 @@
                     <option value="soundcloud">Soundcloud</option>
                 </select>
             </label>
+        </form>
+        <h3 class="messaging_title">Drag / Resize Handlers</h3>
+        <form id="messaging_form" class="settings_form">
+            <label>Enable drag / resize handlers on chat/queue/room panes</label>&nbsp;&nbsp;&nbsp;
+            <label for="toggle_pane_controls" class="cbButton false">No</label>
+            <input type="checkbox" name="toggle_pane_controls" id="toggle_pane_controls" />
+            <p class="fine_print">* requires a refresh of turntable window after changing</p>
+            <br />
         </form>
     </section>
 <!--

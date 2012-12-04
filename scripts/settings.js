@@ -108,23 +108,23 @@ $(document).ready(function(){
         bgPage.ttp.savePrefs();
     });
 
-    // Site Layout
+    // Panes drag / resize ability
     // on/off toggle
-    /*
-    $('#toggle_chat_pane').prop('checked', bgPage.ttp.prefs.alternateLayout);
-    if (bgPage.ttp.prefs.alternateLayout) {
-        $('label[for="toggle_chat_pane"]').removeClass('false').addClass('true').text('Yes');
+    $('#toggle_pane_controls').prop('checked', bgPage.ttp.prefs.changeLayout);
+    if (bgPage.ttp.prefs.changeLayout) {
+        $('label[for="toggle_pane_controls"]').removeClass('false').addClass('true').text('Yes');
     } else {
-        $('label[for="toggle_chat_pane"]').removeClass('true').addClass('false').text('No');
+        $('label[for="toggle_pane_controls"]').removeClass('true').addClass('false').text('No');
     }
-    $('#toggle_chat_pane').change(function () {
-        if ($('#toggle_chat_pane').prop('checked')) {
-            bgPage.ttp.setLayout(true);
+    $('#toggle_pane_controls').change(function () {
+        if ($('#toggle_pane_controls').prop('checked')) {
+            bgPage.ttp.prefs.changeLayout = true;
         } else {
-            bgPage.ttp.setLayout(false);
+            bgPage.ttp.prefs.changeLayout = false;
         }
     });
 
+    /*
     // reset button
     $('#reset_location').click(function () {
         bgPage.ttp.prefs.layout = {
