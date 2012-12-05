@@ -127,7 +127,23 @@ var ttp = {
             }
         }
     },
-    voteFunc: null,
+    idleTime: 0,
+    updateIdleTime: function () {
+        var idle_re = /util\.now\(\)-turntable\.([0-9a-zA-Z_-]+);/,
+            x,
+            match;
+
+        for (x in turntable) {
+            if (typeof turntable[x] !== "function") continue;
+            if ((match = idle_re.exec(Function.prototype.toString.apply(turntable[x]))) !== null) {
+                ttp.idleTime = match[1];
+                turntable[ttp.idleTime] = util.now();
+                ttp.updateIdleTime = function () {
+                    turntable[ttp.idleTime] = util.now();
+                };
+            }
+        }
+    },
     vote: function (vote) {
         if (vote === "down") {
             vote = "downvote";
@@ -138,7 +154,7 @@ var ttp = {
             $("#awesome-button").addClass("selected");
             $("#lame-button").removeClass("selected");
         }
-        $(window).focus();
+        ttp.updateIdleTime();
         ttp.roommanager.callback(vote);
     },
     readyList: [],
