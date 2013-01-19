@@ -262,14 +262,14 @@ var ttp = {
                     ttp.startAnimations();
                     window.setTimeout(function () {
                         ttp.stopAnimations();
-                    }, 100);
+                    }, 200);
                 }
             } else if (msg.command === "add_dj" || msg.command === "rem_dj") {
                 if (ttp.animations === false) {
                     ttp.startAnimations();
                     window.setTimeout(function () {
                         ttp.stopAnimations();
-                    }, 100);
+                    }, 200);
                 }
             } else if (msg.command === "registered") {
                 /*
