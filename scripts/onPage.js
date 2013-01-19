@@ -365,7 +365,8 @@ var ttp = {
             extraHeight = $(window).height() - +$('#outer').css('maxHeight').replace('px', ''),
             layoutText  = $('#layout-option').attr('original-title'),
             leftPanels  = 0,
-            rightPanels = 0;
+            rightPanels = 0,
+            $chat       = $('#chat .messages');
 
         // save layout locally
         ttp.layout = layout;
@@ -575,6 +576,8 @@ var ttp = {
         if (ttp.resizeHandlerAdded !== true) {
             ttp.addResizeHandler();
         }
+
+        $chat.scrollTop($chat[0].scrollHeight);
     },
     addResizeHandler: function () {
         $(window).resize(function (e) {
@@ -883,7 +886,7 @@ var ttp = {
         ttp.replaced.guestListName = Room.layouts.guestListName;
         Room.layouts.guestListName = function(user, room, selected, now) {
             try {
-                var a = "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/" + user.avatarid + "/scaled/55/headfront.png";
+                var a = user.images.headfront;
                 var guestClass = selected ? ".guest.selected" : ".guest";
                 if (ttp.roominfo.upvoters.indexOf(user.userid) > -1) {
                     guestClass += ".upvoted";
@@ -1101,7 +1104,7 @@ var ttp = {
             ttp.animations = !ttp.animations;
 
             // disable animations
-             if (ttp.animations === false) {
+            if (ttp.animations === false) {
                 ttp.stopAnimations();
             } else {
                 // re-enable animations

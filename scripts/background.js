@@ -14,7 +14,7 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.3.7',
+    version: '0.3.8',
     minVersion: '0.3.6',
     prefs: {
         notifications: {
@@ -59,7 +59,7 @@ var ttp = {
         layout: {},
         changeLayout: true,
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.3.7'
+        version: '0.3.8'
     },
     logging: {},
     enableLogging: function (type) {
@@ -260,7 +260,7 @@ var ttp = {
     },
     processChatMsg: function (message) {
         var popups,
-            avatarid,
+            avatar,
             chatNotification;
 
         if (ttp.storage.isIgnored(message.userid)) {
@@ -278,19 +278,19 @@ var ttp = {
             if (popups.length > 0) {
                 popups[0].buildChatlog();
             }
-            avatarid = (typeof this.users[message.userid] !== "undefined") ? this.users[message.userid].avatarid : "5";
+            avatar = (typeof this.users[message.userid] !== "undefined") ? this.users[message.userid].images.headfront : "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/5/headfront.png";
             this.storage.saveMessage({
                 userid: message.userid,
                 speaker: message.name,
                 text: message.text,
-                avatarId: avatarid
+                avatar: avatar
             });
             if (this.prefs.notifications.on && this.prefs.notifications.chat.on) {
                 this.isActive(function (active) {
                     if (active) {
                         if (ttp.prefs.notifications.textOnly) {
                             chatNotification = webkitNotifications.createNotification(
-                                "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/" + avatarid + "/headfront.png",
+                                avatar,
                                 message.name,
                                 message.text
                             );
@@ -303,7 +303,7 @@ var ttp = {
                                 type: "chat",
                                 speaker: message.name,
                                 text: message.text,
-                                avatarId: avatarid
+                                avatar: avatar
                             });
                             webkitNotifications.createHTMLNotification('chatNotification.html').show();
                         }
@@ -401,7 +401,7 @@ var ttp = {
     addSong: function addSong(room) {
         var popups,
             notifications,
-            avatarid,
+            avatar,
             image,
             songNotification,
             x = 0,
@@ -434,7 +434,7 @@ var ttp = {
                 }
             }
             this.isActive(function isActive() {
-                avatarid = (typeof ttp.users[room.metadata.current_dj] !== "undefined") ? ttp.users[room.metadata.current_dj].avatarid : "5";
+                avatar = (typeof ttp.users[room.metadata.current_dj] !== "undefined") ? ttp.users[room.metadata.current_dj].images.headfront : "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/5/headfront.png";
                 if (ttp.prefs.notifications.textOnly && ttp.users[ttp.room.metadata.current_dj] !== undefined) {
                     image = (typeof room.metadata.current_song.metadata.coverart === "string") ? room.metadata.current_song.metadata.coverart : chrome.extension.getURL('/images/ttpIcon48.png');
                     songNotification = webkitNotifications.createNotification(
@@ -452,7 +452,7 @@ var ttp = {
                         dj: ttp.users[room.metadata.current_dj].name,
                         artist: room.metadata.current_song.metadata.artist,
                         track: room.metadata.current_song.metadata.song,
-                        avatarId: avatarid
+                        avatar: avatar
                     });
                     webkitNotifications.createHTMLNotification('songNotification.html').show();
                 }
@@ -515,8 +515,7 @@ var ttp = {
                     } else {
                         ttp.notifications.push({
                             type: "djSpot",
-                            dj: user.name,
-                            avatarid: user.avatarid
+                            dj: user.name
                         });
                         webkitNotifications.createHTMLNotification('djNotification.html').show();
                     }
@@ -598,8 +597,7 @@ var ttp = {
                     } else {
                         ttp.notifications.push({
                             type: "djSpot",
-                            dj: user.name,
-                            avatarid: user.avatarid
+                            dj: user.name
                         });
                         webkitNotifications.createHTMLNotification('djNotification.html').show();
                     }
@@ -609,7 +607,7 @@ var ttp = {
         vote: function (metadata) {
             var x = 0,
                 length = 0,
-                avatarid,
+                avatar,
                 name,
                 voteNotification,
                 popups,
@@ -634,7 +632,7 @@ var ttp = {
                 if (typeof ttp.users[vote[0]] === "object") {
                     if (ttp.prefs.notifications.on && ttp.prefs.notifications.vote.on && ttp.user.userid !== vote[0]) {
                         ttp.isActive(function () {
-                            avatarid = (typeof ttp.users[vote[0]] !== "undefined") ? ttp.users[vote[0]].avatarid : "5";
+                            avatar = (typeof ttp.users[vote[0]] !== "undefined") ? ttp.users[vote[0]].images.headfront : "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/5/headfront.png";
                             name = (typeof ttp.users[vote[0]] !== "undefined") ? ttp.users[vote[0]].name : "unknown user";
                             if (ttp.prefs.notifications.textOnly) {
                                 voteNotification = webkitNotifications.createNotification(
@@ -651,7 +649,7 @@ var ttp = {
                                     type: "vote",
                                     user: name,
                                     vote: vote[1],
-                                    avatarid: avatarid
+                                    avatar: avatar
                                 });
                                 webkitNotifications.createHTMLNotification('voteNotification.html').show();
                             }
@@ -684,10 +682,10 @@ var ttp = {
             if (ttp.prefs.notifications.on && ttp.prefs.notifications.djSpot.on && ttp.room.metadata.djs.length >= (ttp.room.metadata.max_djs - 1) && isDj) {
                 ttp.isActive(function () {
                     var name = '',
-                        avatarid = '';
+                        avatar = '';
                     if (ttp.users[userid] !== undefined) {
                         name = ttp.users[userid].name;
-                        avatarid = ttp.users[userid].avatarid;
+                        avatar = ttp.users[userid].images.headfront;
                     }
                     if (ttp.prefs.notifications.textOnly) {
                         djNotification = webkitNotifications.createNotification(
@@ -703,7 +701,7 @@ var ttp = {
                         ttp.notifications.push({
                             type: "djSpot",
                             dj: name,
-                            avatarid: avatarid
+                            avatar: avatar
                         });
                         webkitNotifications.createHTMLNotification('djNotification.html').show();
                     }
@@ -852,7 +850,7 @@ var ttp = {
                 userid: msg.userid,
                 sender: msg.speaker,
                 text: msg.text,
-                avatarId: msg.avatarId,
+                avatar: msg.avatar,
                 timestamp: now.getTime(),
                 formattedTime: formatDate(now)
             });
@@ -1015,6 +1013,15 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
         ttp.tabId   = null;
         ttp.room    = null;
         ttp.users   = null;
+    }
+});
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+    if (ttp.logging.tabs || ttp.logging.all) {
+        ttp.log('Chrome tab activated:', activeInfo);
+    }
+    if (ttp.tabId === activeInfo.tabId) {
+        ttp.send({updateAnim: true});
     }
 });
 

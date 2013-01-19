@@ -64,7 +64,7 @@ function buildNotification(notification) {
         track.style.height = '18px';
     }
 
-    document.getElementById('avatar').src = "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/" + notification.avatarId + "/headfront.png";
+    document.getElementById('avatar').src = "http://turntable.fm" + notification.avatar;
     if (bgPage.ttp.prefs.notifications.sounds && bgPage.ttp.prefs.notifications.song.on && bgPage.ttp.prefs.notifications.song.sound !== "") {
         document.getElementById('sound').innerHTML = '<audio autoplay="autoplay"><source src="' + chrome.extension.getURL('sounds/' + bgPage.ttp.prefs.notifications.song.sound) + '" /></audio>';
     }

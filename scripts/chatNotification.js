@@ -32,7 +32,7 @@ function buildNotification(notification) {
 
     document.getElementById('speaker').innerText = notification.speaker;
     document.getElementById('message').innerText = notification.text;
-    document.getElementById('avatar').src = "https://s3.amazonaws.com/static.turntable.fm/roommanager_assets/avatars/" + notification.avatarId + "/headfront.png";
+    document.getElementById('avatar').src = "http://turntable.fm" + notification.avatar;
     if (bgPage.ttp.prefs.notifications.sounds && bgPage.ttp.prefs.notifications.chat.on && bgPage.ttp.prefs.notifications.chat.sound !== "") {
         if (bgPage.ttp.prefs.notifications.chat.sound === "mario_coin.mp3") {
             sound = (bgPage.ttp.getPowerup()) ? "mario_1up.mp3" : "mario_coin.mp3";

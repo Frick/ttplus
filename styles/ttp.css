@@ -10,19 +10,19 @@
 #ttpHearts {
     background: url(chrome-extension://__MSG_@@extension_id__/images/heart.png) 0% 40% no-repeat;
     float: right;
-    margin: 0 5px 0 0;
-    padding: 0 5px 0 20px;
+    margin: 0 5px 0 0 !important;
+    padding: 0 5px 0 20px !important;
 }
 #ttpUpvotes {
     background: url(chrome-extension://__MSG_@@extension_id__/images/uparrow.png) 25% 40% no-repeat;
     float: right;
-    margin: 0 5px 0 0;
-    padding: 0 5px 0 20px;
+    margin: 0 5px 0 0 !important;
+    padding: 0 5px 0 20px !important;
 }
 #ttpDownvotes {
     background: url(chrome-extension://__MSG_@@extension_id__/images/downarrow.png) 25% 40% no-repeat;
     float: right;
-    padding: 0 0 0 20px;
+    padding: 0 0 0 20px !important;
 }
 .bold {
     font-weight: bold;
@@ -37,17 +37,6 @@
 .guest .guestName {
     vertical-align: top;
     max-width: 140px !important;
-}
-.guest-list-container .guests .guest .icons {
-    display: inline-block;
-    overflow: hidden;
-}
-.guest-list-container .guests .guest .icons .icon {
-    height: 28px;
-    background-repeat: no-repeat;
-    background-position: center center;
-    display: inline-block;
-    margin-left: 5px;
 }
 .guest-list-container .guests .guest .icons .superuser {
     background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/superuser_icon.png");
@@ -74,22 +63,22 @@
 }
 
 #guest-list .guests .guest.upvoted {
-    background-color: #b6ffc0;
+    background-color: #b6ffc0 !important;
 }
 #guest-list .guests .guest.downvoted {
-    background-color: #ffa1a1;
+    background-color: #ffa1a1 !important;
 }
 #guest-list .guests .guest.upvoted:hover {
     color: #000;
-    background: -webkit-linear-gradient(top, #b6ffc0 1%, #efefef 70%, #e3e3e3 100%);
+    background: -webkit-linear-gradient(top, #b6ffc0 1%, #efefef 70%, #e3e3e3 100%) !important;
 }
 #guest-list .guests .guest.downvoted:hover {
-    background: -webkit-linear-gradient(top, #e3e3e3 0%, #efefef 50%, #f78e56 99%);
+    background: -webkit-linear-gradient(top, #e3e3e3 0%, #efefef 50%, #f78e56 99%) !important;
 }
 
 #guest-list .guests .idletime {
     float: right;
-    margin: 0 27px 0 0;
+    margin: 0 27px 0 0 !important;
     color: #282828;
     font-size: 12px;
     line-height: 28px;
