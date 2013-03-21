@@ -129,7 +129,7 @@ var ttp = {
     },
     idleTime: 0,
     updateIdleTime: function () {
-        var idle_re = /util\.now\(\)-turntable\.([0-9a-zA-Z_-]+);/,
+        var idle_re = /\.on\("focus keydown mousemove mousedown", *\w+.rateLimit\([^.]+\.(\w+) *= *\w+\.now\(\)/,
             x,
             match;
 
@@ -271,20 +271,16 @@ var ttp = {
                         ttp.stopAnimations();
                     }, 200);
                 }
-            } else if (msg.command === "registered") {
-                /*
+            } else if (msg.command === "deregistered") {
                 for (x = 0, length = msg.user.length; x < length; x += 1) {
                     userid = msg.user[x].userid;
-                    window.setTimeout(function () {
-                        if (ttp.roominfo.users[userid] !== undefined) {
-                            ttp.roominfo.users[userid].lastActivity = now;
-                            ttp.roominfo.users[userid].lastChat = now;
-                            ttp.roominfo.users[userid].lastVote = now;
-                            ttp.roominfo.updateGuestList();
-                        }
-                    }, 500);
+                    user = ttp.roominfo.users[userid];
+                    if (user !== undefined) {
+                        delete user.lastActivity;
+                        delete user.lastChat;
+                        delete user.lastVote;
+                    }
                 }
-                */
             } else if (msg.command === "snagged") {
                 ttp.room.hearts += 1;
                 $("#ttpHearts").text(ttp.room.hearts);
@@ -885,9 +881,10 @@ var ttp = {
     replaceFunctions: function () {
         ttp.replaced.guestListName = Room.layouts.guestListName;
         Room.layouts.guestListName = function(user, room, selected, now) {
-            try {
-                var a = user.images.headfront;
-                var guestClass = selected ? ".guest.selected" : ".guest";
+            // try {
+                var a = user.images.headfront,
+                    guestClass = selected ? ".guest.selected" : ".guest",
+                    icons = ['div.icons', {}];
                 if (ttp.roominfo.upvoters.indexOf(user.userid) > -1) {
                     guestClass += ".upvoted";
                 } else if (ttp.room.downvoters.indexOf(user.userid) > -1) {
@@ -904,7 +901,6 @@ var ttp = {
                     user.lastVote = ttp.startTime;
                 }
 
-                var icons = ['div.icons', {}];
                 if (user.acl > 0) {
                     icons.push(['div.superuser.icon', {title: 'Superuser'}]);
                 } else {
@@ -950,73 +946,98 @@ var ttp = {
                     spec.splice(3, 0, ['div.current-dj']);
                 }
                 return spec;
-            } catch (e) {
-                console.warn("Error in guestListName:", e);
-                ttp.replaced.guestListName(user, room, selected);
-            }
+            // } catch (e) {
+            //     console.warn("Error in guestListName:", e);
+            //     ttp.replaced.guestListName(user, room, selected);
+            // }
         };
 
         ttp.replaced.guestListUpdate = ttp.roominfo.updateGuestList;
         ttp.roominfo.updateGuestList = function() {
-            try {
+            // try {
                 var supers = [],
                     mods = [], 
                     djs = [],
                     fanof = [],
-                    audience = [],
+                    listeners = [],
+                    guests = [],
                     $list = $(".guest-list-container .guests"),
-                    users = ttp.roominfo.userMap;
+                    users = ttp.roominfo.userMap,
+                    fans = turntable.user.fanOf;
 
                 for (var o = 0, s = ttp.roominfo.djids, q = s.length; o < q; o++) {
                     djs.push(users[s[o]]);
                 }
 
                 for (var o = 0, s = ttp.roominfo.listenerids, q = s.length; o < q; o++) {
-                    if (ttp.roominfo.djids.indexOf(s[o]) > -1) {
+                    var listenerid = s[o];
+                    if (ttp.roominfo.djids.indexOf(listenerid) > -1) {
                         continue;
-                    } else if (users[s[o]].acl > 0) {
-                        supers.push(users[s[o]]);
-                    } else if (ttp.roominfo.roomData.metadata !== undefined && ttp.roominfo.roomData.metadata.moderator_id.indexOf(s[o]) > -1) {
-                        mods.push(users[s[o]]);
-                    } else if (turntable.user.fanOf.indexOf(s[o]) > -1) {
-                        fanof.push(users[s[o]]);
+                    } else if (users[listenerid].acl > 0) {
+                        supers.push(users[listenerid]);
+                    } else if (ttp.roominfo.roomData.metadata !== undefined && ttp.roominfo.roomData.metadata.moderator_id.indexOf(listenerid) > -1) {
+                        mods.push(users[listenerid]);
+                    } else if (fans.indexOf(listenerid) > -1) {
+                        fanof.push(users[listenerid]);
+                    } else if (!users[listenerid].registered) {
+                        guests.push(listenerid);
                     } else {
-                        audience.push(users[s[o]]);
+                        listeners.push(users[listenerid]);
                     }
                 }
 
                 mods = supers.sort(this.guestListSort).concat(mods.sort(this.guestListSort));
-                audience = fanof.sort(this.guestListSort).concat(audience.sort(this.guestListSort));
+                listeners = fanof.sort(this.guestListSort).concat(listeners.sort(this.guestListSort));
 
                 var c = $list.find(".guest.selected").data("id");
                 $list.children().remove();
-                var t = [djs, mods, audience], v = ["DJs", "Moderators", "Audience"];
+                var t = [djs, mods, listeners], v = ["DJs", "Moderators", "Audience"];
                 var now = ttp.now();
                 for (var m = 0, k = t.length; m < k; m++) {
                     var d = t[m];
-                    if (d.length > 0) {
-                        $list.append(util.buildTree(["div.separator", ["div.text", v[m]]]));
+                    if (!d.length && v[m] != 'Audience') {
+                        continue;
                     }
+
+                    $list.append(util.buildTree(["div.separator", ["div.text", v[m]]]));
                     for (var o = 0, q = d.length; o < q; o++) {
                         var e = (c && c == d[o].userid);
                         $list.append(util.buildTree(Room.layouts.guestListName(d[o], ttp.roominfo, e, now)));
                     }
+                    if (v[m] == 'Audience' && guests.length) {
+                        $list.append(util.buildTree(Room.layouts.guestRow(guests.length)));
+                    }
                 }
-                var p = mods.length + audience.length, r;
+                var numUsers = mods.length + listeners.length,
+                    numGuests = guests.length,
+                    numHere = numUsers + numGuests,
+                    numHereStr;
                 if (ttp.roominfo.section === undefined) {
-                    p += djs.length;
+                    numUsers += djs.length;
                 }
-                if (p === 1) {
-                    r = p + " person here";
+                if (numHere === 1) {
+                    numHereStr = numHere + " person here";
                 } else {
-                    r = p + " people here";
+                    numHereStr = numHere + " people here";
                 }
-                $("span#totalUsers").text(r);
+
+                var tipsyStr;
+                if (numUsers == 1) {
+                    tipsyStr = numUsers + " user";
+                } else {
+                    tipsyStr = numUsers + " users";
+                }
+                if (numGuests == 1) {
+                    tipsyStr += (" + " + numGuests + " guest");
+                } else {
+                    tipsyStr += (" + " + numGuests + " guests");
+                }
+                $("#totalUsers").text(numHereStr).attr('title', tipsyStr).tipsy();
                 ttp.roominfo.updateGuestListMenu();
-            } catch (e) {
-                console.warn("Error in updateGuestList:", e);
-                ttp.replaced.guestListUpdate.call(ttp.roominfo);
-            }
+            // } catch (e) {
+            //     console.warn("Error in updateGuestList:", e);
+            //     ttp.replaced.guestListUpdate.call(ttp.roominfo);
+            // }
         };
         ttp.roominfo.updateGuestList();
 

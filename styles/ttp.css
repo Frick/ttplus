@@ -37,6 +37,7 @@
 .guest .guestName {
     vertical-align: top;
     max-width: 140px !important;
+    display: inline-block;
 }
 .guest-list-container .guests .guest .icons .superuser {
     background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/superuser_icon.png");
