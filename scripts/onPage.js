@@ -881,7 +881,7 @@ var ttp = {
     replaceFunctions: function () {
         ttp.replaced.guestListName = Room.layouts.guestListName;
         Room.layouts.guestListName = function(user, room, selected, now) {
-            // try {
+            try {
                 var a = user.images.headfront,
                     guestClass = selected ? ".guest.selected" : ".guest",
                     icons = ['div.icons', {}];
@@ -946,15 +946,15 @@ var ttp = {
                     spec.splice(3, 0, ['div.current-dj']);
                 }
                 return spec;
-            // } catch (e) {
-            //     console.warn("Error in guestListName:", e);
-            //     ttp.replaced.guestListName(user, room, selected);
-            // }
+            } catch (e) {
+                console.warn("Error in guestListName:", e);
+                ttp.replaced.guestListName(user, room, selected);
+            }
         };
 
         ttp.replaced.guestListUpdate = ttp.roominfo.updateGuestList;
         ttp.roominfo.updateGuestList = function() {
-            // try {
+            try {
                 var supers = [],
                     mods = [], 
                     djs = [],
@@ -1034,10 +1034,10 @@ var ttp = {
                 }
                 $("#totalUsers").text(numHereStr).attr('title', tipsyStr).tipsy();
                 ttp.roominfo.updateGuestListMenu();
-            // } catch (e) {
-            //     console.warn("Error in updateGuestList:", e);
-            //     ttp.replaced.guestListUpdate.call(ttp.roominfo);
-            // }
+            } catch (e) {
+                console.warn("Error in updateGuestList:", e);
+                ttp.replaced.guestListUpdate.call(ttp.roominfo);
+            }
         };
         ttp.roominfo.updateGuestList();
 
