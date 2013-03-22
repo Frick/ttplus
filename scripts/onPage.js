@@ -1013,7 +1013,7 @@ var ttp = {
                     numHere = numUsers + numGuests,
                     numHereStr;
                 if (ttp.roominfo.section === undefined) {
-                    numUsers += djs.length;
+                    numHere += djs.length;
                 }
                 if (numHere === 1) {
                     numHereStr = numHere + " person here";
