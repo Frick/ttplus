@@ -378,32 +378,34 @@ var ttp = {
         ttp.addHeader();
 
         // return position of windows to wherever the user last placed them
-        $('#left-panel').css({top: layout.left.top + 'px', left: layout.left.left + 'px', width: layout.left.width + 'px', height: layout.left.height + 'px'});
-        $('#right-panel').css({top: layout.right.top + 'px', left: layout.right.left + 'px', right: 'auto', width: layout.right.width + 'px', height: layout.right.height + 'px'});
-        if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
-            $('#playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.left.width / 2));
-            $('#song-search-input').width(layout.left.width - 89);
-            $('.chat-container .floating-panel-tab').width(layout.right.width);
-            $('#chat-input').width(layout.right.width - 74);
-            $('#ttpLeftStyle').remove();
-            $('head').append('<style type="text/css" id="ttpLeftStyle">\n' +
-                '#left-panel .guest .guestName { max-width: ' + (layout.left.width - 160) + 'px !important; }\n' +
-                '#left-panel .search-focused #song-search-input { width: ' + (layout.left.width - 45) + 'px !important; }\n' +
-                '</style>');
-            $('#ttpRightStyle').remove();
-            $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
-                '.chat-focused #chat-input { width: ' + (layout.right.width - 30) + 'px !important; }\n' +
-                '</style>');
-        } else {
-            $('.chat-container .floating-panel-tab, #playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.right.width / 3));
-            $('#song-search-input').width(layout.right.width - 89);
-            $('#chat-input').width(layout.right.width - 74);
-            $('#ttpRightStyle').remove();
-            $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
-                '.guest .guestName { max-width: ' + (layout.right.width - 160) + 'px !important; }\n' +
-                '.search-focused #song-search-input { width: ' + (layout.right.width - 45) + 'px !important; }\n' +
-                '.chat-focused #chat-input { width: ' + (layout.right.width - 30) + 'px !important; }\n' +
-                '</style>');
+        if (layout.left !== undefined && layout.right !== undefined) {
+            $('#left-panel').css({top: layout.left.top + 'px', left: layout.left.left + 'px', width: layout.left.width + 'px', height: layout.left.height + 'px'});
+            $('#right-panel').css({top: layout.right.top + 'px', left: layout.right.left + 'px', right: 'auto', width: layout.right.width + 'px', height: layout.right.height + 'px'});
+            if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
+                $('#playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.left.width / 2));
+                $('#song-search-input').width(layout.left.width - 89);
+                $('.chat-container .floating-panel-tab').width(layout.right.width);
+                $('#chat-input').width(layout.right.width - 74);
+                $('#ttpLeftStyle').remove();
+                $('head').append('<style type="text/css" id="ttpLeftStyle">\n' +
+                    '#left-panel .guest .guestName { max-width: ' + (layout.left.width - 160) + 'px !important; }\n' +
+                    '#left-panel .search-focused #song-search-input { width: ' + (layout.left.width - 45) + 'px !important; }\n' +
+                    '</style>');
+                $('#ttpRightStyle').remove();
+                $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
+                    '.chat-focused #chat-input { width: ' + (layout.right.width - 30) + 'px !important; }\n' +
+                    '</style>');
+            } else {
+                $('.chat-container .floating-panel-tab, #playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.right.width / 3));
+                $('#song-search-input').width(layout.right.width - 89);
+                $('#chat-input').width(layout.right.width - 74);
+                $('#ttpRightStyle').remove();
+                $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
+                    '.guest .guestName { max-width: ' + (layout.right.width - 160) + 'px !important; }\n' +
+                    '.search-focused #song-search-input { width: ' + (layout.right.width - 45) + 'px !important; }\n' +
+                    '.chat-focused #chat-input { width: ' + (layout.right.width - 30) + 'px !important; }\n' +
+                    '</style>');
+            }
         }
 
         // if 'dual' layout is set...
