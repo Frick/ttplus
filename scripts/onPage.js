@@ -70,15 +70,15 @@ var ttp = {
         if (ttp.roominfo !== null) {
             for (x in ttp.roominfo) {
                 prop = ttp.roominfo[x];
-                if (typeof prop === "object" && prop !== null && prop.hasOwnProperty("prefix") && (prop.prefix === 'room' || prop.prefix === 'concert')) {
+                if (typeof prop === "object" && prop !== null && prop.hasOwnProperty("autoCamera")) {
                     ttp.roommanager = prop;
                     break;
                 }
             }
         }
         if (ttp.roommanager !== null) {
-            for (x in ttp.roommanager.listeners) {
-                if (ttp.roommanager.listeners[x].hasOwnProperty('avatarid') || ttp.roommanager.listeners[x].hasOwnProperty('isAvatar')) {
+            for (x in ttp.roommanager.listenerMap) {
+                if (ttp.roommanager.listenerMap[x].hasOwnProperty('height')) {
                     listenerCount += 1;
                 }
             }
@@ -357,8 +357,6 @@ var ttp = {
     changeLayout: function (layout) {
         var rightHandle = '.ttpHeader',
             rightSnap   = 'body,#header,#board',
-            extraWidth  = parseInt(($(window).width() - +$('#outer').css('maxWidth').replace('px', '')) / 2),
-            extraHeight = $(window).height() - +$('#outer').css('maxHeight').replace('px', ''),
             layoutText  = $('#layout-option').attr('original-title'),
             leftPanels  = 0,
             rightPanels = 0,
@@ -369,74 +367,43 @@ var ttp = {
         ttp.layout.res = $(window).width() + 'x' + $(window).height();
 
         // stop mousedown events from getting (magically) to the drag handler
-        $('#playlist,#guest-list,#song-log').on('mousedown', function (e) {e.stopPropagation();});
+        $('#playlist,#guest-list,#song-log,#room-info').on('mousedown', function (e) {e.stopPropagation();});
 
         // add note to those using the TT layout switch
         if (layoutText.indexOf('TT+') < 0) {
             $('#layout-option').attr('original-title', layoutText + '\n(requires refresh because of TT+)');
         }
 
-        // ensure that only the two most current panels remain (after room change, new ones are added)
-        $('.floating-panel').each(function () {
-            if ($(this).attr('id') === 'right-panel') {
-                rightPanels += 1;
-                if (rightPanels > 1) {
-                    $(this).remove();
-                }
-            } else if ($(this).attr('id') === 'left-panel') {
-                leftPanels += 1;
-                if (leftPanels > 1) {
-                    $(this).remove();
-                }
-            }
-        });
-
         // ensure the header was added (after a room change, perhaps)
         ttp.addHeader();
 
-        // move the left and right panel to a less confined location
-        $('#maindiv').append($('#left-panel,#right-panel'));
-
-        // make sure the typeahead still works!
-        $('#chat-input').on('keydown', ttp.roominfo.chatTextListener);
-
-        // if given layout is blank
-        if (layout.right === undefined) {
-            if (extraHeight > 0) {
-                $('.floating-panel').css('bottom', extraHeight + 15 + 'px');
-            }
-            if (extraWidth > 0) {
-                $('#right-panel').css('right', extraWidth + 15 + 'px');
-                $('#left-panel').css('left', extraWidth + 15 + 'px');
-            }
-        } else { // else return position of windows to wherever the user last placed them
-            $('#left-panel').css({top: layout.left.top + 'px', left: layout.left.left + 'px', width: layout.left.width + 'px', height: layout.left.height + 'px'});
-            $('#right-panel').css({top: layout.right.top + 'px', left: layout.right.left + 'px', right: 'auto', width: layout.right.width + 'px', height: layout.right.height + 'px'});
-            if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
-                $('#playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.left.width / 2));
-                $('#song-search-input').width(layout.left.width - 89);
-                $('.chat-container .floating-panel-tab').width(layout.right.width);
-                $('#chat-input').width(layout.right.width - 74);
-                $('#ttpLeftStyle').remove();
-                $('head').append('<style type="text/css" id="ttpLeftStyle">\n' +
-                    '#left-panel .guest .guestName { max-width: ' + (layout.left.width - 160) + 'px !important; }\n' +
-                    '#left-panel .search-focused #song-search-input { width: ' + (layout.left.width - 45) + 'px !important; }\n' +
-                    '</style>');
-                $('#ttpRightStyle').remove();
-                $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
-                    '.chat-focused #chat-input { width: ' + (layout.right.width - 30) + 'px !important; }\n' +
-                    '</style>');
-            } else {
-                $('.chat-container .floating-panel-tab, #playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.right.width / 3));
-                $('#song-search-input').width(layout.right.width - 89);
-                $('#chat-input').width(layout.right.width - 74);
-                $('#ttpRightStyle').remove();
-                $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
-                    '.guest .guestName { max-width: ' + (layout.right.width - 160) + 'px !important; }\n' +
-                    '.search-focused #song-search-input { width: ' + (layout.right.width - 45) + 'px !important; }\n' +
-                    '.chat-focused #chat-input { width: ' + (layout.right.width - 30) + 'px !important; }\n' +
-                    '</style>');
-            }
+        // return position of windows to wherever the user last placed them
+        $('#left-panel').css({top: layout.left.top + 'px', left: layout.left.left + 'px', width: layout.left.width + 'px', height: layout.left.height + 'px'});
+        $('#right-panel').css({top: layout.right.top + 'px', left: layout.right.left + 'px', right: 'auto', width: layout.right.width + 'px', height: layout.right.height + 'px'});
+        if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
+            $('#playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.left.width / 2));
+            $('#song-search-input').width(layout.left.width - 89);
+            $('.chat-container .floating-panel-tab').width(layout.right.width);
+            $('#chat-input').width(layout.right.width - 74);
+            $('#ttpLeftStyle').remove();
+            $('head').append('<style type="text/css" id="ttpLeftStyle">\n' +
+                '#left-panel .guest .guestName { max-width: ' + (layout.left.width - 160) + 'px !important; }\n' +
+                '#left-panel .search-focused #song-search-input { width: ' + (layout.left.width - 45) + 'px !important; }\n' +
+                '</style>');
+            $('#ttpRightStyle').remove();
+            $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
+                '.chat-focused #chat-input { width: ' + (layout.right.width - 30) + 'px !important; }\n' +
+                '</style>');
+        } else {
+            $('.chat-container .floating-panel-tab, #playlist-container .floating-panel-tab,#room-info-container .floating-panel-tab').width(Math.round(layout.right.width / 3));
+            $('#song-search-input').width(layout.right.width - 89);
+            $('#chat-input').width(layout.right.width - 74);
+            $('#ttpRightStyle').remove();
+            $('head').append('<style type="text/css" id="ttpRightStyle">\n' +
+                '.guest .guestName { max-width: ' + (layout.right.width - 160) + 'px !important; }\n' +
+                '.search-focused #song-search-input { width: ' + (layout.right.width - 45) + 'px !important; }\n' +
+                '.chat-focused #chat-input { width: ' + (layout.right.width - 30) + 'px !important; }\n' +
+                '</style>');
         }
 
         // if 'dual' layout is set...
@@ -1082,12 +1049,8 @@ var ttp = {
         };
     },
     startAnimations: function () {
-        ttp.roommanager.crowds.forEach(function (crowds) {
-            crowds.forEach(function (crowd) {
-                crowd.start();
-            });
-        });
-        ttp.roommanager.djBooth.start();
+        // reenable crowd animations
+        ttp.roommanager.upgradeAnimations();
 
         // replace speech bubbles
         ttp.roommanager.speak = ttp.speakAnim;
@@ -1099,12 +1062,8 @@ var ttp = {
         $("#ttp-stop-animation").text("Stop Animations");
     },
     stopAnimations: function () {
-        ttp.roommanager.crowds.forEach(function (crowds) {
-            crowds.forEach(function (crowd) {
-                crowd.stop();
-            });
-        });
-        ttp.roommanager.djBooth.stop();
+        // kill the crowd animations
+        ttp.roommanager.degradeAnimations();
 
         // stop speech bubbles
         ttp.speakAnim = ttp.roommanager.speak;

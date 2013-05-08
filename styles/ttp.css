@@ -40,15 +40,15 @@
     display: inline-block;
 }
 .guest-list-container .guests .guest .icons .superuser {
-    background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/superuser_icon.png");
+    background-image: url("https://static.turntable.fm.s3.amazonaws.com/images/room/superuser_icon.png");
     width: 15px;
 }
 .guest-list-container .guests .guest .icons .mod {
-    background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/mod_icon.png");
+    background-image: url("https://static.turntable.fm.s3.amazonaws.com/images/room/mod_icon.png");
     width: 14px;
 }
 .guest-list-container .guests .guest .icons .fanned {
-    background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/fan_icon.png");
+    background-image: url("https://static.turntable.fm.s3.amazonaws.com/images/room/fan_icon.png");
     width: 17px;
 }
 .guest-list-container .guests .guest .icons .snagged {
@@ -56,7 +56,7 @@
     width: 16px;
 }
 .guest-list-container div.current-dj {
-    background-image: url("http://static.turntable.fm.s3.amazonaws.com/images/room/current_dj_icon.png");
+    background-image: url("https://static.turntable.fm.s3.amazonaws.com/images/room/current_dj_icon.png");
     position: absolute;
     left: 0; top: 6px;
     width: 8px; height: 16px;
@@ -113,76 +113,6 @@
     top: 10px;
     left: 80px;
 }
-/*
-.ui-resizable {
-    position: relative;
-}
-.ui-resizable-handle {
-    position: absolute;
-    font-size: 0.1px;
-    z-index: 99999;
-    display: block;
-}
-.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle {
-    display: none;
-}
-.ui-resizable-n {
-    cursor: n-resize;
-    height: 7px;
-    width: 100%;
-    top: -5px;
-    left: 0;
-}
-.ui-resizable-s {
-    cursor: s-resize;
-    height: 7px;
-    width: 100%;
-    bottom: -5px;
-    left: 0;
-}
-.ui-resizable-e {
-    cursor: e-resize;
-    width: 7px;
-    right: -5px;
-    top: 0;
-    height: 100%;
-}
-.ui-resizable-w {
-    cursor: w-resize;
-    width: 7px;
-    left: -5px;
-    top: 0;
-    height: 100%;
-}
-.ui-resizable-se {
-    cursor: se-resize;
-    width: 12px;
-    height: 12px;
-    right: 1px;
-    bottom: 1px;
-}
-.ui-resizable-sw {
-    cursor: sw-resize;
-    width: 9px;
-    height: 9px;
-    left: -5px;
-    bottom: -5px;
-}
-.ui-resizable-nw {
-    cursor: nw-resize;
-    width: 9px;
-    height: 9px;
-    left: -5px;
-    top: -5px;
-}
-.ui-resizable-ne {
-    cursor: ne-resize;
-    width: 9px;
-    height: 9px;
-    right: -5px;
-    top: -5px;
-}
-*/
 
 .ui-resizable { position: relative;}
 .ui-resizable-handle { position: absolute;font-size: 0.1px; display: block; }
@@ -202,10 +132,4 @@
 }
 .floating-panel-tabs {
     -webkit-mask-box-image: none !important;
-}
-.floating-panel,#typeahead,#ding-menu {
-    z-index: 26000 !important;
-}
-#privateChatIcon {
-    z-index: 30000 !important;
 }
