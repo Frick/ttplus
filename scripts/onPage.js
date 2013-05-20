@@ -1079,7 +1079,7 @@ var ttp = {
         $("#ttp-stop-animation").text("Start Animations");
     },
     addAnimationToggle: function () {
-        $('#settings-dropdown').prepend('<li id="ttp-stop-animation" class="option">Stop Animations</li>');
+        $('#settings .dropdown').prepend('<li id="ttp-stop-animation" class="option">Stop Animations</li>');
         $('#ttp-stop-animation').on("click", function (e) {
             e.preventDefault();
             e.stopPropagation();
