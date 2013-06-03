@@ -81,8 +81,6 @@ var ttplus = {
                 if (request.changeLayout === true && request.layout !== undefined) {
                     ttplus.injectScript(ttplus.changeLayout, request.layout);
                 }
-            } else if (request.updateAnim === true) {
-                ttplus.injectScript(ttplus.updateAnim);
             }
         } catch (e) {
             console.log("Error with listener request:", request);
@@ -214,14 +212,6 @@ var ttplus = {
     },
     getUsers: function () {
         return ttp.roominfo.userMap;
-    },
-    updateAnim: function () {
-        if (ttp.animations === false) {
-            ttp.startAnimations();
-            window.setTimeout(function () {
-                ttp.stopAnimations();
-            }, 200);
-        }
     },
     injectScript: function (source) {
         //////////////////////////////////////////////////////////////////////////////////////////////

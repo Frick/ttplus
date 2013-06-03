@@ -37,7 +37,6 @@ var ttp = {
     event: document.createEvent("Event"),
     enterKey: document.createEvent("KeyboardEvent"),
     roomLocation: window.location.pathname,
-    animations: true,
     msgId: 0,
     msgCallbacks: [],
     send: function (data, callback) {
@@ -257,20 +256,6 @@ var ttp = {
                 $('#ttpUpvotes').text('0');
                 $('#ttpDownvotes').text('0');
                 $('#ttpHearts').text('0');
-                $('.guest-list-container .guests .guest .icons .snagged.icon').remove();
-                if (ttp.animations === false) {
-                    ttp.startAnimations();
-                    window.setTimeout(function () {
-                        ttp.stopAnimations();
-                    }, 200);
-                }
-            } else if (msg.command === "add_dj" || msg.command === "rem_dj") {
-                if (ttp.animations === false) {
-                    ttp.startAnimations();
-                    window.setTimeout(function () {
-                        ttp.stopAnimations();
-                    }, 200);
-                }
             } else if (msg.command === "deregistered") {
                 for (x = 0, length = msg.user.length; x < length; x += 1) {
                     userid = msg.user[x].userid;
@@ -305,8 +290,6 @@ var ttp = {
                 ttp.startTime = ttp.now();
                 ttp.room.hearts = 0;
                 $("#ttpHearts").text("0");
-                ttp.animations = true;
-                $("#ttp-stop-animation").text("Stop Animations");
 
                 ttp.send({
                     get: 'layout',
@@ -1001,7 +984,7 @@ var ttp = {
                 } else {
                     tipsyStr += (" + " + numGuests + " guests");
                 }
-                $("#totalUsers").text(numHereStr).attr('title', tipsyStr).tipsy();
+                $("#totalUsers").text(numHereStr).attr('title', tipsyStr);
                 ttp.roominfo.updateGuestListMenu();
             } catch (e) {
                 console.warn("Error in updateGuestList:", e);
@@ -1049,50 +1032,6 @@ var ttp = {
                 ttp.replaced.setPanelLayout.call(ttp.roominfo, layout);
             }
         };
-    },
-    startAnimations: function () {
-        // reenable crowd animations
-        ttp.roommanager.upgradeAnimations();
-
-        // replace speech bubbles
-        ttp.roommanager.speak = ttp.speakAnim;
-
-        // show meter needle (animated movement)
-        ttp.roommanager.showFloater = ttp.floaterAnim;
-
-        // replace animation option
-        $("#ttp-stop-animation").text("Stop Animations");
-    },
-    stopAnimations: function () {
-        // kill the crowd animations
-        ttp.roommanager.degradeAnimations();
-
-        // stop speech bubbles
-        ttp.speakAnim = ttp.roommanager.speak;
-        ttp.roommanager.speak = $.noop;
-
-        // stop fanned/snagged animations
-        ttp.floaterAnim = ttp.roommanager.showFloater;
-        ttp.roommanager.showFloater = $.noop;
-
-        // replace animation option
-        $("#ttp-stop-animation").text("Start Animations");
-    },
-    addAnimationToggle: function () {
-        $('#settings .dropdown').prepend('<li id="ttp-stop-animation" class="option">Stop Animations</li>');
-        $('#ttp-stop-animation').on("click", function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            ttp.animations = !ttp.animations;
-
-            // disable animations
-            if (ttp.animations === false) {
-                ttp.stopAnimations();
-            } else {
-                // re-enable animations
-                ttp.startAnimations();
-            }
-        });
     }
 }
 ttp.event.initEvent("ttpEvent", true, true);
@@ -1129,7 +1068,6 @@ ttp.send({
 });
 ttp.ready(function () {
     ttp.replaceFunctions();
-    ttp.addAnimationToggle();
 });
 $(document).ready(ttp.getRoomObjects);
 

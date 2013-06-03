@@ -14,7 +14,7 @@ var ttp = {
     notifications: [],
     missedNotifications: 0,
     powerup: 0,
-    version: '0.3.15',
+    version: '0.3.17',
     minVersion: '0.3.6',
     prefs: {
         notifications: {
@@ -59,7 +59,7 @@ var ttp = {
         layout: {},
         changeLayout: true,
         roomCustomizationsAllowed: ['4e091b2214169c018f008ea5'],
-        version: '0.3.15'
+        version: '0.3.17'
     },
     logging: {},
     enableLogging: function (type) {
@@ -1019,9 +1019,6 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 chrome.tabs.onActivated.addListener(function (activeInfo) {
     if (ttp.logging.tabs || ttp.logging.all) {
         ttp.log('Chrome tab activated:', activeInfo);
-    }
-    if (ttp.tabId === activeInfo.tabId) {
-        ttp.send({updateAnim: true});
     }
 });
 
