@@ -960,13 +960,13 @@ var ttp = {
                         $list.append(util.buildTree(Room.layouts.guestRow(guests.length)));
                     }
                 }
-                var numUsers = mods.length + listeners.length,
-                    numGuests = guests.length,
+                var numUsers = mods.length + listeners.length;
+                if (ttp.roominfo.section === undefined) {
+                    numUsers += djs.length;
+                }
+                var numGuests = guests.length,
                     numHere = numUsers + numGuests,
                     numHereStr;
-                if (ttp.roominfo.section === undefined) {
-                    numHere += djs.length;
-                }
                 if (numHere === 1) {
                     numHereStr = numHere + " person here";
                 } else {
