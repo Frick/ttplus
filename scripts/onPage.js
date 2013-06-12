@@ -842,7 +842,7 @@ var ttp = {
                 } else if (ttp.room.downvoters.indexOf(user.userid) > -1) {
                     guestClass += ".downvoted";
                 }
-                
+
                 if (user.lastActivity === undefined) {
                     user.lastActivity = ttp.startTime;
                 }
@@ -860,7 +860,7 @@ var ttp = {
                         icons.push(['div.mod.icon', {title: 'Moderator'}]);
                     }
                 }
-                if (turntable.user.fanOf.indexOf(user.userid) > -1) {
+                if (turntable.user.get('fanof').indexOf(user.userid) > -1) {
                     icons.push(['div.fanned.icon', {title: 'Fanned'}]);
                 }
                 if (ttp.room.snaggers.indexOf(user.userid) > -1) {
@@ -908,14 +908,14 @@ var ttp = {
         ttp.roominfo.updateGuestList = function() {
             try {
                 var supers = [],
-                    mods = [], 
+                    mods = [],
                     djs = [],
                     fanof = [],
                     listeners = [],
                     guests = [],
                     $list = $(".guest-list-container .guests"),
                     users = ttp.roominfo.userMap,
-                    fans = turntable.user.fanOf;
+                    fans = turntable.user.get('fanof');
 
                 for (var o = 0, s = ttp.roominfo.djids, q = s.length; o < q; o++) {
                     djs.push(users[s[o]]);
