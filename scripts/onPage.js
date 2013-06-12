@@ -860,13 +860,13 @@ var ttp = {
                         icons.push(['div.mod.icon', {title: 'Moderator'}]);
                     }
                 }
-                if (turntable.user.fanOf.indexOf(user.userid) > -1) {
+                if (turntable.user.get('fanof').indexOf(user.userid) > -1) {
                     icons.push(['div.fanned.icon', {title: 'Fanned'}]);
                 }
                 if (ttp.room.snaggers.indexOf(user.userid) > -1) {
                     icons.push(['div.snagged.icon', {title: 'Queued Current Song'}]);
                 }
-
+                                                                                  
                 var spec = ["div" + guestClass, {event: {mouseover: function() {
                                 $(this).find("div.guestArrow").show();
                             },mouseout: function() {
@@ -899,6 +899,8 @@ var ttp = {
                 }
                 return spec;
             } catch (e) {
+                                                                                
+                                                                                  
                 console.warn("Error in guestListName:", e);
                 ttp.replaced.guestListName(user, room, selected);
             }
@@ -907,6 +909,7 @@ var ttp = {
         ttp.replaced.guestListUpdate = ttp.roominfo.updateGuestList;
         ttp.roominfo.updateGuestList = function() {
             try {
+                                                                                
                 var supers = [],
                     mods = [], 
                     djs = [],
@@ -915,12 +918,12 @@ var ttp = {
                     guests = [],
                     $list = $(".guest-list-container .guests"),
                     users = ttp.roominfo.userMap,
-                    fans = turntable.user.fanOf;
-
+                    fans = turntable.user.get('fanof');
+                    
                 for (var o = 0, s = ttp.roominfo.djids, q = s.length; o < q; o++) {
                     djs.push(users[s[o]]);
                 }
-
+                                                                                  
                 for (var o = 0, s = ttp.roominfo.listenerids, q = s.length; o < q; o++) {
                     var listenerid = s[o];
                     if (ttp.roominfo.djids.indexOf(listenerid) > -1) {
@@ -937,10 +940,9 @@ var ttp = {
                         listeners.push(users[listenerid]);
                     }
                 }
-
                 mods = supers.sort(this.guestListSort).concat(mods.sort(this.guestListSort));
                 listeners = fanof.sort(this.guestListSort).concat(listeners.sort(this.guestListSort));
-
+                                                                                  
                 var c = $list.find(".guest.selected").data("id");
                 $list.children().remove();
                 var t = [djs, mods, listeners], v = ["DJs", "Moderators", "Audience"];
