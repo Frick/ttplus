@@ -528,7 +528,7 @@ var ttp = {
             ttp.addResizeHandler();
         }
 
-        $chat.scrollTop($chat[0].scrollHeight);
+        //$chat.scrollTop($chat[0].scrollHeight);
     },
     addResizeHandler: function () {
         $(window).resize(function (e) {
@@ -998,7 +998,7 @@ var ttp = {
         };
         ttp.roominfo.updateGuestList();
 
-        ttp.replaced.addUserToMap = ttp.roominfo.addUserToMap;
+        /*ttp.replaced.addUserToMap = ttp.roominfo.addUserToMap;
         ttp.roominfo.addUserToMap = function (user) {
             try {
                 var users        = ttp.roominfo.userMap,
@@ -1026,7 +1026,7 @@ var ttp = {
                 ttp.replaced.addUserToMap.call(ttp.roominfo, user);
             }
         };
-
+*/
         ttp.replaced.setPanelLayout = ttp.roominfo.setPanelLayout;
         ttp.roominfo.setPanelLayout = function (layout) {
             try {
