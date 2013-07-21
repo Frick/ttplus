@@ -206,12 +206,12 @@ var ttp = {
                     if (user) {
                         user.lastActivity = now;
                         user.lastVote = now;
-                        $user = ttp.getListElByName(user.name);
+                        $user = ttp.getListElByName(user.get("name"));
                         if ($user !== null) {
                             $user.data("ttplastactivity", now);
                             $user.data("ttplastvote", now);
                             if (user) {
-                                a = $.inArray(user.userid, ttp.room.downvoters);
+                                a = $.inArray(user.id, ttp.room.downvoters);
                                 if (msg.room.metadata.votelog[x][1] === "up") {
                                     $user.removeClass("downvoted").addClass("upvoted");
                                     if (a > -1) {
@@ -220,7 +220,7 @@ var ttp = {
                                 } else if (msg.room.metadata.votelog[x][1] === "down") {
                                     $user.removeClass("upvoted").addClass("downvoted");
                                     if (a === -1) {
-                                        ttp.room.downvoters.push(user.userid);
+                                        ttp.room.downvoters.push(user.id);
                                     }
                                 }
                             }
@@ -318,16 +318,17 @@ var ttp = {
     },
     addHeader: function () {
         var header = '';
-        if ((ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible') && $('#left-panel .ttpHeader').length > 0) || (ttp.roominfo.layout === 'single' && $('#right-panel .ttpHeader').length > 0)) {
+        /*if ((ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible') && $('#left-panel .ttpHeader').length > 0) || (ttp.roominfo.layout === 'single' && $('#right-panel .ttpHeader').length > 0)) {
             return;
-        }
-        header = '<div class="ttpHeader">' +
-                    '<span style="padding: 0 0 0 5px;">Votes: </span>' +
+        }*/
+        $(".ttpHeader").remove();
+
+        header = '<div class="ttpHeader" >' +
                     '<span id="ttpHearts" title="Number of Times Queued">' + ttp.room.hearts + '</span>' +
                     '<span id="ttpUpvotes" title="Awesomes">' + ttp.room.upvotes + '</span>' +
                     '<span id="ttpDownvotes" title="Lames">' + ttp.room.downvotes + '</span>' +
                 '</div>';
-        if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
+        /*if (ttp.roominfo.layout === 'dual' && $('#left-panel').is(':visible')) {
             $('.selected #chat').attr('style', 'top: 36px !important;');
             $('.ttpHeader').remove();
             $('#left-panel').prepend(header);
@@ -335,7 +336,9 @@ var ttp = {
             $('.selected #chat').attr('style', '');
             $('.ttpHeader').remove();
             $('#right-panel').prepend(header);
-        }
+        }*/
+        $(".header-bar").append(header);
+        $(".ttpHeader").css("display", "inline");
     },
     changeLayout: function (layout) {
         var rightHandle = '.ttpHeader',
@@ -834,12 +837,13 @@ var ttp = {
         ttp.replaced.guestListName = Room.layouts.guestListName;
         Room.layouts.guestListName = function(user, room, selected, now) {
             try {
-                var a = user.images.headfront,
+                var a= user.getAvatarUrl(),
                     guestClass = selected ? ".guest.selected" : ".guest",
                     icons = ['div.icons', {}];
-                if (ttp.roominfo.upvoters.indexOf(user.userid) > -1) {
+                a = a.substr(0,a.lastIndexOf("/"))+"/headfront.png"
+                if (ttp.roominfo.upvoters.indexOf(user.id) > -1) {
                     guestClass += ".upvoted";
-                } else if (ttp.room.downvoters.indexOf(user.userid) > -1) {
+                } else if (ttp.room.downvoters.indexOf(user.id) > -1) {
                     guestClass += ".downvoted";
                 }
                 
@@ -856,17 +860,16 @@ var ttp = {
                 if (user.acl > 0) {
                     icons.push(['div.superuser.icon', {title: 'Superuser'}]);
                 } else {
-                    if (ttp.roominfo.roomData.metadata.moderator_id.indexOf(user.userid) > -1) {
+                    if (ttp.roominfo.roomData.metadata.moderator_id.indexOf(user.id) > -1) {
                         icons.push(['div.mod.icon', {title: 'Moderator'}]);
                     }
                 }
-                if (turntable.user.get('fanof').indexOf(user.userid) > -1) {
+                if (turntable.user.get('fanof').indexOf(user.id) > -1) {
                     icons.push(['div.fanned.icon', {title: 'Fanned'}]);
                 }
-                if (ttp.room.snaggers.indexOf(user.userid) > -1) {
+                if (ttp.room.snaggers.indexOf(user.id) > -1) {
                     icons.push(['div.snagged.icon', {title: 'Queued Current Song'}]);
                 }
-                                                                                  
                 var spec = ["div" + guestClass, {event: {mouseover: function() {
                                 $(this).find("div.guestArrow").show();
                             },mouseout: function() {
@@ -887,14 +890,14 @@ var ttp = {
                                         }, room));
                                     }
                                 }
-                            },dblclick: function() { room.handlePM({ senderid: user.userid }, true); }},
-                            data: {id: user.userid, ttplastactivity: user.lastActivity, ttplastchat: user.lastChat, ttplastvote: user.lastVote}},
+                            },dblclick: function() { room.handlePM({ senderid: user.id }, true); }},
+                            data: {id: user.id, ttplastactivity: user.lastActivity, ttplastchat: user.lastChat, ttplastvote: user.lastVote}},
                             ["div.guest-avatar", {style: {"background-image": "url(" + a + ")"}}],
-                            ["div.guestName", {}, user.name],
+                            ["div.guestName", {},user.get("name") ],
                             icons,
                             ["div.guestArrow"],
                             ["div.idletime", {}, ttp.formatTime(now - user.lastActivity)]];
-                if (room.roomData.metadata.currentDj === user.userid) {
+                if (room.roomData.metadata.currentDj === user.id) {
                     spec.splice(3, 0, ['div.current-dj']);
                 }
                 return spec;
@@ -1003,21 +1006,21 @@ var ttp = {
                     lastActivity = now,
                     lastChat     = now,
                     lastVote     = now;
-                if (users[user.userid]) {
-                    if (users[user.userid].lastActivity) {
-                        lastActivity = users[user.userid].lastActivity;
+                if (users[user.id]) {
+                    if (users[user.id].lastActivity) {
+                        lastActivity = users[user.id].lastActivity;
                     }
-                    if (users[user.userid].lastChat) {
-                        lastChat = users[user.userid].lastChat;
+                    if (users[user.id].lastChat) {
+                        lastChat = users[user.id].lastChat;
                     }
-                    if (users[user.userid].lastVote) {
-                        lastVote = users[user.userid].lastVote;
+                    if (users[user.id].lastVote) {
+                        lastVote = users[user.id].lastVote;
                     }
                 }
                 ttp.replaced.addUserToMap.call(ttp.roominfo, user);
-                users[user.userid].lastActivity = lastActivity;
-                users[user.userid].lastChat = lastChat;
-                users[user.userid].lastVote = lastVote;
+                users[user.id].lastActivity = lastActivity;
+                users[user.id].lastChat = lastChat;
+                users[user.id].lastVote = lastVote;
             } catch (e) {
                 console.warn("Error in addUserToMap:", e);
                 ttp.replaced.addUserToMap.call(ttp.roominfo, user);
