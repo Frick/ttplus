@@ -856,8 +856,9 @@ var ttp = {
                 if (user.lastVote === undefined) {
                     user.lastVote = ttp.startTime;
                 }
-
-                if (user.acl > 0) {
+            
+                if (user.isSuperuser()) {
+                    console.log(user);
                     icons.push(['div.superuser.icon', {title: 'Superuser'}]);
                 } else {
                     if (ttp.roominfo.roomData.metadata.moderator_id.indexOf(user.id) > -1) {
@@ -870,13 +871,16 @@ var ttp = {
                 if (ttp.room.snaggers.indexOf(user.id) > -1) {
                     icons.push(['div.snagged.icon', {title: 'Queued Current Song'}]);
                 }
+              
                 var spec = ["div" + guestClass, {event: {mouseover: function() {
                                 $(this).find("div.guestArrow").show();
                             },mouseout: function() {
                                 $(this).find("div.guestArrow").hide();
                             },click: function() {
                                 var g = $(this).parent().find("div.guestOptionsContainer");
+                                
                                 var h = $(this);
+                            
                                 if (!g.length) {
                                     $.proxy(function() {
                                         this.addGuestListMenu(user, h);
@@ -931,7 +935,7 @@ var ttp = {
                     var listenerid = s[o];
                     if (ttp.roominfo.djids.indexOf(listenerid) > -1) {
                         continue;
-                    } else if (users[listenerid].acl > 0) {
+                    } else if (users[listenerid].isSuperuser()) {
                         supers.push(users[listenerid]);
                     } else if (ttp.roominfo.roomData.metadata !== undefined && ttp.roominfo.roomData.metadata.moderator_id.indexOf(listenerid) > -1) {
                         mods.push(users[listenerid]);
